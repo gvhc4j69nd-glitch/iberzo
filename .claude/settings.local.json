@@ -49,7 +49,9 @@
       "Bash(railway --version)",
       "Bash(git remote *)",
       "Bash(curl -s -X POST -H 'Authorization: token __CMDSUB_OUTPUT__')",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(git pull *)",
+      "Bash(git stash *)"
     ]
   }
 }
