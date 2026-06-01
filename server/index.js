@@ -58,8 +58,34 @@ function authSocket(socket, next) {
 
 io.use(authSocket);
 
+// Track online users: userId -> username
+const onlineUsers = new Map();
+
+// Search users endpoint
+app.get('/api/users/search', async (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) return res.status(401).json({ error: 'Unauthorized' });
+  try {
+    jwt.verify(token, process.env.JWT_SECRET);
+    const q = (req.query.q || '').trim();
+    if (!q) return res.json([]);
+    const { pool } = require('./db/schema');
+    const { rows } = await pool.query(
+      `SELECT username FROM users WHERE username ILIKE $1 LIMIT 20`,
+      [`%${q}%`]
+    );
+    res.json(rows.map(r => ({ username: r.username, online: onlineUsers.has(r.username) })));
+  } catch {
+    res.status(401).json({ error: 'Invalid token' });
+  }
+});
+
 io.on('connection', async socket => {
   const user = socket.user;
+
+  // Track online presence
+  onlineUsers.set(user.username, user.id);
+  io.emit('online_users', Array.from(onlineUsers.keys()));
 
   // Re-join all active rooms on reconnect
   const rooms = await getUserRooms(user.id);
@@ -114,6 +140,11 @@ io.on('connection', async socket => {
     if (result.gameOver) {
       io.to(roomId).emit('game_over', { roomId, players: result.state.players });
     }
+  });
+
+  socket.on('disconnect', () => {
+    onlineUsers.delete(user.username);
+    io.emit('online_users', Array.from(onlineUsers.keys()));
   });
 });
 

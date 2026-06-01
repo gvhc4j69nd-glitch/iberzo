@@ -1,15 +1,20 @@
-import { useState, useEffect } from 'react';
-import { fetchLeaderboard } from '../lib/api';
+import { useState, useEffect, useRef } from 'react';
+import { fetchLeaderboard, searchUsers } from '../lib/api';
 
 export default function LobbyPage({
   socket, username, onLogout,
   onRoomCreated, onRoomUpdate,
   activeRoomId, activeRoomTab, showRoomOnly,
+  token,
 }) {
   const [joinInput, setJoinInput] = useState('');
   const [leaderboard, setLeaderboard] = useState([]);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [onlineUsers, setOnlineUsers] = useState(new Set());
+  const searchTimer = useRef(null);
 
   // Local room state for the active room tab
   const [roomPlayers, setRoomPlayers] = useState(activeRoomTab?.players || [username]);
@@ -25,6 +30,24 @@ export default function LobbyPage({
       setIsHost(activeRoomTab.isHost ?? false);
     }
   }, [activeRoomId]);
+
+  useEffect(() => {
+    socket.on('online_users', users => setOnlineUsers(new Set(users)));
+    return () => socket.off('online_users');
+  }, [socket]);
+
+  useEffect(() => {
+    if (!searchQuery.trim()) { setSearchResults([]); return; }
+    clearTimeout(searchTimer.current);
+    searchTimer.current = setTimeout(() => {
+      searchUsers(token, searchQuery).then(results => {
+        setSearchResults(results.map(r => ({
+          ...r,
+          online: onlineUsers.has(r.username),
+        })));
+      });
+    }, 300);
+  }, [searchQuery, token, onlineUsers]);
 
   useEffect(() => {
     socket.on('room_update', ({ players, hostUsername }) => {
@@ -116,6 +139,30 @@ export default function LobbyPage({
             <button onClick={joinRoom}>Join</button>
           </div>
           {error && <p className="error">{error}</p>}
+        </div>
+
+        <div className="room-panel">
+          <h2>Find Players</h2>
+          <input
+            placeholder="Search by username…"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+          />
+          {searchResults.length > 0 && (
+            <ul className="player-list">
+              {searchResults.map(r => (
+                <li key={r.username} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{
+                    width: 9, height: 9, borderRadius: '50%', flexShrink: 0,
+                    background: r.online ? '#2a9d4e' : '#ccc',
+                    display: 'inline-block',
+                  }} />
+                  {r.username}
+                  {r.username === username ? ' (you)' : ''}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         <div className="leaderboard-panel">

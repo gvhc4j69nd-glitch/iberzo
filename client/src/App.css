@@ -212,7 +212,7 @@ tr.me td { color: var(--accent); font-weight: 600; }
 
 .tile { width: var(--tile); height: var(--tile); border-radius: var(--radius); flex-shrink: 0; }
 .tile.empty { background: #edd8cc; }
-.tile.ghost { opacity: 0.65; }
+.tile.ghost { opacity: 0.80; }
 .tile.filled { opacity: 1; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
 
 .floor-line {

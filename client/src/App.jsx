@@ -178,6 +178,7 @@ export default function App() {
           // Waiting room view — reuse LobbyPage's room panel via prop
           <LobbyPage
             socket={socket}
+            token={token}
             username={username}
             onLogout={handleLogout}
             onRoomCreated={(roomId, isHost, players, hostUsername) => addTab(roomId, isHost, players, hostUsername)}
@@ -190,6 +191,7 @@ export default function App() {
       ) : (
         <LobbyPage
           socket={socket}
+          token={token}
           username={username}
           onLogout={handleLogout}
           onRoomCreated={(roomId, isHost, players, hostUsername) => addTab(roomId, isHost, players, hostUsername)}
