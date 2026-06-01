@@ -135,14 +135,16 @@ app.get('{*path}', (req, res) => {
   }
 });
 
-async function start() {
-  await init();
-  await restoreRooms();
-  server.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+server.listen(PORT, async () => {
+  console.log(`Server running on port ${PORT}`);
+  try {
+    await init();
+    await restoreRooms();
     runStaleCleanup();
     setInterval(runStaleCleanup, 60 * 60 * 1000);
-  });
-}
-
-start().catch(err => { console.error('Startup failed:', err); process.exit(1); });
+    console.log('DB ready');
+  } catch (err) {
+    console.error('DB init failed:', err);
+    process.exit(1);
+  }
+});
