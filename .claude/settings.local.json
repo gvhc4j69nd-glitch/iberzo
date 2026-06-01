@@ -51,7 +51,8 @@
       "Bash(curl -s -X POST -H 'Authorization: token __CMDSUB_OUTPUT__')",
       "Bash(git push *)",
       "Bash(git pull *)",
-      "Bash(git stash *)"
+      "Bash(git stash *)",
+      "Bash(npm run *)"
     ]
   }
 }

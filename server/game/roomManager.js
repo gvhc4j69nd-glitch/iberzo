@@ -115,6 +115,12 @@ async function handleMove(roomId, userId, move) {
   return { state: finalState, gameOver: isOver };
 }
 
+function kFactor(gamesPlayed) {
+  if (gamesPlayed < 10) return 40;
+  if (gamesPlayed <= 30) return 24;
+  return 16;
+}
+
 async function finishGame(room) {
   const { state, gameId } = room;
   const sorted = [...state.players].sort((a, b) => b.score - a.score);
@@ -123,21 +129,57 @@ async function finishGame(room) {
     ['finished', JSON.stringify(state), gameId]);
   await pool.query('UPDATE rooms SET status = $1 WHERE id = $2', ['waiting', room.id]);
 
+  // Fetch current Elo ratings for all players
+  const userIds = sorted.map(p => p.userId);
+  const { rows: lbRows } = await pool.query(
+    `SELECT user_id, elo_rating, games_played FROM leaderboard WHERE user_id = ANY($1)`,
+    [userIds]
+  );
+  const lbMap = {};
+  lbRows.forEach(r => { lbMap[r.user_id] = { elo: r.elo_rating, gamesPlayed: parseInt(r.games_played) }; });
+  // Default for new players
+  sorted.forEach(p => {
+    if (!lbMap[p.userId]) lbMap[p.userId] = { elo: 1200, gamesPlayed: 0 };
+  });
+
+  // Compute Elo deltas via pairwise comparison
+  const eloDeltas = {};
+  sorted.forEach(p => { eloDeltas[p.userId] = 0; });
+
+  for (let i = 0; i < sorted.length; i++) {
+    for (let j = i + 1; j < sorted.length; j++) {
+      const winner = sorted[i]; // higher rank (lower index) = winner
+      const loser = sorted[j];
+      const Ra = lbMap[winner.userId].elo;
+      const Rb = lbMap[loser.userId].elo;
+      const Ea = 1 / (1 + Math.pow(10, (Rb - Ra) / 400));
+      const Eb = 1 - Ea;
+      const Ka = kFactor(lbMap[winner.userId].gamesPlayed);
+      const Kb = kFactor(lbMap[loser.userId].gamesPlayed);
+      eloDeltas[winner.userId] += Ka * (1 - Ea);
+      eloDeltas[loser.userId] += Kb * (0 - Eb);
+    }
+  }
+
   for (let rank = 0; rank < sorted.length; rank++) {
     const player = sorted[rank];
     await pool.query('UPDATE game_players SET score = $1, rank = $2 WHERE game_id = $3 AND user_id = $4',
       [player.score, rank + 1, gameId, player.userId]);
 
     const isWin = rank === 0 ? 1 : 0;
+    const currentElo = lbMap[player.userId].elo;
+    const newElo = Math.max(100, Math.round(currentElo + eloDeltas[player.userId]));
+
     await pool.query(`
-      INSERT INTO leaderboard (user_id, wins, losses, total_score, games_played)
-      VALUES ($1, $2, $3, $4, 1)
+      INSERT INTO leaderboard (user_id, wins, losses, total_score, games_played, elo_rating)
+      VALUES ($1, $2, $3, $4, 1, $5)
       ON CONFLICT (user_id) DO UPDATE SET
         wins = leaderboard.wins + $2,
         losses = leaderboard.losses + $3,
         total_score = leaderboard.total_score + $4,
-        games_played = leaderboard.games_played + 1
-    `, [player.userId, isWin, 1 - isWin, player.score]);
+        games_played = leaderboard.games_played + 1,
+        elo_rating = $5
+    `, [player.userId, isWin, 1 - isWin, player.score, newElo]);
   }
 
   room.state = null;

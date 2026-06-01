@@ -56,9 +56,12 @@ async function init() {
       wins INTEGER DEFAULT 0,
       losses INTEGER DEFAULT 0,
       total_score INTEGER DEFAULT 0,
-      games_played INTEGER DEFAULT 0
+      games_played INTEGER DEFAULT 0,
+      elo_rating INTEGER DEFAULT 1200
     )
   `);
+  // Migration: add elo_rating to existing tables
+  await pool.query(`ALTER TABLE leaderboard ADD COLUMN IF NOT EXISTS elo_rating INTEGER DEFAULT 1200`);
 }
 
 module.exports = { pool, init };

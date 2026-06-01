@@ -182,7 +182,7 @@ export default function LobbyPage({
           <h2>Leaderboard</h2>
           <p className="hint" style={{ marginBottom: 8 }}>{onlineUsers.size} player{onlineUsers.size !== 1 ? 's' : ''} online</p>
           <table>
-            <thead><tr><th>#</th><th>Player</th><th>W</th><th>L</th><th>Score</th><th></th></tr></thead>
+            <thead><tr><th>#</th><th>Player</th><th>W</th><th>L</th><th>Score</th><th>Rating</th><th></th></tr></thead>
             <tbody>
               {leaderboard.map((row, i) => {
                 const isOnline = onlineUsers.has(row.username);
@@ -203,6 +203,7 @@ export default function LobbyPage({
                     <td>{row.wins}</td>
                     <td>{row.losses}</td>
                     <td>{row.total_score}</td>
+                    <td>{row.elo_rating ?? 1200}</td>
                     <td>
                       {isOnline && !isMe && (
                         <button
@@ -215,7 +216,7 @@ export default function LobbyPage({
                 );
               })}
               {leaderboard.length === 0 && (
-                <tr><td colSpan={6} style={{ textAlign: 'center', opacity: 0.5 }}>No games yet</td></tr>
+                <tr><td colSpan={7} style={{ textAlign: 'center', opacity: 0.5 }}>No games yet</td></tr>
               )}
             </tbody>
           </table>
