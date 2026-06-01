@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NNDSS Disease Hotspot Map</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #080e1a;
+      --surface: #0f1a2e;
+      --surface2: #162035;
+      --border: #1e3050;
+      --border2: #243658;
+      --text: #e2eaf8;
+      --text-muted: #6b82a8;
+      --text-dim: #3d5478;
+      --accent: #3b78e0;
+      --accent-glow: rgba(59,120,224,0.25);
+      --red: #ef4444;
+      --yellow: #f59e0b;
+      --blue: #3b82f6;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    /* ── Header ─────────────────────────────── */
+    header {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 0 24px;
+      height: 58px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      z-index: 10;
+    }
+
+    .header-icon {
+      width: 34px; height: 34px;
+      background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px;
+      box-shadow: 0 0 12px rgba(59,120,224,0.4);
+    }
+
+    header h1 {
+      font-size: 17px;
+      font-weight: 700;
+      color: #f0f6ff;
+      letter-spacing: -0.01em;
+    }
+
+    header .subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 1px;
+    }
+
+    .source-badge {
+      margin-left: auto;
+      font-size: 11px;
+      color: var(--text-muted);
+      padding: 4px 10px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+    }
+
+    /* ── Main layout ─────────────────────────── */
+    .layout {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* ── Sidebar ─────────────────────────────── */
+    .sidebar {
+      flex-shrink: 0;
+      width: 270px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .sidebar-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 18px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+    .sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
+    .sidebar-scroll::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .control-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+
+    select {
+      width: 100%;
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 32px 9px 12px;
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236b82a8'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    select:hover { border-color: var(--border2); }
+    select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+
+    /* ── Summary stats card ──────────────────── */
+    .stats-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      display: none;
+    }
+
+    .stats-card.visible { display: block; }
+
+    .card-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 12px;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px 0;
+      font-size: 13px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .stat-row:last-child { border-bottom: none; }
+
+    .stat-key { color: var(--text-muted); }
+    .stat-val { font-weight: 700; color: var(--text); }
+    .stat-val.hi { color: #f87171; }
+    .stat-val.lo { color: #60a5fa; }
+
+    /* ── Hotspot list ────────────────────────── */
+    .hotspot-section { display: none; }
+    .hotspot-section.visible { display: flex; flex-direction: column; gap: 8px; }
+
+    .hotspot-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      transition: border-color 0.15s;
+    }
+
+    .hotspot-item:hover { border-color: var(--border2); }
+
+    .rank {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-dim);
+      width: 16px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .dot {
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .hs-name { flex: 1; color: #c8d6f0; }
+    .hs-count { font-weight: 700; color: var(--text); }
+
+    /* ── Map area ────────────────────────────── */
+    .map-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    #map-container {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #map { width: 100%; height: 100%; display: block; }
+
+    .state {
+      stroke: #1a2f50;
+      stroke-width: 0.6;
+      cursor: pointer;
+      transition: filter 0.12s;
+    }
+
+    .state:hover { filter: brightness(1.3); stroke: #a8c0e8; stroke-width: 1.2; }
+    .state.no-data { fill: #182640; }
+
+    /* ── Tooltip ─────────────────────────────── */
+    #tooltip {
+      position: absolute;
+      pointer-events: none;
+      background: rgba(8, 14, 26, 0.96);
+      border: 1px solid var(--border2);
+      border-radius: 9px;
+      padding: 10px 14px;
+      font-size: 13px;
+      min-width: 160px;
+      opacity: 0;
+      transition: opacity 0.1s;
+      z-index: 200;
+      backdrop-filter: blur(6px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    }
+
+    #tooltip.show { opacity: 1; }
+
+    .tt-state {
+      font-weight: 700;
+      font-size: 14px;
+      color: #e8f0ff;
+      margin-bottom: 5px;
+    }
+
+    .tt-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--text-muted);
+      padding: 2px 0;
+    }
+
+    .tt-row span { font-weight: 600; color: var(--text); }
+
+    .tt-bar-wrap {
+      margin-top: 8px;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .tt-bar {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.3s;
+    }
+
+    /* ── Legend ──────────────────────────────── */
+    #legend {
+      flex-shrink: 0;
+      display: none;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 24px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+    }
+
+    #legend.visible { display: flex; }
+
+    .legend-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    #legend-canvas {
+      flex: 1;
+      max-width: 320px;
+      height: 12px;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .legend-ticks {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--text-dim);
+      width: 100%;
+      max-width: 320px;
+    }
+
+    .legend-meta {
+      margin-left: auto;
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .legend-meta-item { display: flex; align-items: center; gap: 6px; }
+
+    .legend-swatch {
+      width: 10px; height: 10px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    /* ── Loading overlay ─────────────────────── */
+    #loading {
+      position: absolute;
+      inset: 0;
+      background: rgba(8, 14, 26, 0.7);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      z-index: 100;
+      backdrop-filter: blur(2px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+
+    #loading.show { opacity: 1; pointer-events: all; }
+
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid var(--border2);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    .loading-text { font-size: 13px; color: var(--text-muted); }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Empty state ─────────────────────────── */
+    #empty {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      color: var(--text-dim);
+      pointer-events: none;
+    }
+
+    #empty.hidden { display: none; }
+
+    .empty-icon { font-size: 52px; opacity: 0.4; }
+
+    .empty-text { font-size: 14px; color: var(--text-muted); }
+    .empty-sub  { font-size: 12px; color: var(--text-dim); }
+
+    /* ── Error banner ────────────────────────── */
+    #error-banner {
+      position: absolute;
+      top: 16px; left: 50%;
+      transform: translateX(-50%);
+      background: #2d1515;
+      border: 1px solid #7f1d1d;
+      color: #fca5a5;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      z-index: 300;
+      display: none;
+      max-width: 420px;
+      text-align: center;
+    }
+
+    #error-banner.show { display: block; }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <header>
+    <div class="header-icon">🦠</div>
+    <div>
+      <h1>NNDSS Disease Hotspot Map</h1>
+      <div class="subtitle">National Notifiable Diseases Surveillance System</div>
+    </div>
+    <div class="source-badge">CDC · data.cdc.gov</div>
+  </header>
+
+  <div class="layout">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-scroll">
+
+        <div class="control-group">
+          <div class="control-label">Disease</div>
+          <select id="disease-select">
+            <option value="">Loading diseases…</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <div class="control-label">Year</div>
+          <select id="year-select">
+            <option value="2024">2024</option>
+            <option value="2023">2023</option>
+            <option value="2022" selected>2022</option>
+            <option value="2021">2021</option>
+            <option value="2020">2020</option>
+            <option value="2019">2019</option>
+            <option value="2018">2018</option>
+            <option value="2017">2017</option>
+          </select>
+        </div>
+
+        <!-- Summary stats -->
+        <div class="stats-card" id="stats-card">
+          <div class="card-title">Overview</div>
+          <div class="stat-row">
+            <span class="stat-key">Total cases</span>
+            <span class="stat-val" id="st-total">—</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-key">States reporting</span>
+            <span class="stat-val" id="st-states">—</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-key">Highest state</span>
+            <span class="stat-val hi" id="st-hi">—</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-key">Lowest (non-zero)</span>
+            <span class="stat-val lo" id="st-lo">—</span>
+          </div>
+        </div>
+
+        <!-- Top hotspots -->
+        <div class="hotspot-section" id="hotspot-section">
+          <div class="control-label">Top Hotspots</div>
+          <div id="hotspot-list"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Map area -->
+    <div class="map-area">
+      <div id="map-container">
+        <svg id="map"></svg>
+
+        <div id="tooltip">
+          <div class="tt-state" id="tt-name"></div>
+          <div class="tt-row">Cases <span id="tt-cases"></span></div>
+          <div class="tt-row">% of total <span id="tt-pct"></span></div>
+          <div class="tt-bar-wrap">
+            <div class="tt-bar" id="tt-bar"></div>
+          </div>
+        </div>
+
+        <div id="loading">
+          <div class="spinner"></div>
+          <div class="loading-text">Fetching data…</div>
+        </div>
+
+        <div id="empty">
+          <div class="empty-icon">🗺️</div>
+          <div class="empty-text">Select a disease to view the hotspot map</div>
+          <div class="empty-sub">Data sourced from CDC NNDSS via data.cdc.gov</div>
+        </div>
+
+        <div id="error-banner"></div>
+      </div>
+
+      <!-- Legend -->
+      <div id="legend">
+        <span class="legend-label">0</span>
+        <div style="display:flex;flex-direction:column;gap:4px;flex:1;max-width:320px;">
+          <canvas id="legend-canvas" height="12"></canvas>
+          <div class="legend-ticks" id="legend-ticks"></div>
+        </div>
+        <span class="legend-label" id="legend-max-label">Max</span>
+        <div class="legend-meta">
+          <div class="legend-meta-item">
+            <div class="legend-swatch" style="background:#334155;"></div>
+            <span>No data</span>
+          </div>
+          <div class="legend-meta-item">
+            <div class="legend-swatch" style="background:#3b82f6;"></div>
+            <span>Fewer cases</span>
+          </div>
+          <div class="legend-meta-item">
+            <div class="legend-swatch" style="background:#ef4444;"></div>
+            <span>More cases</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /map-area -->
+  </div><!-- /layout -->
+</div><!-- /app -->
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   NNDSS DISEASE HOTSPOT MAP
+   Data: CDC National Notifiable Diseases Surveillance System
+   API:  https://data.cdc.gov/resource/x9gk-5huc.json
+═══════════════════════════════════════════════════════════════ */
+
+const API = 'https://data.cdc.gov/resource/x9gk-5huc.json';
+
+// NNDSS uppercase state name → FIPS code
+const FIPS_BY_NAME = {
+  'ALABAMA':'01','ALASKA':'02','ARIZONA':'04','ARKANSAS':'05',
+  'CALIFORNIA':'06','COLORADO':'08','CONNECTICUT':'09','DELAWARE':'10',
+  'DIST. OF COL.':'11','DISTRICT OF COLUMBIA':'11','FLORIDA':'12',
+  'GEORGIA':'13','HAWAII':'15','IDAHO':'16','ILLINOIS':'17',
+  'INDIANA':'18','IOWA':'19','KANSAS':'20','KENTUCKY':'21',
+  'LOUISIANA':'22','MAINE':'23','MARYLAND':'24','MASSACHUSETTS':'25',
+  'MICHIGAN':'26','MINNESOTA':'27','MISSISSIPPI':'28','MISSOURI':'29',
+  'MONTANA':'30','NEBRASKA':'31','NEVADA':'32','NEW HAMPSHIRE':'33',
+  'NEW JERSEY':'34','NEW MEXICO':'35','NEW YORK':'36','NEW YORK CITY':'36',
+  'NORTH CAROLINA':'37','NORTH DAKOTA':'38','OHIO':'39','OKLAHOMA':'40',
+  'OREGON':'41','PENNSYLVANIA':'42','RHODE ISLAND':'44','SOUTH CAROLINA':'45',
+  'SOUTH DAKOTA':'46','TENNESSEE':'47','TEXAS':'48','UTAH':'49',
+  'VERMONT':'50','VIRGINIA':'51','WASHINGTON':'53','WEST VIRGINIA':'54',
+  'WISCONSIN':'55','WYOMING':'56'
+};
+
+// FIPS code → display name
+const NAME_BY_FIPS = {
+  '01':'Alabama','02':'Alaska','04':'Arizona','05':'Arkansas',
+  '06':'California','08':'Colorado','09':'Connecticut','10':'Delaware',
+  '11':'D.C.','12':'Florida','13':'Georgia','15':'Hawaii',
+  '16':'Idaho','17':'Illinois','18':'Indiana','19':'Iowa',
+  '20':'Kansas','21':'Kentucky','22':'Louisiana','23':'Maine',
+  '24':'Maryland','25':'Massachusetts','26':'Michigan','27':'Minnesota',
+  '28':'Mississippi','29':'Missouri','30':'Montana','31':'Nebraska',
+  '32':'Nevada','33':'New Hampshire','34':'New Jersey','35':'New Mexico',
+  '36':'New York','37':'North Carolina','38':'North Dakota','39':'Ohio',
+  '40':'Oklahoma','41':'Oregon','42':'Pennsylvania','44':'Rhode Island',
+  '45':'South Carolina','46':'South Dakota','47':'Tennessee','48':'Texas',
+  '49':'Utah','50':'Vermont','51':'Virginia','53':'Washington',
+  '54':'West Virginia','55':'Wisconsin','56':'Wyoming'
+};
+
+/* ── State ─────────────────────────────────── */
+let usGeo = null;
+let casesMap = {};   // fips → count
+let maxCases = 0;
+let totalCases = 0;
+
+/* ── Color scale ───────────────────────────── */
+// Red (high) → Yellow → Blue (low)
+function caseColor(cases) {
+  if (cases === undefined || cases === null) return '#1a2c48';
+  if (maxCases === 0) return '#1e3a5f';
+  // Square-root normalisation for better visual spread
+  const t = Math.sqrt(cases / maxCases);
+  // interpolateRdYlBu(1-t): t=1 → index 0 = red; t=0 → index 1 = blue
+  return d3.interpolateRdYlBu(1 - t);
+}
+
+/* ── Fetch helpers ─────────────────────────── */
+async function apiFetch(params) {
+  const qs = Object.entries(params)
+    .map(([k, v]) => `${k}=${encodeURIComponent(v)}`)
+    .join('&');
+  const res = await fetch(`${API}?${qs}`);
+  if (!res.ok) throw new Error(`API ${res.status}`);
+  return res.json();
+}
+
+/* ── Load disease list ─────────────────────── */
+async function loadDiseases() {
+  try {
+    const data = await apiFetch({
+      '$select': 'label',
+      '$group':  'label',
+      '$order':  'label',
+      '$limit':  '500'
+    });
+    const sel = document.getElementById('disease-select');
+    sel.innerHTML = '<option value="">— Select a disease —</option>';
+    data.forEach(d => {
+      const o = document.createElement('option');
+      o.value = d.label;
+      o.textContent = d.label;
+      sel.appendChild(o);
+    });
+  } catch (e) {
+    console.error('Failed to load disease list', e);
+    showError('Could not load disease list from CDC API. Check your connection.');
+  }
+}
+
+/* ── Fetch case data for selected disease/year ─ */
+async function loadCases(disease, year) {
+  setLoading(true);
+  hideError();
+  document.getElementById('empty').classList.add('hidden');
+
+  try {
+    const escaped = disease.replace(/'/g, "''");
+    const where   = `label='${escaped}' AND year='${year}'`;
+
+    // Primary: cumulative YTD (m2) per state
+    const rows = await apiFetch({
+      '$where':  where,
+      '$select': 'states, max(m2) as ytd',
+      '$group':  'states',
+      '$limit':  '200'
+    });
+
+    // Aggregate into fips → cases (merge NYC into NY)
+    const raw = {};
+    rows.forEach(r => {
+      const fips = FIPS_BY_NAME[(r.states || '').trim().toUpperCase()];
+      if (!fips) return;
+      const v = parseFloat(r.ytd) || 0;
+      raw[fips] = (raw[fips] || 0) + v;
+    });
+
+    // If no m2 data, fall back to summing m1 (current-week counts)
+    const hasYtd = Object.values(raw).some(v => v > 0);
+    if (!hasYtd) {
+      const rows2 = await apiFetch({
+        '$where':  where,
+        '$select': 'states, sum(m1) as wksum',
+        '$group':  'states',
+        '$limit':  '200'
+      });
+      rows2.forEach(r => {
+        const fips = FIPS_BY_NAME[(r.states || '').trim().toUpperCase()];
+        if (!fips) return;
+        const v = parseFloat(r.wksum) || 0;
+        raw[fips] = (raw[fips] || 0) + v;
+      });
+    }
+
+    casesMap  = raw;
+    maxCases  = d3.max(Object.values(raw)) || 0;
+    totalCases = d3.sum(Object.values(raw));
+
+    paintMap();
+    updateSidebar();
+    drawLegend();
+
+  } catch (e) {
+    console.error('Failed to load cases', e);
+    showError(`Failed to load data: ${e.message}`);
+  } finally {
+    setLoading(false);
+  }
+}
+
+/* ── Render base map ───────────────────────── */
+function renderMap() {
+  const container = document.getElementById('map-container');
+  const W = container.clientWidth;
+  const H = container.clientHeight;
+
+  const svg = d3.select('#map')
+    .attr('width', W)
+    .attr('height', H);
+
+  svg.selectAll('*').remove();
+
+  const proj = d3.geoAlbersUsa().fitSize([W, H - 20], usGeo);
+  const pathFn = d3.geoPath().projection(proj);
+
+  svg.append('g')
+    .attr('class', 'states-group')
+    .selectAll('path')
+    .data(usGeo.features)
+    .join('path')
+      .attr('class', 'state no-data')
+      .attr('d', pathFn)
+      .attr('data-fips', d => String(d.id).padStart(2, '0'))
+      .on('mouseover', onHover)
+      .on('mousemove', onMove)
+      .on('mouseout',  onOut);
+}
+
+/* ── Recolor states after data loads ──────── */
+function paintMap() {
+  d3.selectAll('.state')
+    .each(function(d) {
+      const fips   = String(d.id).padStart(2, '0');
+      const cases  = casesMap[fips];
+      const noData = cases === undefined;
+      d3.select(this)
+        .classed('no-data', noData)
+        .attr('fill', noData ? '#1a2c48' : caseColor(cases));
+    });
+}
+
+/* ── Tooltip handlers ──────────────────────── */
+function onHover(event, d) {
+  const fips  = String(d.id).padStart(2, '0');
+  const name  = NAME_BY_FIPS[fips] || 'Unknown';
+  const cases = casesMap[fips];
+
+  document.getElementById('tt-name').textContent  = name;
+  document.getElementById('tt-cases').textContent =
+    cases !== undefined ? cases.toLocaleString() : 'No data';
+  document.getElementById('tt-pct').textContent =
+    (cases !== undefined && totalCases > 0)
+      ? ((cases / totalCases) * 100).toFixed(1) + '%'
+      : '—';
+
+  const pct = (cases !== undefined && maxCases > 0)
+    ? (Math.sqrt(cases / maxCases) * 100).toFixed(1) + '%' : '0%';
+  const bar = document.getElementById('tt-bar');
+  bar.style.width   = pct;
+  bar.style.background = cases !== undefined ? caseColor(cases) : '#334155';
+
+  document.getElementById('tooltip').classList.add('show');
+}
+
+function onMove(event) {
+  const tt    = document.getElementById('tooltip');
+  const wrap  = document.getElementById('map-container');
+  const rect  = wrap.getBoundingClientRect();
+  let x = event.clientX - rect.left + 14;
+  let y = event.clientY - rect.top  - 14;
+  if (x + 180 > rect.width)  x = event.clientX - rect.left - 180;
+  if (y + 100 > rect.height) y = event.clientY - rect.top  - 100;
+  tt.style.left = x + 'px';
+  tt.style.top  = y + 'px';
+}
+
+function onOut() {
+  document.getElementById('tooltip').classList.remove('show');
+}
+
+/* ── Sidebar stats + hotspot list ─────────── */
+function updateSidebar() {
+  const entries = Object.entries(casesMap)
+    .map(([fips, cases]) => ({ fips, cases, name: NAME_BY_FIPS[fips] || fips }))
+    .sort((a, b) => b.cases - a.cases);
+
+  const reporting = entries.filter(e => e.cases > 0);
+  const hi = reporting[0];
+  const lo = reporting[reporting.length - 1];
+
+  document.getElementById('st-total').textContent  = totalCases.toLocaleString();
+  document.getElementById('st-states').textContent = reporting.length + ' / ' + Object.keys(NAME_BY_FIPS).length;
+  document.getElementById('st-hi').textContent     = hi ? `${hi.name} (${hi.cases.toLocaleString()})` : '—';
+  document.getElementById('st-lo').textContent     = lo ? `${lo.name} (${lo.cases.toLocaleString()})` : '—';
+  document.getElementById('stats-card').classList.add('visible');
+
+  // Top 7 hotspots
+  const top = reporting.slice(0, 7);
+  const listEl = document.getElementById('hotspot-list');
+  listEl.innerHTML = top.map((e, i) => `
+    <div class="hotspot-item">
+      <span class="rank">${i + 1}</span>
+      <div class="dot" style="background:${caseColor(e.cases)}"></div>
+      <span class="hs-name">${e.name}</span>
+      <span class="hs-count">${e.cases.toLocaleString()}</span>
+    </div>`).join('');
+
+  const section = document.getElementById('hotspot-section');
+  section.classList.toggle('visible', top.length > 0);
+}
+
+/* ── Color legend (canvas) ─────────────────── */
+function drawLegend() {
+  const legend = document.getElementById('legend');
+  legend.classList.add('visible');
+
+  const canvas = document.getElementById('legend-canvas');
+  const ctx    = canvas.getContext('2d');
+  const W      = canvas.offsetWidth || 320;
+  canvas.width = W;
+
+  const grad = ctx.createLinearGradient(0, 0, W, 0);
+  for (let i = 0; i <= 20; i++) {
+    const t = i / 20;
+    grad.addColorStop(t, d3.interpolateRdYlBu(1 - t));
+  }
+  ctx.clearRect(0, 0, W, canvas.height);
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, canvas.height);
+
+  // Tick labels
+  document.getElementById('legend-max-label').textContent =
+    maxCases.toLocaleString();
+
+  const ticks = [0, 0.25, 0.5, 0.75, 1];
+  document.getElementById('legend-ticks').innerHTML =
+    ticks.map(t => {
+      const v = Math.round(maxCases * t * t); // inverse sqrt
+      return `<span>${v.toLocaleString()}</span>`;
+    }).join('');
+}
+
+/* ── UI helpers ────────────────────────────── */
+function setLoading(show) {
+  document.getElementById('loading').classList.toggle('show', show);
+}
+
+function showError(msg) {
+  const el = document.getElementById('error-banner');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 6000);
+}
+
+function hideError() {
+  document.getElementById('error-banner').classList.remove('show');
+}
+
+/* ── Event listeners ───────────────────────── */
+document.getElementById('disease-select').addEventListener('change', function () {
+  const disease = this.value;
+  const year    = document.getElementById('year-select').value;
+  if (disease) loadCases(disease, year);
+  else { document.getElementById('empty').classList.remove('hidden'); }
+});
+
+document.getElementById('year-select').addEventListener('change', function () {
+  const disease = document.getElementById('disease-select').value;
+  const year    = this.value;
+  if (disease) loadCases(disease, year);
+});
+
+window.addEventListener('resize', () => {
+  if (usGeo) {
+    requestAnimationFrame(() => {
+      renderMap();
+      if (Object.keys(casesMap).length) paintMap();
+    });
+  }
+});
+
+/* ── Bootstrap ─────────────────────────────── */
+async function init() {
+  const [us] = await Promise.all([
+    d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json'),
+    loadDiseases()
+  ]);
+  usGeo = topojson.feature(us, us.objects.states);
+  renderMap();
+}
+
+init();
+</script>
+</body>
+</html>
