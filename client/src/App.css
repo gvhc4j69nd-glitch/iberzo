@@ -118,7 +118,7 @@ code { background: var(--bg); border: 1.5px solid var(--border); padding: 4px 10
 .close-room-btn { background: #fee2e2; color: #d93025; font-weight: 600; padding: 10px 16px; font-size: 14px; width: 100%; margin-top: 4px; }
 
 /* ── Leaderboard ──────────────────────────────── */
-.leaderboard-panel { background: var(--card); border-radius: 16px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+.leaderboard-panel { background: var(--card); border-radius: 16px; padding: 20px 28px 20px 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
 .leaderboard-panel h2 { font-size: 17px; color: var(--text); font-weight: 700; margin-bottom: 14px; }
 table { width: 100%; border-collapse: collapse; font-size: 14px; }
 th { text-align: left; padding: 6px 10px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); border-bottom: 1.5px solid var(--border); }
