@@ -145,6 +145,10 @@ io.on('connection', async socket => {
     }
   });
 
+  socket.on('request_online_users', () => {
+    socket.emit('online_users', Array.from(onlineUsers.keys()));
+  });
+
   socket.on('send_invite', ({ toUsername }) => {
     const targetSocket = userSockets.get(toUsername);
     if (!targetSocket) return socket.emit('game_error', 'Player is no longer online');

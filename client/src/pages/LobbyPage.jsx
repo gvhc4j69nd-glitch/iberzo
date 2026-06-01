@@ -35,6 +35,7 @@ export default function LobbyPage({
   }, [activeRoomId]);
 
   useEffect(() => {
+    socket.emit('request_online_users');
     socket.on('online_users', users => setOnlineUsers(new Set(users)));
     return () => socket.off('online_users');
   }, [socket]);
@@ -153,17 +154,26 @@ export default function LobbyPage({
           />
           {searchResults.length > 0 && (
             <ul className="player-list">
-              {searchResults.map(r => (
-                <li key={r.username} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{
-                    width: 9, height: 9, borderRadius: '50%', flexShrink: 0,
-                    background: r.online ? '#2a9d4e' : '#ccc',
-                    display: 'inline-block',
-                  }} />
-                  {r.username}
-                  {r.username === username ? ' (you)' : ''}
-                </li>
-              ))}
+              {searchResults.map(r => {
+                const isOnline = onlineUsers.has(r.username);
+                const isMe = r.username === username;
+                return (
+                  <li key={r.username} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{
+                      width: 9, height: 9, borderRadius: '50%', flexShrink: 0,
+                      background: isOnline ? '#2a9d4e' : '#ccc',
+                      display: 'inline-block',
+                    }} />
+                    <span style={{ flex: 1 }}>{r.username}{isMe ? ' (you)' : ''}</span>
+                    {isOnline && !isMe && (
+                      <button
+                        onClick={() => sendInvite(r.username)}
+                        style={{ background: '#2a9d4e', color: 'white', padding: '4px 10px', fontSize: 12, fontWeight: 600, borderRadius: 6 }}
+                      >Play</button>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>
