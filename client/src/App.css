@@ -101,7 +101,8 @@ input:focus { outline: none; border-color: var(--accent); }
 .logout-btn { background: var(--bg); border: 1.5px solid var(--border); color: var(--text-muted); padding: 8px 14px; font-size: 13px; }
 .lobby-content { display: flex; flex-direction: column; gap: 16px; }
 @media (min-width: 700px) {
-  .lobby-content { display: grid; grid-template-columns: 300px 1fr; gap: 20px; }
+  .lobby-content { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .lobby-content .leaderboard-panel { grid-column: 2; grid-row: 1 / span 2; }
 }
 .room-panel { background: var(--card); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
 .room-panel h2 { font-size: 17px; color: var(--text); font-weight: 700; }
