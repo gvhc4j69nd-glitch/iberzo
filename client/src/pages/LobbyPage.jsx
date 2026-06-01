@@ -180,6 +180,7 @@ export default function LobbyPage({
 
         <div className="leaderboard-panel">
           <h2>Leaderboard</h2>
+          <p className="hint" style={{ marginBottom: 8 }}>{onlineUsers.size} player{onlineUsers.size !== 1 ? 's' : ''} online</p>
           <table>
             <thead><tr><th>#</th><th>Player</th><th>W</th><th>L</th><th>Score</th><th></th></tr></thead>
             <tbody>
