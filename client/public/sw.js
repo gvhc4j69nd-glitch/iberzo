@@ -1,4 +1,4 @@
-const CACHE = 'iberzo-v1';
+const CACHE = 'iberzo-v2';
 const OFFLINE_ASSETS = ['/', '/iberzo-logo.png'];
 
 self.addEventListener('install', e => {
