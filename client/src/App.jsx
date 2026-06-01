@@ -15,6 +15,7 @@ export default function App() {
   const [tabs, setTabs] = useState({}); // { [roomId]: tab }
   const [currentTab, setCurrentTab] = useState(null); // roomId or 'lobby'
   const [unread, setUnread] = useState(new Set());
+  const [incomingInvite, setIncomingInvite] = useState(null); // { fromUsername }
 
   // Restore tabs from server on login
   useEffect(() => {
@@ -72,6 +73,16 @@ export default function App() {
     };
     const onGameOver = () => {};
     const onGameAbandoned = () => {};
+    const onInviteReceived = ({ fromUsername }) => setIncomingInvite({ fromUsername });
+    const onInviteAccepted = ({ roomId, players, hostUsername }) => {
+      const isHost = hostUsername === username;
+      setTabs(t => ({ ...t, [roomId]: { roomId, status: 'waiting', state: null, players, hostUsername, isHost } }));
+      setCurrentTab(roomId);
+      setIncomingInvite(null);
+    };
+    const onInviteRejected = ({ byUsername }) => {
+      alert(`${byUsername} declined your invite.`);
+    };
 
     s.on('connect', onConnect);
     s.on('game_started', onGameStarted);
@@ -79,6 +90,9 @@ export default function App() {
     s.on('room_update', onRoomUpdate);
     s.on('game_over', onGameOver);
     s.on('game_abandoned', onGameAbandoned);
+    s.on('invite_received', onInviteReceived);
+    s.on('invite_accepted', onInviteAccepted);
+    s.on('invite_rejected', onInviteRejected);
 
     return () => {
       s.off('connect', onConnect);
@@ -87,6 +101,9 @@ export default function App() {
       s.off('room_update', onRoomUpdate);
       s.off('game_over', onGameOver);
       s.off('game_abandoned', onGameAbandoned);
+      s.off('invite_received', onInviteReceived);
+      s.off('invite_accepted', onInviteAccepted);
+      s.off('invite_rejected', onInviteRejected);
     };
   }, [token, username]);
 
@@ -134,8 +151,30 @@ export default function App() {
   const activeTab = currentTab && tabs[currentTab] ? tabs[currentTab] : null;
   const showGame = activeTab?.status === 'active' && activeTab?.state;
 
+  function acceptInvite() {
+    if (!incomingInvite) return;
+    socket.emit('accept_invite', { fromUsername: incomingInvite.fromUsername });
+  }
+
+  function rejectInvite() {
+    if (!incomingInvite) return;
+    socket.emit('reject_invite', { fromUsername: incomingInvite.fromUsername });
+    setIncomingInvite(null);
+  }
+
   return (
     <div className="app-shell">
+      {incomingInvite && (
+        <div className="invite-overlay">
+          <div className="invite-card">
+            <p><strong>{incomingInvite.fromUsername}</strong> wants to play a game!</p>
+            <div style={{ display: 'flex', gap: 10, marginTop: 12 }}>
+              <button className="primary-btn" style={{ width: 'auto', padding: '10px 20px' }} onClick={acceptInvite}>Accept</button>
+              <button className="close-room-btn" style={{ width: 'auto', padding: '10px 20px' }} onClick={rejectInvite}>Decline</button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="game-nav">
         <img src="/iberzo-logo.png" alt="Iberzo" style={{ height: 60, objectFit: 'contain', flexShrink: 0 }} />
         <button

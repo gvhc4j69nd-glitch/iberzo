@@ -58,8 +58,10 @@ function authSocket(socket, next) {
 
 io.use(authSocket);
 
-// Track online users: userId -> username
+// Track online users: username -> userId
 const onlineUsers = new Map();
+// Track sockets: username -> socket
+const userSockets = new Map();
 
 // Search users endpoint
 app.get('/api/users/search', async (req, res) => {
@@ -85,6 +87,7 @@ io.on('connection', async socket => {
 
   // Track online presence
   onlineUsers.set(user.username, user.id);
+  userSockets.set(user.username, socket);
   io.emit('online_users', Array.from(onlineUsers.keys()));
 
   // Re-join all active rooms on reconnect
@@ -142,8 +145,42 @@ io.on('connection', async socket => {
     }
   });
 
+  socket.on('send_invite', ({ toUsername }) => {
+    const targetSocket = userSockets.get(toUsername);
+    if (!targetSocket) return socket.emit('game_error', 'Player is no longer online');
+    targetSocket.emit('invite_received', { fromUsername: user.username });
+  });
+
+  socket.on('accept_invite', async ({ fromUsername }) => {
+    const fromSocket = userSockets.get(fromUsername);
+    const result = await createRoom({ id: user.id, userId: user.id, username: user.username });
+    if (result.error) return socket.emit('game_error', result.error);
+    const roomId = result.id;
+    socket.join(roomId);
+
+    // Join the inviter
+    const fromUserId = onlineUsers.get(fromUsername);
+    if (fromUserId) {
+      const joinResult = await joinRoom(roomId, { id: fromUserId, userId: fromUserId, username: fromUsername });
+      if (!joinResult.error && fromSocket) fromSocket.join(roomId);
+    }
+
+    const room = getRoom(roomId);
+    io.to(roomId).emit('invite_accepted', {
+      roomId,
+      players: room.players.map(p => p.username),
+      hostUsername: user.username,
+    });
+  });
+
+  socket.on('reject_invite', ({ fromUsername }) => {
+    const fromSocket = userSockets.get(fromUsername);
+    if (fromSocket) fromSocket.emit('invite_rejected', { byUsername: user.username });
+  });
+
   socket.on('disconnect', () => {
     onlineUsers.delete(user.username);
+    userSockets.delete(user.username);
     io.emit('online_users', Array.from(onlineUsers.keys()));
   });
 });

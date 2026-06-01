@@ -7,6 +7,9 @@ export default function LobbyPage({
   activeRoomId, activeRoomTab, showRoomOnly,
   token,
 }) {
+  function sendInvite(toUsername) {
+    socket.emit('send_invite', { toUsername });
+  }
   const [joinInput, setJoinInput] = useState('');
   const [leaderboard, setLeaderboard] = useState([]);
   const [error, setError] = useState('');
@@ -168,19 +171,40 @@ export default function LobbyPage({
         <div className="leaderboard-panel">
           <h2>Leaderboard</h2>
           <table>
-            <thead><tr><th>#</th><th>Player</th><th>W</th><th>L</th><th>Score</th></tr></thead>
+            <thead><tr><th>#</th><th>Player</th><th>W</th><th>L</th><th>Score</th><th></th></tr></thead>
             <tbody>
-              {leaderboard.map((row, i) => (
-                <tr key={row.username} className={row.username === username ? 'me' : ''}>
-                  <td>{i + 1}</td>
-                  <td>{row.username}</td>
-                  <td>{row.wins}</td>
-                  <td>{row.losses}</td>
-                  <td>{row.total_score}</td>
-                </tr>
-              ))}
+              {leaderboard.map((row, i) => {
+                const isOnline = onlineUsers.has(row.username);
+                const isMe = row.username === username;
+                return (
+                  <tr key={row.username} className={isMe ? 'me' : ''}>
+                    <td>{i + 1}</td>
+                    <td>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{
+                          width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
+                          background: isOnline ? '#2a9d4e' : '#ccc',
+                          display: 'inline-block',
+                        }} />
+                        {row.username}
+                      </span>
+                    </td>
+                    <td>{row.wins}</td>
+                    <td>{row.losses}</td>
+                    <td>{row.total_score}</td>
+                    <td>
+                      {isOnline && !isMe && (
+                        <button
+                          onClick={() => sendInvite(row.username)}
+                          style={{ background: '#2a9d4e', color: 'white', padding: '4px 10px', fontSize: 12, fontWeight: 600, borderRadius: 6 }}
+                        >Play</button>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
               {leaderboard.length === 0 && (
-                <tr><td colSpan={5} style={{ textAlign: 'center', opacity: 0.5 }}>No games yet</td></tr>
+                <tr><td colSpan={6} style={{ textAlign: 'center', opacity: 0.5 }}>No games yet</td></tr>
               )}
             </tbody>
           </table>
