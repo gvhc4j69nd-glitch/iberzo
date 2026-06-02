@@ -138,14 +138,21 @@ async function handleMove(roomId, userId, move) {
 
   // Auto-play any consecutive bot turns
   if (room.hasBot) {
-    while (!room.state.gameOver) {
+    let safety = 0;
+    while (!room.state.gameOver && safety++ < 200) {
       const nextIdx = room.state.currentPlayerIndex;
       const nextPlayer = room.state.players[nextIdx];
       if (!isBotId(nextPlayer.userId)) break;
       const botMove = chooseBotMove(room.state, nextIdx);
-      if (!botMove) break;
+      if (!botMove) {
+        console.warn(`Bot ${nextPlayer.username} has no legal moves — forcing floor`);
+        break;
+      }
       const botResult = applyMove(room.state, nextIdx, botMove);
-      if (botResult.error) break;
+      if (botResult.error) {
+        console.warn(`Bot move error: ${botResult.error}`, botMove);
+        break;
+      }
     }
   }
 
