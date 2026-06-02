@@ -3,16 +3,17 @@ const { WALL_PATTERN } = require('./azulEngine');
 const FLOOR_PENALTIES = [-1, -1, -2, -2, -2, -3, -3];
 
 const BOT_NAMES = {
-  easy:   ['Bot Picasso',  'Bot Gaudí',  'Bot Dalí',  'Bot Miró'],
-  medium: ['Bot Velázquez','Bot El Greco','Bot Zurbarán','Bot Ribera'],
-  hard:   ['Bot Goya',     'Bot Sorolla', 'Bot Anglada','Bot Casas'],
+  easy:      ['Bot Picasso',      'Bot Gaudí',       'Bot Dalí',        'Bot Miró'],
+  medium:    ['Bot Velázquez',    'Bot El Greco',     'Bot Zurbarán',    'Bot Ribera'],
+  hard:      ['Bot Goya',         'Bot Sorolla',      'Bot Anglada',     'Bot Casas'],
+  demanding: ['Bot Michelangelo', 'Bot Da Vinci',     'Bot Machiavelli', 'Bot Raphael'],
 };
 
 function makeBotId(n) { return `bot-${n}`; }
 function isBotId(id) { return typeof id === 'string' && id.startsWith('bot-'); }
 
 function createBot(n, difficulty = 'medium') {
-  const diff = ['easy', 'medium', 'hard'].includes(difficulty) ? difficulty : 'medium';
+  const diff = ['easy', 'medium', 'hard', 'demanding'].includes(difficulty) ? difficulty : 'medium';
   const names = BOT_NAMES[diff];
   const name = names[(n - 1) % names.length];
   return { id: makeBotId(n), userId: makeBotId(n), username: name, isBot: true, difficulty: diff };
@@ -146,6 +147,31 @@ function scoreMoveHeuristic(state, playerIndex, move) {
   return score;
 }
 
+// How much an opponent would benefit from taking `color` from `source`
+function opponentDenialScore(state, playerIndex, source, color) {
+  let maxBenefit = 0;
+  for (let opp = 0; opp < state.players.length; opp++) {
+    if (opp === playerIndex) continue;
+    const oppPlayer = state.players[opp];
+    for (let row = 0; row < 5; row++) {
+      const line = oppPlayer.patternLines[row];
+      if (line.color && line.color !== color) continue;
+      if (line.count === line.slots) continue;
+      const wallCol = WALL_PATTERN[row].indexOf(color);
+      if (oppPlayer.wall[row][wallCol]) continue;
+      // Opponent could meaningfully place this color — estimate value to them
+      const numTiles = countAvailable(state, source, color);
+      const space = line.slots - line.count;
+      const fit = Math.min(numTiles, space);
+      const progress = fit / line.slots;
+      const wallScore = simWallScore(oppPlayer.wall, row, wallCol);
+      const benefit = progress * 6 + (fit === space ? wallScore * 2 : 0);
+      if (benefit > maxBenefit) maxBenefit = benefit;
+    }
+  }
+  return maxBenefit;
+}
+
 function chooseBotMove(state, playerIndex) {
   const moves = getLegalMoves(state, playerIndex);
   if (!moves.length) return null;
@@ -168,8 +194,22 @@ function chooseBotMove(state, playerIndex) {
     return moves[Math.floor(Math.random() * topN)];
   }
 
-  // hard: always best move
-  return moves[0];
+  if (difficulty === 'hard') {
+    // Always best heuristic move
+    return moves[0];
+  }
+
+  // demanding: best heuristic + opponent denial bonus
+  // Re-score with denial layer on top of the base heuristic
+  const scored = moves.map(move => {
+    const base = scoreMoveHeuristic(state, playerIndex, move);
+    const denial = move.patternRow !== 'floor'
+      ? opponentDenialScore(state, playerIndex, move.source, move.color) * 0.6
+      : 0;
+    return { move, score: base + denial };
+  });
+  scored.sort((a, b) => b.score - a.score);
+  return scored[0].move;
 }
 
 module.exports = { createBot, isBotId, chooseBotMove };

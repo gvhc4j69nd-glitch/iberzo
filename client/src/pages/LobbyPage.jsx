@@ -140,6 +140,7 @@ export default function LobbyPage({
                 <option value="easy">Easy</option>
                 <option value="medium">Medium</option>
                 <option value="hard">Hard</option>
+                <option value="demanding">Demanding</option>
               </select>
               <button onClick={addBot} className="secondary-btn" disabled={roomPlayers.length >= 4}>+ Add Bot</button>
               {roomPlayers.some(p => p.isBot) && (

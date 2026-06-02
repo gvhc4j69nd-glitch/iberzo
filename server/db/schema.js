@@ -76,9 +76,16 @@ async function init() {
   // Fix bot_stats rows that were recorded as 'medium' for hard-difficulty bots
   // (bug: difficulty was dropped from game state players before being written)
   const HARD_BOT_NAMES = ['Bot Goya', 'Bot Sorolla', 'Bot Anglada', 'Bot Casas'];
+  const DEMANDING_BOT_NAMES = ['Bot Michelangelo', 'Bot Da Vinci', 'Bot Machiavelli', 'Bot Raphael'];
   for (const name of HARD_BOT_NAMES) {
     await pool.query(`
       UPDATE bot_stats SET difficulty = 'hard'
+      WHERE bot_name = $1 AND difficulty = 'medium'
+    `, [name]);
+  }
+  for (const name of DEMANDING_BOT_NAMES) {
+    await pool.query(`
+      UPDATE bot_stats SET difficulty = 'demanding'
       WHERE bot_name = $1 AND difficulty = 'medium'
     `, [name]);
   }
