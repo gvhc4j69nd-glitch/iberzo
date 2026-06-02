@@ -130,6 +130,9 @@ export default function LobbyPage({
             ))}
           </ul>
           {isHost && (
+            <p className="hint" style={{ marginBottom: 4 }}>To play one or more bots select below</p>
+          )}
+          {isHost && (
             <div className="add-bot-row">
               <select
                 className="difficulty-select"
