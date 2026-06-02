@@ -175,10 +175,10 @@ export default function LobbyPage({
       <div className="lobby-content">
         <div className="room-panel">
           <h2>Play</h2>
-          <button onClick={createRoom} className="primary-btn">Create Room</button>
+          <button onClick={createRoom} className="primary-btn">Start New Game</button>
           <div className="join-row">
             <input
-              placeholder="Room code"
+              placeholder="ENTER ROOM CODE"
               value={joinInput}
               onChange={e => setJoinInput(e.target.value.toUpperCase())}
               maxLength={6}
