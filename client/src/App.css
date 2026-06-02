@@ -391,3 +391,48 @@ tr.me td { color: var(--accent); font-weight: 600; }
 .game-over h1 { font-size: 36px; color: var(--accent); font-weight: 800; }
 .game-over ol { font-size: 18px; display: flex; flex-direction: column; gap: 12px; color: var(--text); }
 .game-over .primary-btn { width: auto; }
+
+/* ── Ads ──────────────────────────────────────── */
+.ad-wrap {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  width: 100%;
+}
+/* Lobby sidebar variant */
+.ad-leaderboard { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+/* Post-game interstitial variant */
+.ad-postgame { max-width: 360px; }
+
+.carbon-wrap { width: 100%; }
+/* Carbon Ads injects #carbonads — style it to match our theme */
+#carbonads {
+  display: flex; background: var(--bg); border: 1px solid var(--border);
+  border-radius: 10px; overflow: hidden; font-size: 12px; width: 100%;
+}
+#carbonads a { color: var(--text); text-decoration: none; }
+.carbon-wrap .carbon-img img { width: 130px; height: auto; display: block; flex-shrink: 0; }
+.carbon-wrap .carbon-text { padding: 8px 10px; font-size: 12px; line-height: 1.4; flex: 1; }
+.carbon-wrap .carbon-poweredby { display: block; font-size: 10px; color: var(--text-muted); margin-top: 4px; }
+
+/* Placeholder shown before Carbon account is approved */
+.ad-placeholder {
+  width: 100%; border: 1.5px dashed var(--border); border-radius: 10px;
+  padding: 14px; display: flex; flex-direction: column; gap: 4px; align-items: center;
+}
+.ad-label { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
+.ad-placeholder-inner { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.ad-placeholder-text { font-size: 13px; color: var(--text-muted); font-weight: 600; }
+.ad-placeholder-sub { font-size: 11px; color: var(--text-muted); opacity: 0.6; }
+
+/* Ko-fi support / remove-ads button */
+.ad-remove-btn {
+  background: none; border: none; font-size: 11px; color: var(--text-muted);
+  padding: 2px 0; text-decoration: underline; cursor: pointer; opacity: 0.7;
+}
+.ad-remove-btn:hover { opacity: 1; }
+
+/* Thank-you message after supporting */
+.ad-thankyou {
+  font-size: 13px; color: #2a9d4e; font-weight: 600;
+  padding: 8px 12px; background: #f0fdf4; border-radius: 8px;
+  border: 1px solid #bbf7d0; text-align: center; width: 100%;
+}

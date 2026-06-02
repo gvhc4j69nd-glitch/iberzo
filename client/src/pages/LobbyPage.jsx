@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { fetchLeaderboard, searchUsers } from '../lib/api';
+import AdBanner from '../components/AdBanner';
 
 export default function LobbyPage({
   socket, username, onLogout,
@@ -234,6 +235,7 @@ export default function LobbyPage({
               )}
             </tbody>
           </table>
+          <AdBanner variant="leaderboard" />
         </div>
       </div>
     </div>

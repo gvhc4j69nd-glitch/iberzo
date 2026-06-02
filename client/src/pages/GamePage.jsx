@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Factory from '../components/Factory';
 import PlayerBoard from '../components/PlayerBoard';
+import AdBanner from '../components/AdBanner';
 
 const COLOR_HEX = { blue: '#4a90d9', yellow: '#f5c842', red: '#e74c3c', black: '#2c2c2c', white: '#00b4d8' };
 
@@ -79,6 +80,7 @@ export default function GamePage({ socket, username, roomId, initialState, onGam
             <li key={p.username}>{p.username} — {p.score} pts {i === 0 ? '🏆' : ''}</li>
           ))}
         </ol>
+        <AdBanner variant="postgame" />
         <button onClick={onLeave} className="primary-btn" style={{ width: 'auto' }}>Close</button>
       </div>
     );
