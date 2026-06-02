@@ -108,7 +108,7 @@ io.on('connection', async socket => {
     const room = getRoom(roomId);
     io.to(roomId).emit('room_update', {
       roomId,
-      players: room.players.map(p => p.username),
+      players: room.players.map(p => ({ username: p.username, isBot: !!p.isBot, difficulty: p.difficulty || null })),
       hostUsername: room.players.find(p => p.id === room.host)?.username,
     });
   });
@@ -119,13 +119,13 @@ io.on('connection', async socket => {
     io.to(roomId).emit('game_started', { roomId, state: result.state });
   });
 
-  socket.on('add_bot', async ({ roomId }) => {
-    const result = await addBot(roomId, user.id);
+  socket.on('add_bot', async ({ roomId, difficulty }) => {
+    const result = await addBot(roomId, user.id, difficulty);
     if (result.error) return socket.emit('game_error', result.error);
     const room = getRoom(roomId);
     io.to(roomId).emit('room_update', {
       roomId,
-      players: room.players.map(p => p.username),
+      players: room.players.map(p => ({ username: p.username, isBot: !!p.isBot, difficulty: p.difficulty || null })),
       hostUsername: room.players.find(p => p.id === room.host)?.username,
     });
   });
@@ -136,7 +136,7 @@ io.on('connection', async socket => {
     const room = getRoom(roomId);
     io.to(roomId).emit('room_update', {
       roomId,
-      players: room.players.map(p => p.username),
+      players: room.players.map(p => ({ username: p.username, isBot: !!p.isBot, difficulty: p.difficulty || null })),
       hostUsername: room.players.find(p => p.id === room.host)?.username,
     });
   });
@@ -199,7 +199,7 @@ io.on('connection', async socket => {
     const room = getRoom(roomId);
     io.to(roomId).emit('invite_accepted', {
       roomId,
-      players: room.players.map(p => p.username),
+      players: room.players.map(p => ({ username: p.username, isBot: !!p.isBot, difficulty: p.difficulty || null })),
       hostUsername: user.username,
     });
   });

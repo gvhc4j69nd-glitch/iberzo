@@ -49,7 +49,7 @@ async function createRoom(hostUser) {
   return { id };
 }
 
-async function addBot(roomId, userId) {
+async function addBot(roomId, userId, difficulty = 'medium') {
   const room = rooms.get(roomId);
   if (!room) return { error: 'Room not found' };
   if (room.host !== userId) return { error: 'Only host can add a bot' };
@@ -57,7 +57,7 @@ async function addBot(roomId, userId) {
   if (room.players.length >= 4) return { error: 'Room is full' };
   const botCount = room.players.filter(p => isBotId(p.id)).length;
   if (botCount >= 3) return { error: 'Max 3 bots per room' };
-  const bot = createBot(botCount + 1);
+  const bot = createBot(botCount + 1, difficulty);
   room.players.push(bot);
   room.hasBot = true;
   return { room };

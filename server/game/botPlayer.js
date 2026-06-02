@@ -2,14 +2,20 @@ const { WALL_PATTERN } = require('./azulEngine');
 
 const FLOOR_PENALTIES = [-1, -1, -2, -2, -2, -3, -3];
 
-const BOT_NAMES = ['Bot Picasso', 'Bot Gaudí', 'Bot Dalí', 'Bot Miró'];
+const BOT_NAMES = {
+  easy:   ['Bot Picasso',  'Bot Gaudí',  'Bot Dalí',  'Bot Miró'],
+  medium: ['Bot Velázquez','Bot El Greco','Bot Zurbarán','Bot Ribera'],
+  hard:   ['Bot Goya',     'Bot Sorolla', 'Bot Anglada','Bot Casas'],
+};
 
 function makeBotId(n) { return `bot-${n}`; }
 function isBotId(id) { return typeof id === 'string' && id.startsWith('bot-'); }
 
-function createBot(n) {
-  const name = BOT_NAMES[(n - 1) % BOT_NAMES.length];
-  return { id: makeBotId(n), userId: makeBotId(n), username: name, isBot: true };
+function createBot(n, difficulty = 'medium') {
+  const diff = ['easy', 'medium', 'hard'].includes(difficulty) ? difficulty : 'medium';
+  const names = BOT_NAMES[diff];
+  const name = names[(n - 1) % names.length];
+  return { id: makeBotId(n), userId: makeBotId(n), username: name, isBot: true, difficulty: diff };
 }
 
 // How many tiles of `color` are available from a given source
@@ -34,17 +40,14 @@ function simWallScore(wall, row, col) {
 // Estimate end-game bonus progress for a player
 function endGameBonus(wall) {
   let bonus = 0;
-  // Rows: +2 each complete row
   for (let r = 0; r < 5; r++) {
     const filled = wall[r].filter(Boolean).length;
-    bonus += (filled / 5) * 2; // partial credit toward +2
+    bonus += (filled / 5) * 2;
   }
-  // Columns: +7 each complete column
   for (let c = 0; c < 5; c++) {
     const filled = wall.filter(row => row[c]).length;
     bonus += (filled / 5) * 7;
   }
-  // Colors: +10 each complete color
   const COLORS = ['blue', 'yellow', 'red', 'black', 'white'];
   for (const color of COLORS) {
     const count = wall.flat().filter(t => t === color).length;
@@ -98,59 +101,46 @@ function scoreMoveHeuristic(state, playerIndex, move) {
     for (let i = 0; i < Math.min(numTiles, 7 - currentFloor); i++) {
       penalty += FLOOR_PENALTIES[currentFloor + i] || -3;
     }
-    return penalty - 2; // always unattractive, slightly worse than its raw penalty
+    return penalty - 2;
   }
 
   const row = move.patternRow;
   const line = player.patternLines[row];
   const wallCol = WALL_PATTERN[row].indexOf(move.color);
 
-  // ── Tiles that fit vs overflow ────────────────────────────────────────────
   const space = line.slots - line.count;
   const fit = Math.min(numTiles, space);
   const overflow = numTiles - fit;
 
-  // Overflow tiles go to floor — penalise them
   const currentFloor = player.floor.length;
   let floorPenalty = 0;
   for (let i = 0; i < Math.min(overflow, 7 - currentFloor); i++) {
     floorPenalty += FLOOR_PENALTIES[currentFloor + i] || -3;
   }
 
-  // ── Will this complete the pattern line this move? ─────────────────────────
   const completesLine = (line.count + fit) === line.slots;
 
   let score = 0;
 
-  // Immediate wall score when the line completes (adjacency bonus)
   if (completesLine) {
-    score += simWallScore(player.wall, row, wallCol) * 3; // weight heavily
+    score += simWallScore(player.wall, row, wallCol) * 3;
   }
 
-  // Progress toward completing the line (partial fill is still good)
   const progressBefore = line.count / line.slots;
   const progressAfter = Math.min(1, (line.count + fit) / line.slots);
   score += (progressAfter - progressBefore) * 8;
 
-  // Bonus for lines that are nearly complete (encourages finishing)
   if (progressAfter >= 0.75) score += 3;
   if (completesLine) score += 4;
 
-  // End-game bonus potential: simulate placing the tile on wall
   const simWall = player.wall.map(r => [...r]);
   simWall[row][wallCol] = move.color;
   score += (endGameBonus(simWall) - endGameBonus(player.wall)) * 0.5;
 
-  // Prefer placing in rows that align with existing wall adjacency
   score += simWallScore(player.wall, row, wallCol) * 0.5;
-
-  // Prefer shorter rows (easier to complete, less waste risk)
   score += (5 - line.slots) * 0.4;
-
-  // Apply floor penalty for overflow
   score += floorPenalty;
 
-  // Small penalty for taking from center (avoids grabbing first-player token early)
   if (move.source === 'center' && state.center.includes('first')) score -= 1.5;
 
   return score;
@@ -159,7 +149,26 @@ function scoreMoveHeuristic(state, playerIndex, move) {
 function chooseBotMove(state, playerIndex) {
   const moves = getLegalMoves(state, playerIndex);
   if (!moves.length) return null;
+
+  const difficulty = state.players[playerIndex].difficulty || 'medium';
+
+  if (difficulty === 'easy') {
+    // Avoid the floor if any non-floor move exists; otherwise pick randomly
+    const nonFloor = moves.filter(m => m.patternRow !== 'floor');
+    const pool = nonFloor.length ? nonFloor : moves;
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  // Score all moves
   moves.sort((a, b) => scoreMoveHeuristic(state, playerIndex, b) - scoreMoveHeuristic(state, playerIndex, a));
+
+  if (difficulty === 'medium') {
+    // Pick randomly from top 3 — plays reasonably but makes mistakes
+    const topN = Math.min(3, moves.length);
+    return moves[Math.floor(Math.random() * topN)];
+  }
+
+  // hard: always best move
   return moves[0];
 }
 
