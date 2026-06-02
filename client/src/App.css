@@ -139,14 +139,15 @@ input:focus { outline: none; border-color: var(--accent); }
   padding-bottom: max(12px, env(safe-area-inset-bottom));
   padding-left: max(12px, env(safe-area-inset-left));
   padding-right: max(12px, env(safe-area-inset-right));
+  box-sizing: border-box;
 }
 .nav-page {
   background: var(--card); border-radius: 16px; box-shadow: 0 12px 40px rgba(0,0,0,0.18);
   width: 100%; max-width: 420px;
   display: flex; flex-direction: column;
   overflow: hidden;
-  /* Concrete viewport-based max-height so flex children can scroll */
-  max-height: calc(100vh - 160px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  /* Explicit height so the body flex child always has a real constraint to scroll against */
+  height: calc(100vh - 150px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
 }
 .nav-page-header {
   display: flex; align-items: center; justify-content: space-between;
@@ -158,9 +159,9 @@ input:focus { outline: none; border-color: var(--accent); }
   padding: 5px 10px; font-size: 13px; border-radius: 8px; flex-shrink: 0;
 }
 .nav-page-body {
-  padding: 14px; overflow-y: auto; overflow-x: hidden;
-  display: flex; flex-direction: column; gap: 12px;
-  flex: 1; min-height: 0; /* critical: allows flex child to shrink & scroll */
+  padding: 16px; overflow-y: scroll; overflow-x: hidden;
+  display: flex; flex-direction: column; gap: 14px;
+  flex: 1 1 0; min-height: 0;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -178,11 +179,11 @@ input:focus { outline: none; border-color: var(--accent); }
 .account-success { color: #2a9d4e; font-size: 13px; font-weight: 600; }
 
 /* ── How to Play page ─────────────────────────── */
-.htp-body { gap: 10px; }
-.htp-section { background: var(--bg); border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 12px 10px; overflow: hidden; display: flex; flex-direction: column; gap: 8px; }
+.htp-body { gap: 12px; }
+.htp-section { background: var(--bg); border: 1.5px solid var(--border); border-radius: 12px; padding: 14px; overflow: hidden; display: flex; flex-direction: column; gap: 10px; flex-shrink: 0; }
 .htp-section h3 { font-size: 12px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.8px; margin: 0; }
-.htp-section p { font-size: 13px; line-height: 1.55; color: var(--text); margin: 0; }
-.htp-list { font-size: 13px; line-height: 1.7; color: var(--text); padding-left: 16px; display: flex; flex-direction: column; gap: 6px; }
+.htp-section p { font-size: 13px; line-height: 1.6; color: var(--text); margin: 0; }
+.htp-list { font-size: 13px; line-height: 1.7; color: var(--text); padding-left: 18px; display: flex; flex-direction: column; gap: 8px; margin: 0; }
 .htp-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -12px; padding: 0 12px; }
 .htp-table { width: 100%; border-collapse: collapse; font-size: 12px; }
 .htp-table th { text-align: left; padding: 5px 8px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); border-bottom: 1.5px solid var(--border); white-space: nowrap; }
