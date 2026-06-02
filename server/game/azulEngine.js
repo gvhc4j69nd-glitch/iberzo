@@ -86,6 +86,17 @@ function takeTiles(state, playerIndex, source, color) {
   return { taken };
 }
 
+function validatePlacement(state, playerIndex, color, patternRow) {
+  if (patternRow === 'floor') return {};
+  const player = state.players[playerIndex];
+  const line = player.patternLines[patternRow];
+  if (line.color && line.color !== color) return { error: 'Row already has a different color' };
+  if (line.count === line.slots) return { error: 'Pattern line is already full' };
+  const wallCol = WALL_PATTERN[patternRow].indexOf(color);
+  if (player.wall[patternRow][wallCol]) return { error: 'Wall space already filled' };
+  return {};
+}
+
 function placeTiles(state, playerIndex, taken, patternRow) {
   const player = state.players[playerIndex];
 
@@ -191,4 +202,4 @@ function isDraftingOver(state) {
     state.center.filter(t => t !== 'first').length === 0;
 }
 
-module.exports = { createGame, takeTiles, placeTiles, endRound, isDraftingOver, WALL_PATTERN };
+module.exports = { createGame, takeTiles, placeTiles, validatePlacement, endRound, isDraftingOver, WALL_PATTERN };

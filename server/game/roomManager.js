@@ -1,4 +1,4 @@
-const { createGame, takeTiles, placeTiles, endRound, isDraftingOver } = require('./azulEngine');
+const { createGame, takeTiles, placeTiles, validatePlacement, endRound, isDraftingOver } = require('./azulEngine');
 const { createBot, isBotId, chooseBotMove } = require('./botPlayer');
 const { pool } = require('../db/schema');
 
@@ -114,6 +114,9 @@ async function startGame(roomId, userId) {
 
 function applyMove(state, playerIndex, move) {
   const { source, color, patternRow } = move;
+  // Validate placement BEFORE mutating factory/center so state stays clean on error
+  const preCheck = validatePlacement(state, playerIndex, color, patternRow);
+  if (preCheck.error) return preCheck;
   const takeResult = takeTiles(state, playerIndex, source, color);
   if (takeResult.error) return takeResult;
   const placeResult = placeTiles(state, playerIndex, takeResult.taken, patternRow);
