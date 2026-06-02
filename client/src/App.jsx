@@ -180,32 +180,34 @@ export default function App() {
           </div>
         </div>
       )}
-      <div className="game-nav">
-        <img src="/iberzo-logo.png" alt="Iberzo" style={{ height: 60, objectFit: 'contain', flexShrink: 0 }} />
-        <button
-          className={`game-nav-tab ${!currentTab ? 'active' : ''}`}
-          onClick={() => switchTab(null)}
-        >Lobby</button>
-        {tabIds.map(id => {
-          const tab = tabs[id];
-          const isActive = currentTab === id;
-          return (
-            <div key={id} className={`game-nav-tab-wrap ${isActive ? 'active' : ''}`}>
-              <button
-                className={`game-nav-tab ${isActive ? 'active' : ''}`}
-                onClick={() => switchTab(id)}
-              >
-                {tab.status === 'active' ? `Game ${id}` : `Room ${id}`}
-                {tab.status === 'active' && <span className="tab-status-dot playing" />}
-                {tab.status === 'waiting' && <span className="tab-status-dot waiting" />}
-                {unread.has(id) && <span className="unread-dot" />}
-              </button>
-              <button className="tab-close-btn" onClick={() => closeTab(id)}>✕</button>
-            </div>
-          );
-        })}
-        <div style={{ marginLeft: 'auto', flexShrink: 0 }}>
+      <div className="game-nav-shell">
+        <div className="game-nav-top">
+          <img src="/iberzo-logo.png" alt="Iberzo" style={{ height: 44, objectFit: 'contain' }} />
           <NavMenu onSelect={setNavPage} />
+        </div>
+        <div className="game-nav-tabs">
+          <button
+            className={`game-nav-tab ${!currentTab ? 'active' : ''}`}
+            onClick={() => switchTab(null)}
+          >Lobby</button>
+          {tabIds.map(id => {
+            const tab = tabs[id];
+            const isActive = currentTab === id;
+            return (
+              <div key={id} className={`game-nav-tab-wrap ${isActive ? 'active' : ''}`}>
+                <button
+                  className={`game-nav-tab ${isActive ? 'active' : ''}`}
+                  onClick={() => switchTab(id)}
+                >
+                  {tab.status === 'active' ? `Game ${id}` : `Room ${id}`}
+                  {tab.status === 'active' && <span className="tab-status-dot playing" />}
+                  {tab.status === 'waiting' && <span className="tab-status-dot waiting" />}
+                  {unread.has(id) && <span className="unread-dot" />}
+                </button>
+                <button className="tab-close-btn" onClick={() => closeTab(id)}>✕</button>
+              </div>
+            );
+          })}
         </div>
       </div>
 

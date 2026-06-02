@@ -139,11 +139,8 @@ export default function LobbyPage({
   return (
     <div className="lobby-page">
       <div className="lobby-header">
-        <img src="/iberzo-logo.png" alt="Iberzo" style={{ height: 110, objectFit: 'contain' }} />
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
-          <span>Welcome, {username}</span>
-          <button onClick={onLogout} className="logout-btn">Logout</button>
-        </div>
+        <span className="lobby-welcome">Welcome, <strong>{username}</strong></span>
+        <button onClick={onLogout} className="logout-btn">Logout</button>
       </div>
 
       <div className="lobby-content">
