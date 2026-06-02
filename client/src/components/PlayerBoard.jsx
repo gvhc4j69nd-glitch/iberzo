@@ -5,7 +5,7 @@ const WALL_PATTERN = [
   ['red', 'black', 'white', 'blue', 'yellow'],
   ['yellow', 'red', 'black', 'white', 'blue'],
 ];
-const COLOR_HEX = { blue: '#4a90d9', yellow: '#f5c842', red: '#e74c3c', black: '#2c2c2c', white: '#6b8c3e' };
+const COLOR_HEX = { blue: '#4a90d9', yellow: '#f0c97a', red: '#c0634a', black: '#2c2c2c', white: '#6b8c3e' };
 const FLOOR_PENALTIES = [-1, -1, -2, -2, -2, -3, -3];
 
 export default function PlayerBoard({ player, isMe, onSelectRow, onDrop, selectedTiles, myTurn }) {

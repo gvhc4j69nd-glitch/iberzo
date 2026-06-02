@@ -3,7 +3,7 @@ import Factory from '../components/Factory';
 import PlayerBoard from '../components/PlayerBoard';
 import AdBanner from '../components/AdBanner';
 
-const COLOR_HEX = { blue: '#4a90d9', yellow: '#f5c842', red: '#e74c3c', black: '#2c2c2c', white: '#6b8c3e' };
+const COLOR_HEX = { blue: '#4a90d9', yellow: '#f0c97a', red: '#c0634a', black: '#2c2c2c', white: '#6b8c3e' };
 const ROW_LABELS = ['Row 1', 'Row 2', 'Row 3', 'Row 4', 'Row 5'];
 
 export default function GamePage({ socket, username, roomId, initialState, onGameOver, onLeave, onAbandoned }) {
