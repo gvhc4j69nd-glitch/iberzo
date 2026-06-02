@@ -47,3 +47,10 @@ export async function searchUsers(token, q) {
   });
   return res.json();
 }
+
+export async function fetchBotStats(token) {
+  const res = await fetch(`${BASE}/bot-stats`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return res.json();
+}

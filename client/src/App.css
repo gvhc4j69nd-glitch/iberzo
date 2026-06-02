@@ -524,3 +524,21 @@ tr.me td { color: var(--accent); font-weight: 600; }
 .difficulty-easy   { background: #d4edda; color: #276749; }
 .difficulty-medium { background: #fff3cd; color: #856404; }
 .difficulty-hard   { background: #f8d7da; color: #842029; }
+
+/* ── Bot Stats Table ──────────────────────────── */
+.bot-stats-table {
+  width: 100%; border-collapse: collapse; font-size: 13px;
+}
+.bot-stats-table th {
+  text-align: left; padding: 6px 10px;
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px;
+  color: var(--text-muted); border-bottom: 2px solid var(--border);
+}
+.bot-stats-table td {
+  padding: 8px 10px; border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+.bot-stats-table tr:last-child td { border-bottom: none; }
+.stat-win  { color: #276749; font-weight: 700; }
+.stat-loss { color: #842029; font-weight: 700; }
+.stat-pct  { font-weight: 600; color: var(--text-muted); }

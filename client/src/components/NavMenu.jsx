@@ -39,6 +39,9 @@ export default function NavMenu({ onSelect }) {
           <button onClick={() => pick('friends')}>
             <span className="nav-menu-item-icon">👥</span> Friends
           </button>
+          <button onClick={() => pick('botstats')}>
+            <span className="nav-menu-item-icon">🤖</span> Bot Record
+          </button>
         </div>
       )}
     </div>

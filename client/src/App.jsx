@@ -5,6 +5,7 @@ import GamePage from './pages/GamePage';
 import AccountPage from './pages/AccountPage';
 import HowToPlayPage from './pages/HowToPlayPage';
 import FriendsPage from './pages/FriendsPage';
+import BotStatsPage from './pages/BotStatsPage';
 import NavMenu from './components/NavMenu';
 import { getSocket, disconnectSocket } from './lib/socket';
 import { fetchMyRooms } from './lib/api';
@@ -221,6 +222,9 @@ export default function App() {
           )}
           {navPage === 'friends' && (
             <FriendsPage onClose={() => setNavPage(null)} />
+          )}
+          {navPage === 'botstats' && (
+            <BotStatsPage token={token} onClose={() => setNavPage(null)} />
           )}
         </div>
       )}

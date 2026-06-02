@@ -62,6 +62,17 @@ async function init() {
   `);
   // Migration: add elo_rating to existing tables
   await pool.query(`ALTER TABLE leaderboard ADD COLUMN IF NOT EXISTS elo_rating INTEGER DEFAULT 1200`);
+  // Bot stats tracking
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS bot_stats (
+      user_id    INTEGER REFERENCES users(id),
+      bot_name   TEXT NOT NULL,
+      difficulty TEXT NOT NULL,
+      wins       INTEGER DEFAULT 0,
+      losses     INTEGER DEFAULT 0,
+      PRIMARY KEY (user_id, bot_name, difficulty)
+    )
+  `);
 }
 
 module.exports = { pool, init };

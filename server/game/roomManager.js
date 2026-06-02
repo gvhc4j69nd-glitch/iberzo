@@ -245,6 +245,28 @@ async function finishGame(room) {
     `, [player.userId, isWin, 1 - isWin, player.score, newElo]);
   }
 
+  // Record bot stats for each human player
+  if (room.hasBot) {
+    const bots = sorted.filter(p => isBotId(p.userId));
+    const humans = sorted.filter(p => !isBotId(p.userId));
+    const humanWinner = humans.find(p => sorted.indexOf(p) === 0 || !bots.some(b => sorted.indexOf(b) < sorted.indexOf(p)));
+    for (const human of humans) {
+      const humanRank = sorted.indexOf(human);
+      // Win = human placed above ALL bots; loss = any bot placed above human
+      const beatenByBot = bots.some(b => sorted.indexOf(b) < humanRank);
+      const isWin = !beatenByBot ? 1 : 0;
+      for (const bot of bots) {
+        await pool.query(`
+          INSERT INTO bot_stats (user_id, bot_name, difficulty, wins, losses)
+          VALUES ($1, $2, $3, $4, $5)
+          ON CONFLICT (user_id, bot_name, difficulty) DO UPDATE SET
+            wins   = bot_stats.wins   + $4,
+            losses = bot_stats.losses + $5
+        `, [human.userId, bot.username, bot.difficulty || 'medium', isWin, 1 - isWin]);
+      }
+    }
+  }
+
   room.state = null;
   room.gameId = null;
 }

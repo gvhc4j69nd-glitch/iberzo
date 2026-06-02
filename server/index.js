@@ -8,6 +8,7 @@ const jwt = require('jsonwebtoken');
 const { init } = require('./db/schema');
 const authRoutes = require('./routes/auth');
 const leaderboardRoutes = require('./routes/leaderboard');
+const botStatsRoutes = require('./routes/botStats');
 const { createRoom, addBot, removeBot, joinRoom, startGame, handleMove, leaveGame, closeRoom, getRoom, getUserRooms, restoreRooms, closeStaleGames } = require('./game/roomManager');
 
 const path = require('path');
@@ -19,6 +20,7 @@ app.use(express.json());
 app.get('/health', (req, res) => res.json({ ok: true }));
 app.use('/api/auth', authRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
+app.use('/api/bot-stats', botStatsRoutes);
 
 app.get('/api/my-rooms', async (req, res) => {
   const token = req.headers.authorization?.split(' ')[1];
