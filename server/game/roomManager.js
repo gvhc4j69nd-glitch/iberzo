@@ -175,12 +175,11 @@ async function finishGame(room) {
     ['finished', JSON.stringify(state), gameId]);
   await pool.query('UPDATE rooms SET status = $1 WHERE id = $2', ['waiting', room.id]);
 
-  // Fetch current Elo ratings for all players
-  const userIds = sorted.map(p => p.userId);
-  const { rows: lbRows } = await pool.query(
-    `SELECT user_id, elo_rating, games_played FROM leaderboard WHERE user_id = ANY($1)`,
-    [userIds]
-  );
+  // Fetch current Elo ratings for human players only (bot IDs are strings, not valid integers)
+  const humanIds = sorted.map(p => p.userId).filter(id => !isBotId(id));
+  const lbRows = humanIds.length
+    ? (await pool.query(`SELECT user_id, elo_rating, games_played FROM leaderboard WHERE user_id = ANY($1)`, [humanIds])).rows
+    : [];
   const lbMap = {};
   lbRows.forEach(r => { lbMap[r.user_id] = { elo: r.elo_rating, gamesPlayed: parseInt(r.games_played) }; });
   // Default for new players
