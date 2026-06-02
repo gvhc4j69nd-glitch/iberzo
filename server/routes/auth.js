@@ -40,4 +40,27 @@ router.post('/login', async (req, res) => {
   res.json({ token, username: user.username });
 });
 
+router.patch('/password', async (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) return res.status(401).json({ error: 'Unauthorized' });
+  try {
+    const user = jwt.verify(token, process.env.JWT_SECRET);
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) return res.status(400).json({ error: 'All fields required' });
+    if (newPassword.length < 6) return res.status(400).json({ error: 'New password must be at least 6 characters' });
+
+    const { rows } = await pool.query('SELECT password_hash FROM users WHERE id = $1', [user.id]);
+    if (!rows[0]) return res.status(404).json({ error: 'User not found' });
+
+    const valid = await bcrypt.compare(currentPassword, rows[0].password_hash);
+    if (!valid) return res.status(401).json({ error: 'Current password is incorrect' });
+
+    const hash = await bcrypt.hash(newPassword, 10);
+    await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2', [hash, user.id]);
+    res.json({ ok: true });
+  } catch {
+    res.status(401).json({ error: 'Invalid token' });
+  }
+});
+
 module.exports = router;

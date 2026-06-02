@@ -32,6 +32,15 @@ export async function fetchMyRooms(token) {
   return res.json();
 }
 
+export async function changePassword(token, currentPassword, newPassword) {
+  const res = await fetch(`${BASE}/auth/password`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ currentPassword, newPassword }),
+  });
+  return res.json();
+}
+
 export async function searchUsers(token, q) {
   const res = await fetch(`${BASE}/users/search?q=${encodeURIComponent(q)}`, {
     headers: { Authorization: `Bearer ${token}` },

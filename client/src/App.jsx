@@ -2,6 +2,10 @@ import { useState, useEffect } from 'react';
 import AuthPage from './pages/AuthPage';
 import LobbyPage from './pages/LobbyPage';
 import GamePage from './pages/GamePage';
+import AccountPage from './pages/AccountPage';
+import HowToPlayPage from './pages/HowToPlayPage';
+import FriendsPage from './pages/FriendsPage';
+import NavMenu from './components/NavMenu';
 import { getSocket, disconnectSocket } from './lib/socket';
 import { fetchMyRooms } from './lib/api';
 import './App.css';
@@ -16,6 +20,7 @@ export default function App() {
   const [currentTab, setCurrentTab] = useState(null); // roomId or 'lobby'
   const [unread, setUnread] = useState(new Set());
   const [incomingInvite, setIncomingInvite] = useState(null); // { fromUsername }
+  const [navPage, setNavPage] = useState(null); // 'account' | 'howtoplay' | 'friends'
 
   // Restore tabs from server on login
   useEffect(() => {
@@ -199,7 +204,24 @@ export default function App() {
             </div>
           );
         })}
+        <div style={{ marginLeft: 'auto', flexShrink: 0 }}>
+          <NavMenu onSelect={setNavPage} />
+        </div>
       </div>
+
+      {navPage && (
+        <div className="nav-page-overlay">
+          {navPage === 'account' && (
+            <AccountPage username={username} token={token} onClose={() => setNavPage(null)} />
+          )}
+          {navPage === 'howtoplay' && (
+            <HowToPlayPage onClose={() => setNavPage(null)} />
+          )}
+          {navPage === 'friends' && (
+            <FriendsPage onClose={() => setNavPage(null)} />
+          )}
+        </div>
+      )}
 
       {currentTab && activeTab ? (
         showGame ? (
