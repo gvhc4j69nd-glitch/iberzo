@@ -206,19 +206,38 @@ function calcTileScore(wall, row, col) {
 }
 
 function finalScoring(state) {
+  const finalSummary = [];
   state.players.forEach(player => {
-    // Complete rows
-    player.wall.forEach(row => { if (row.every(Boolean)) player.score += 2; });
-    // Complete columns
+    const scoreBeforeBonuses = player.score;
+    const completedRows = [];
+    const completedCols = [];
+    const completedColors = [];
+
+    // Complete rows (+2 each)
+    player.wall.forEach((row, r) => {
+      if (row.every(Boolean)) { player.score += 2; completedRows.push(r); }
+    });
+    // Complete columns (+7 each)
     for (let c = 0; c < 5; c++) {
-      if (player.wall.every(row => row[c])) player.score += 7;
+      if (player.wall.every(row => row[c])) { player.score += 7; completedCols.push(c); }
     }
-    // Complete colors
+    // Complete colors (+10 each)
     COLORS.forEach(color => {
       const count = player.wall.flat().filter(t => t === color).length;
-      if (count === 5) player.score += 10;
+      if (count === 5) { player.score += 10; completedColors.push(color); }
+    });
+
+    finalSummary.push({
+      username: player.username,
+      scoreBeforeBonuses,
+      completedRows,
+      completedCols,
+      completedColors,
+      bonusPoints: player.score - scoreBeforeBonuses,
+      finalScore: player.score,
     });
   });
+  state.finalSummary = finalSummary;
 }
 
 function isDraftingOver(state) {

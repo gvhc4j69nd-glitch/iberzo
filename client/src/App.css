@@ -475,3 +475,11 @@ tr.me td { color: var(--accent); font-weight: 600; }
 }
 .rsp-none { color: var(--text-muted); font-style: italic; font-size: 12px; }
 .rsp-close { width: 100%; margin-top: 4px; }
+
+/* ── End-game scoring screens ─────────────────── */
+.game-over-scoring {
+  padding: 24px 16px; justify-content: flex-start;
+  overflow-y: auto;
+}
+.game-over-scoring h1 { margin-bottom: 4px; }
+.game-over-scoring .round-summary-players { width: 100%; max-width: 420px; }

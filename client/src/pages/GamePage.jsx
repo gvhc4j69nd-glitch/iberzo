@@ -10,6 +10,7 @@ export default function GamePage({ socket, username, roomId, initialState, onGam
   const [state, setState] = useState(initialState);
   const [selected, setSelected] = useState(null); // { source, color }
   const [gameOverData, setGameOverData] = useState(null);
+  const [gameOverPhase, setGameOverPhase] = useState('round'); // 'round' | 'final' | 'winner'
   const [moveError, setMoveError] = useState(null);
   const [showSummary, setShowSummary] = useState(false);
   const [summary, setSummary] = useState(null);
@@ -29,8 +30,10 @@ export default function GamePage({ socket, username, roomId, initialState, onGam
         setShowSummary(true);
       }
     };
-    const onOver = ({ roomId: id, players }) => {
-      if (id === roomId) setGameOverData(players);
+    const onOver = ({ roomId: id, players, roundSummary, finalSummary }) => {
+      if (id !== roomId) return;
+      setGameOverData({ players, roundSummary, finalSummary });
+      setGameOverPhase(roundSummary ? 'round' : 'final');
     };
     const onAbandoned_ = ({ roomId: id, username: who }) => {
       if (id !== roomId) return;
@@ -80,7 +83,110 @@ export default function GamePage({ socket, username, roomId, initialState, onGam
         </div>
       );
     }
-    const sorted = [...gameOverData].sort((a, b) => b.score - a.score);
+
+    // Phase 1: last round tile/floor scoring
+    if (gameOverPhase === 'round' && gameOverData.roundSummary) {
+      return (
+        <div className="game-over game-over-scoring">
+          <h1>Final Round Scoring</h1>
+          <div className="round-summary-players">
+            {gameOverData.roundSummary.map(p => (
+              <div key={p.username} className="round-summary-player">
+                <div className="rsp-header">
+                  <span className="rsp-name">{p.username}</span>
+                  <span className="rsp-total">{p.scoreAfter} pts</span>
+                </div>
+                <div className="rsp-rows">
+                  {p.tilePlacements.length === 0 && (
+                    <div className="rsp-row rsp-none">No tiles placed on wall</div>
+                  )}
+                  {p.tilePlacements.map(t => (
+                    <div key={t.row} className="rsp-row">
+                      <span className="rsp-dot" style={{ background: COLOR_HEX[t.color] }} />
+                      <span className="rsp-label">{ROW_LABELS[t.row]}</span>
+                      <span className="rsp-pts">+{t.pts}</span>
+                    </div>
+                  ))}
+                  {p.floorPenalty < 0 && (
+                    <div className="rsp-row rsp-penalty">
+                      <span className="rsp-label">🟫 Floor penalty</span>
+                      <span className="rsp-pts">{p.floorPenalty}</span>
+                    </div>
+                  )}
+                  <div className="rsp-row rsp-net">
+                    <span className="rsp-label">Round total</span>
+                    <span className="rsp-pts">{p.scoreAfter - p.scoreBefore >= 0 ? '+' : ''}{p.scoreAfter - p.scoreBefore}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <button className="primary-btn" style={{ width: '100%', maxWidth: 360 }}
+            onClick={() => setGameOverPhase('final')}>
+            Final Bonuses →
+          </button>
+        </div>
+      );
+    }
+
+    // Phase 2: end-game bonus scoring
+    if (gameOverPhase === 'final' && gameOverData.finalSummary) {
+      const COL_LABELS = ['Col A', 'Col B', 'Col C', 'Col D', 'Col E'];
+      return (
+        <div className="game-over game-over-scoring">
+          <h1>End-Game Bonuses</h1>
+          <div className="round-summary-players">
+            {gameOverData.finalSummary.map(p => (
+              <div key={p.username} className="round-summary-player">
+                <div className="rsp-header">
+                  <span className="rsp-name">{p.username}</span>
+                  <span className="rsp-total">{p.finalScore} pts</span>
+                </div>
+                <div className="rsp-rows">
+                  <div className="rsp-row">
+                    <span className="rsp-label">Score before bonuses</span>
+                    <span className="rsp-pts">{p.scoreBeforeBonuses}</span>
+                  </div>
+                  {p.completedRows.length > 0 && p.completedRows.map(r => (
+                    <div key={`row-${r}`} className="rsp-row">
+                      <span className="rsp-label">✅ Complete row {r + 1}</span>
+                      <span className="rsp-pts">+2</span>
+                    </div>
+                  ))}
+                  {p.completedCols.length > 0 && p.completedCols.map(c => (
+                    <div key={`col-${c}`} className="rsp-row">
+                      <span className="rsp-label">✅ Complete {COL_LABELS[c]}</span>
+                      <span className="rsp-pts">+7</span>
+                    </div>
+                  ))}
+                  {p.completedColors.length > 0 && p.completedColors.map(color => (
+                    <div key={color} className="rsp-row">
+                      <span className="rsp-dot" style={{ background: COLOR_HEX[color] }} />
+                      <span className="rsp-label">All 5 {color}</span>
+                      <span className="rsp-pts">+10</span>
+                    </div>
+                  ))}
+                  {p.bonusPoints === 0 && (
+                    <div className="rsp-row rsp-none">No bonuses earned</div>
+                  )}
+                  <div className="rsp-row rsp-net">
+                    <span className="rsp-label">Bonus total</span>
+                    <span className="rsp-pts">+{p.bonusPoints}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <button className="primary-btn" style={{ width: '100%', maxWidth: 360 }}
+            onClick={() => setGameOverPhase('winner')}>
+            See Results →
+          </button>
+        </div>
+      );
+    }
+
+    // Phase 3: winner screen
+    const sorted = [...gameOverData.players].sort((a, b) => b.score - a.score);
     return (
       <div className="game-over">
         <h1>Game Over</h1>

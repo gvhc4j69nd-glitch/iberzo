@@ -163,7 +163,12 @@ io.on('connection', async socket => {
     if (result.error) return socket.emit('game_error', result.error);
     io.to(roomId).emit('game_update', { roomId, state: result.state });
     if (result.gameOver) {
-      io.to(roomId).emit('game_over', { roomId, players: result.state.players });
+      io.to(roomId).emit('game_over', {
+        roomId,
+        players: result.state.players,
+        roundSummary: result.state.roundSummary,
+        finalSummary: result.state.finalSummary,
+      });
     }
   });
 
