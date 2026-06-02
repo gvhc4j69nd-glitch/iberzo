@@ -8,7 +8,9 @@ export default function GamePage({ socket, username, roomId, initialState, onGam
   const [state, setState] = useState(initialState);
   const [selected, setSelected] = useState(null); // { source, color }
   const [gameOverData, setGameOverData] = useState(null);
+  const [moveError, setMoveError] = useState(null);
   const dragRef = useRef(null);
+  const errorTimerRef = useRef(null);
 
   const myIndex = state.players.findIndex(p => p.username === username);
   const myTurn = state.currentPlayerIndex === myIndex;
@@ -25,13 +27,23 @@ export default function GamePage({ socket, username, roomId, initialState, onGam
       setGameOverData({ abandoned: true, who });
       setTimeout(() => onAbandoned?.(), 3000);
     };
+    const onError = (msg) => {
+      setSelected(null);
+      dragRef.current = null;
+      setMoveError('Invalid placement');
+      clearTimeout(errorTimerRef.current);
+      errorTimerRef.current = setTimeout(() => setMoveError(null), 2500);
+    };
     socket.on('game_update', onUpdate);
     socket.on('game_over', onOver);
     socket.on('game_abandoned', onAbandoned_);
+    socket.on('game_error', onError);
     return () => {
       socket.off('game_update', onUpdate);
       socket.off('game_over', onOver);
       socket.off('game_abandoned', onAbandoned_);
+      socket.off('game_error', onError);
+      clearTimeout(errorTimerRef.current);
     };
   }, [socket, roomId]);
 
@@ -74,6 +86,9 @@ export default function GamePage({ socket, username, roomId, initialState, onGam
 
   return (
     <div className="game-page">
+      {moveError && (
+        <div className="move-error-toast">{moveError}</div>
+      )}
       <div className="game-header">
         <span>Round {state.round}</span>
         <span className={myTurn ? 'your-turn' : ''}>
