@@ -32,9 +32,10 @@ function getLegalMoves(state, playerIndex) {
       // Try each pattern row
       for (let row = 0; row < 5; row++) {
         const line = player.patternLines[row];
-        if (line.color && line.color !== color) continue;
+        if (line.color && line.color !== color) continue; // different color already there
+        if (line.count === line.slots) continue;          // line already full
         const wallCol = WALL_PATTERN[row].indexOf(color);
-        if (player.wall[row][wallCol]) continue;
+        if (player.wall[row][wallCol]) continue;          // wall space already filled
         moves.push({ source, color, patternRow: row });
       }
       // Always legal to dump to floor
