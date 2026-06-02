@@ -14,7 +14,7 @@ export const PW_UNITS = {
 };
 
 // Ko-fi page for supporter donations
-export const KOFI_URL = 'https://ko-fi.com/iberzo';
+export const KOFI_URL = 'https://ko-fi.com/iberzo'; // ✓ verified
 
 const NO_ADS_KEY = 'iberzo_no_ads';
 export function isNoAds()  { return localStorage.getItem(NO_ADS_KEY) === '1'; }

@@ -1,24 +1,42 @@
 {
   "name": "Iberzo",
   "short_name": "Iberzo",
-  "description": "Multiplayer tile-drafting board game",
-  "start_url": "/",
+  "description": "Multiplayer tile-drafting board game — play online at iberzo.com",
+  "start_url": "https://www.iberzo.com/",
+  "scope": "https://www.iberzo.com/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#fdf6f0",
   "theme_color": "#c0392b",
+  "lang": "en",
+  "categories": ["games", "entertainment"],
   "icons": [
     {
       "src": "/iberzo-logo.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "/iberzo-logo.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/iberzo-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Play Now",
+      "short_name": "Play",
+      "description": "Go straight to the lobby",
+      "url": "https://www.iberzo.com/",
+      "icons": [{ "src": "/iberzo-logo.png", "sizes": "192x192" }]
     }
   ]
 }
