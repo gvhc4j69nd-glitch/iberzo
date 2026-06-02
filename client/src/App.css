@@ -133,24 +133,35 @@ input:focus { outline: none; border-color: var(--accent); }
 /* ── Nav page overlay ─────────────────────────── */
 .nav-page-overlay {
   position: fixed; inset: 0; z-index: 700;
-  background: rgba(45,26,14,0.45); display: flex; align-items: flex-start; justify-content: flex-end;
-  padding: calc(130px + env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) 12px max(12px, env(safe-area-inset-left));
+  background: rgba(45,26,14,0.45);
+  display: flex; align-items: stretch; justify-content: flex-end;
+  padding-top: calc(130px + env(safe-area-inset-top));
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+  padding-left: max(12px, env(safe-area-inset-left));
+  padding-right: max(12px, env(safe-area-inset-right));
 }
 .nav-page {
   background: var(--card); border-radius: 16px; box-shadow: 0 12px 40px rgba(0,0,0,0.18);
-  width: 100%; max-width: 420px; max-height: calc(100vh - 84px);
-  display: flex; flex-direction: column; overflow: hidden;
+  width: 100%; max-width: 420px;
+  display: flex; flex-direction: column;
+  overflow: hidden; /* children handle their own scroll */
+  align-self: flex-start; max-height: 100%;
 }
 .nav-page-header {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 18px 20px 14px; border-bottom: 1.5px solid var(--border); flex-shrink: 0;
+  padding: 14px 16px 12px; border-bottom: 1.5px solid var(--border); flex-shrink: 0;
 }
-.nav-page-header h2 { font-size: 18px; font-weight: 700; color: var(--text); }
+.nav-page-header h2 { font-size: 17px; font-weight: 700; color: var(--text); }
 .nav-page-close {
   background: var(--bg); border: 1.5px solid var(--border); color: var(--text-muted);
-  padding: 5px 10px; font-size: 13px; border-radius: 8px;
+  padding: 5px 10px; font-size: 13px; border-radius: 8px; flex-shrink: 0;
 }
-.nav-page-body { padding: 16px; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; gap: 14px; }
+.nav-page-body {
+  padding: 14px; overflow-y: auto; overflow-x: hidden;
+  display: flex; flex-direction: column; gap: 12px;
+  flex: 1; min-height: 0; /* critical: allows flex child to shrink & scroll */
+  -webkit-overflow-scrolling: touch;
+}
 
 /* ── Account page ─────────────────────────────── */
 .account-info-card {
@@ -166,10 +177,10 @@ input:focus { outline: none; border-color: var(--accent); }
 .account-success { color: #2a9d4e; font-size: 13px; font-weight: 600; }
 
 /* ── How to Play page ─────────────────────────── */
-.htp-body { gap: 16px; }
-.htp-section { background: var(--bg); border: 1.5px solid var(--border); border-radius: 12px; padding: 12px; overflow: hidden; }
-.htp-section h3 { font-size: 13px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
-.htp-section p { font-size: 13px; line-height: 1.6; color: var(--text); }
+.htp-body { gap: 10px; }
+.htp-section { background: var(--bg); border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 12px 10px; overflow: hidden; display: flex; flex-direction: column; gap: 8px; }
+.htp-section h3 { font-size: 12px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.8px; margin: 0; }
+.htp-section p { font-size: 13px; line-height: 1.55; color: var(--text); margin: 0; }
 .htp-list { font-size: 13px; line-height: 1.7; color: var(--text); padding-left: 16px; display: flex; flex-direction: column; gap: 6px; }
 .htp-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -12px; padding: 0 12px; }
 .htp-table { width: 100%; border-collapse: collapse; font-size: 12px; }
