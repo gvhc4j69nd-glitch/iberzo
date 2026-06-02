@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { fetchLeaderboard, searchUsers } from '../lib/api';
 import AdBanner from '../components/AdBanner';
 import HowToPlayPage from './HowToPlayPage';
+import TutorialModal from '../components/TutorialModal';
 
 export default function LobbyPage({
   socket, username, onLogout,
@@ -14,6 +15,7 @@ export default function LobbyPage({
   }
   const [joinInput, setJoinInput] = useState('');
   const [showHtp, setShowHtp] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(false);
   const [leaderboard, setLeaderboard] = useState([]);
   const [myRank, setMyRank] = useState(null);
   const [error, setError] = useState('');
@@ -200,7 +202,16 @@ export default function LobbyPage({
               <HowToPlayPage />
             </div>
           )}
+          <button className="tut-launch-btn" onClick={() => setShowTutorial(true)}>
+            ▶ Watch Tutorial
+          </button>
         </div>
+        {showTutorial && (
+          <TutorialModal
+            onClose={() => setShowTutorial(false)}
+            onHowToPlay={() => { setShowTutorial(false); setShowHtp(true); }}
+          />
+        )}
 
         <div className="room-panel">
           <h2>Find Players</h2>
