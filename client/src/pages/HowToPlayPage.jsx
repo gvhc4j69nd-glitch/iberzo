@@ -29,33 +29,37 @@ export default function HowToPlayPage({ onClose }) {
 
         <section className="htp-section">
           <h3>Scoring</h3>
-          <table className="htp-table">
+          <div className="htp-table-wrap">
+            <table className="htp-table">
             <thead>
               <tr><th>Event</th><th>Points</th></tr>
             </thead>
             <tbody>
               <tr><td>Place a tile (isolated)</td><td>+1</td></tr>
-              <tr><td>Tile connects horizontally</td><td>+1 per tile in the row</td></tr>
-              <tr><td>Tile connects vertically</td><td>+1 per tile in the column</td></tr>
-              <tr><td>Complete a horizontal wall row</td><td>+2 bonus</td></tr>
-              <tr><td>Complete a vertical wall column</td><td>+7 bonus</td></tr>
+              <tr><td>Tile connects horizontally</td><td>+1 per tile in row</td></tr>
+              <tr><td>Tile connects vertically</td><td>+1 per tile in col</td></tr>
+              <tr><td>Complete a wall row</td><td>+2 bonus</td></tr>
+              <tr><td>Complete a wall column</td><td>+7 bonus</td></tr>
               <tr><td>Place all 5 of one color</td><td>+10 bonus</td></tr>
             </tbody>
-          </table>
-          <p style={{ marginTop: 10, fontSize: 13, opacity: 0.7 }}>Row and column bonuses are awarded at the end of the game.</p>
+            </table>
+          </div>
+          <p style={{ marginTop: 10, fontSize: 12, opacity: 0.7 }}>Row and column bonuses are awarded at game end.</p>
         </section>
 
         <section className="htp-section">
           <h3>Floor Penalties</h3>
-          <table className="htp-table">
-            <thead>
-              <tr><th>Tile slot</th><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th><th>6th</th><th>7th</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>Penalty</td><td>−1</td><td>−1</td><td>−2</td><td>−2</td><td>−2</td><td>−3</td><td>−3</td></tr>
-            </tbody>
-          </table>
-          <p style={{ marginTop: 10, fontSize: 13, opacity: 0.7 }}>Your score cannot go below 0 from floor penalties.</p>
+          <div className="htp-table-wrap">
+            <table className="htp-table">
+              <thead>
+                <tr><th>Slot</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Penalty</td><td>−1</td><td>−1</td><td>−2</td><td>−2</td><td>−2</td><td>−3</td><td>−3</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p style={{ marginTop: 10, fontSize: 12, opacity: 0.7 }}>Score cannot go below 0 from floor penalties.</p>
         </section>
 
         <section className="htp-section">

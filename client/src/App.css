@@ -150,7 +150,7 @@ input:focus { outline: none; border-color: var(--accent); }
   background: var(--bg); border: 1.5px solid var(--border); color: var(--text-muted);
   padding: 5px 10px; font-size: 13px; border-radius: 8px;
 }
-.nav-page-body { padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
+.nav-page-body { padding: 16px; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; gap: 14px; }
 
 /* ── Account page ─────────────────────────────── */
 .account-info-card {
@@ -167,13 +167,14 @@ input:focus { outline: none; border-color: var(--accent); }
 
 /* ── How to Play page ─────────────────────────── */
 .htp-body { gap: 16px; }
-.htp-section { background: var(--bg); border: 1.5px solid var(--border); border-radius: 12px; padding: 16px; }
-.htp-section h3 { font-size: 14px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; }
-.htp-section p { font-size: 14px; line-height: 1.6; color: var(--text); }
-.htp-list { font-size: 14px; line-height: 1.7; color: var(--text); padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
-.htp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.htp-table th { text-align: left; padding: 6px 10px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); border-bottom: 1.5px solid var(--border); }
-.htp-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); color: var(--text); }
+.htp-section { background: var(--bg); border: 1.5px solid var(--border); border-radius: 12px; padding: 12px; overflow: hidden; }
+.htp-section h3 { font-size: 13px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
+.htp-section p { font-size: 13px; line-height: 1.6; color: var(--text); }
+.htp-list { font-size: 13px; line-height: 1.7; color: var(--text); padding-left: 16px; display: flex; flex-direction: column; gap: 6px; }
+.htp-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -12px; padding: 0 12px; }
+.htp-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.htp-table th { text-align: left; padding: 5px 8px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); border-bottom: 1.5px solid var(--border); white-space: nowrap; }
+.htp-table td { padding: 7px 8px; border-bottom: 1px solid var(--border); color: var(--text); white-space: nowrap; }
 .htp-table td:last-child { font-weight: 600; color: var(--accent); text-align: right; }
 .htp-table thead tr th:last-child { text-align: right; }
 
