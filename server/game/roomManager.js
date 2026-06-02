@@ -136,6 +136,9 @@ async function handleMove(roomId, userId, move) {
   const playerIndex = room.state.players.findIndex(p => p.userId === userId);
   if (playerIndex === -1) return { error: 'Not in this game' };
 
+  // Clear last round's summary so it doesn't re-appear on subsequent updates
+  room.state.roundSummary = null;
+
   const result = applyMove(room.state, playerIndex, move);
   if (result.error) return result;
 
