@@ -84,6 +84,8 @@ export default function LobbyPage({
   }
 
   function startGame() { socket.emit('start_game', { roomId: activeRoomId }); }
+  function addBot() { socket.emit('add_bot', { roomId: activeRoomId }); }
+  function removeBot() { socket.emit('remove_bot', { roomId: activeRoomId }); }
 
   function copyCode() {
     navigator.clipboard.writeText(activeRoomId);
@@ -103,8 +105,20 @@ export default function LobbyPage({
           </div>
           <p className="hint">Share this code — room stays open until you close it</p>
           <ul className="player-list">
-            {roomPlayers.map(p => <li key={p}>{p}{p === username ? ' (you)' : ''}</li>)}
+            {roomPlayers.map(p => (
+              <li key={p}>
+                {p.startsWith('Bot ') ? '🤖 ' : ''}{p}{p === username ? ' (you)' : ''}
+              </li>
+            ))}
           </ul>
+          {isHost && (
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button onClick={addBot} className="secondary-btn" disabled={roomPlayers.length >= 4}>+ Add Bot</button>
+              {roomPlayers.some(p => p.startsWith('Bot ')) && (
+                <button onClick={removeBot} className="secondary-btn">− Remove Bot</button>
+              )}
+            </div>
+          )}
           {isHost && roomPlayers.length >= 2 && (
             <button onClick={startGame} className="primary-btn room-btn">Start Game</button>
           )}
@@ -112,6 +126,9 @@ export default function LobbyPage({
             <p className="hint">Waiting for more players… (min 2)</p>
           )}
           {!isHost && <p className="hint">Waiting for host to start…</p>}
+          {isHost && roomPlayers.some(p => p.startsWith('Bot ')) && (
+            <p className="hint" style={{ fontSize: 11, opacity: 0.6 }}>Practice games with bots don't count toward rankings.</p>
+          )}
           {error && <p className="error">{error}</p>}
         </div>
       </div>

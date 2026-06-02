@@ -42,6 +42,8 @@ input:focus { outline: none; border-color: var(--accent); }
 
 .error { color: #d93025; font-size: 13px; margin-top: 4px; }
 .primary-btn { background: var(--accent); color: white; font-weight: 600; padding: 14px 24px; font-size: 16px; width: 100%; box-shadow: 0 2px 8px rgba(192,57,43,0.3); }
+.secondary-btn { background: var(--bg); border: 1.5px solid var(--border); color: var(--text); font-weight: 600; padding: 8px 14px; font-size: 13px; border-radius: 8px; cursor: pointer; }
+.secondary-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .loading { display: flex; align-items: center; justify-content: center; height: 100vh; font-size: 18px; opacity: 0.5; }
 
 /* ── Multi-game nav ───────────────────────────── */

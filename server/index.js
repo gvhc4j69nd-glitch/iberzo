@@ -8,7 +8,7 @@ const jwt = require('jsonwebtoken');
 const { init } = require('./db/schema');
 const authRoutes = require('./routes/auth');
 const leaderboardRoutes = require('./routes/leaderboard');
-const { createRoom, joinRoom, startGame, handleMove, leaveGame, closeRoom, getRoom, getUserRooms, restoreRooms, closeStaleGames } = require('./game/roomManager');
+const { createRoom, addBot, removeBot, joinRoom, startGame, handleMove, leaveGame, closeRoom, getRoom, getUserRooms, restoreRooms, closeStaleGames } = require('./game/roomManager');
 
 const path = require('path');
 
@@ -117,6 +117,28 @@ io.on('connection', async socket => {
     const result = await startGame(roomId, user.id);
     if (result.error) return socket.emit('game_error', result.error);
     io.to(roomId).emit('game_started', { roomId, state: result.state });
+  });
+
+  socket.on('add_bot', async ({ roomId }) => {
+    const result = await addBot(roomId, user.id);
+    if (result.error) return socket.emit('game_error', result.error);
+    const room = getRoom(roomId);
+    io.to(roomId).emit('room_update', {
+      roomId,
+      players: room.players.map(p => p.username),
+      hostUsername: room.players.find(p => p.id === room.host)?.username,
+    });
+  });
+
+  socket.on('remove_bot', async ({ roomId }) => {
+    const result = await removeBot(roomId, user.id);
+    if (result.error) return socket.emit('game_error', result.error);
+    const room = getRoom(roomId);
+    io.to(roomId).emit('room_update', {
+      roomId,
+      players: room.players.map(p => p.username),
+      hostUsername: room.players.find(p => p.id === room.host)?.username,
+    });
   });
 
   socket.on('close_room', async ({ roomId }) => {

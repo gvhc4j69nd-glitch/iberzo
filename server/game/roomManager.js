@@ -1,4 +1,5 @@
 const { createGame, takeTiles, placeTiles, endRound, isDraftingOver } = require('./azulEngine');
+const { createBot, isBotId, chooseBotMove } = require('./botPlayer');
 const { pool } = require('../db/schema');
 
 const rooms = new Map();
@@ -44,8 +45,34 @@ async function createRoom(hostUser) {
   const id = Math.random().toString(36).slice(2, 8).toUpperCase();
   await pool.query('INSERT INTO rooms (id, host_id, status) VALUES ($1, $2, $3)', [id, hostUser.id, 'waiting']);
   await pool.query('INSERT INTO room_players (room_id, user_id) VALUES ($1, $2)', [id, hostUser.id]);
-  rooms.set(id, { id, host: hostUser.id, players: [hostUser], state: null, gameId: null });
+  rooms.set(id, { id, host: hostUser.id, players: [hostUser], state: null, gameId: null, hasBot: false });
   return { id };
+}
+
+async function addBot(roomId, userId) {
+  const room = rooms.get(roomId);
+  if (!room) return { error: 'Room not found' };
+  if (room.host !== userId) return { error: 'Only host can add a bot' };
+  if (room.state) return { error: 'Game already started' };
+  if (room.players.length >= 4) return { error: 'Room is full' };
+  const botCount = room.players.filter(p => isBotId(p.id)).length;
+  if (botCount >= 3) return { error: 'Max 3 bots per room' };
+  const bot = createBot(botCount + 1);
+  room.players.push(bot);
+  room.hasBot = true;
+  return { room };
+}
+
+async function removeBot(roomId, userId) {
+  const room = rooms.get(roomId);
+  if (!room) return { error: 'Room not found' };
+  if (room.host !== userId) return { error: 'Only host can remove a bot' };
+  if (room.state) return { error: 'Game already started' };
+  const botIdx = room.players.findLastIndex(p => isBotId(p.id));
+  if (botIdx === -1) return { error: 'No bots in room' };
+  room.players.splice(botIdx, 1);
+  room.hasBot = room.players.some(p => isBotId(p.id));
+  return { room };
 }
 
 async function joinRoom(roomId, user) {
@@ -74,13 +101,29 @@ async function startGame(roomId, userId) {
   const gameId = rows[0].id;
 
   for (const p of room.players) {
-    await pool.query('INSERT INTO game_players (game_id, user_id) VALUES ($1, $2) ON CONFLICT DO NOTHING', [gameId, p.id]);
+    if (!isBotId(p.id)) {
+      await pool.query('INSERT INTO game_players (game_id, user_id) VALUES ($1, $2) ON CONFLICT DO NOTHING', [gameId, p.id]);
+    }
   }
 
   room.gameId = gameId;
   room.state = state;
   await pool.query('UPDATE rooms SET status = $1 WHERE id = $2', ['active', roomId]);
   return { state };
+}
+
+function applyMove(state, playerIndex, move) {
+  const { source, color, patternRow } = move;
+  const takeResult = takeTiles(state, playerIndex, source, color);
+  if (takeResult.error) return takeResult;
+  const placeResult = placeTiles(state, playerIndex, takeResult.taken, patternRow);
+  if (placeResult.error) return placeResult;
+  if (isDraftingOver(state)) {
+    endRound(state);
+  } else {
+    state.currentPlayerIndex = (playerIndex + 1) % state.players.length;
+  }
+  return {};
 }
 
 async function handleMove(roomId, userId, move) {
@@ -90,17 +133,20 @@ async function handleMove(roomId, userId, move) {
   const playerIndex = room.state.players.findIndex(p => p.userId === userId);
   if (playerIndex === -1) return { error: 'Not in this game' };
 
-  const { source, color, patternRow } = move;
-  const takeResult = takeTiles(room.state, playerIndex, source, color);
-  if (takeResult.error) return takeResult;
+  const result = applyMove(room.state, playerIndex, move);
+  if (result.error) return result;
 
-  const placeResult = placeTiles(room.state, playerIndex, takeResult.taken, patternRow);
-  if (placeResult.error) return placeResult;
-
-  if (isDraftingOver(room.state)) {
-    endRound(room.state);
-  } else {
-    room.state.currentPlayerIndex = (playerIndex + 1) % room.state.players.length;
+  // Auto-play any consecutive bot turns
+  if (room.hasBot) {
+    while (!room.state.gameOver) {
+      const nextIdx = room.state.currentPlayerIndex;
+      const nextPlayer = room.state.players[nextIdx];
+      if (!isBotId(nextPlayer.userId)) break;
+      const botMove = chooseBotMove(room.state, nextIdx);
+      if (!botMove) break;
+      const botResult = applyMove(room.state, nextIdx, botMove);
+      if (botResult.error) break;
+    }
   }
 
   const isOver = room.state.gameOver;
@@ -163,12 +209,17 @@ async function finishGame(room) {
 
   for (let rank = 0; rank < sorted.length; rank++) {
     const player = sorted[rank];
+    if (isBotId(player.userId)) continue; // bots have no DB record
+
     await pool.query('UPDATE game_players SET score = $1, rank = $2 WHERE game_id = $3 AND user_id = $4',
       [player.score, rank + 1, gameId, player.userId]);
 
+    // Skip leaderboard update if any bot was in the game
+    if (room.hasBot) continue;
+
     const isWin = rank === 0 ? 1 : 0;
-    const currentElo = lbMap[player.userId].elo;
-    const newElo = Math.max(100, Math.round(currentElo + eloDeltas[player.userId]));
+    const currentElo = lbMap[player.userId]?.elo ?? 1200;
+    const newElo = Math.max(100, Math.round(currentElo + (eloDeltas[player.userId] ?? 0)));
 
     await pool.query(`
       INSERT INTO leaderboard (user_id, wins, losses, total_score, games_played, elo_rating)
@@ -278,4 +329,4 @@ async function closeStaleGames() {
   return stale.map(r => r.room_id);
 }
 
-module.exports = { createRoom, joinRoom, startGame, handleMove, leaveGame, closeRoom, getRoom, getUserRooms, restoreRooms, closeStaleGames };
+module.exports = { createRoom, addBot, removeBot, joinRoom, startGame, handleMove, leaveGame, closeRoom, getRoom, getUserRooms, restoreRooms, closeStaleGames };
