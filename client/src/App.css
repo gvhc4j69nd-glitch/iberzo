@@ -134,7 +134,7 @@ input:focus { outline: none; border-color: var(--accent); }
 .nav-page-overlay {
   position: fixed; inset: 0; z-index: 700;
   background: rgba(45,26,14,0.45);
-  display: flex; align-items: stretch; justify-content: flex-end;
+  display: flex; align-items: flex-start; justify-content: flex-end;
   padding-top: calc(130px + env(safe-area-inset-top));
   padding-bottom: max(12px, env(safe-area-inset-bottom));
   padding-left: max(12px, env(safe-area-inset-left));
@@ -144,8 +144,9 @@ input:focus { outline: none; border-color: var(--accent); }
   background: var(--card); border-radius: 16px; box-shadow: 0 12px 40px rgba(0,0,0,0.18);
   width: 100%; max-width: 420px;
   display: flex; flex-direction: column;
-  overflow: hidden; /* children handle their own scroll */
-  align-self: flex-start; max-height: 100%;
+  overflow: hidden;
+  /* Concrete viewport-based max-height so flex children can scroll */
+  max-height: calc(100vh - 160px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
 }
 .nav-page-header {
   display: flex; align-items: center; justify-content: space-between;
