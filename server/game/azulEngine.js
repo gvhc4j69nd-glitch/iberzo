@@ -134,11 +134,14 @@ function endRound(state) {
       }
     });
 
-    // Floor penalty
-    const penalty = player.floor.slice(0, 7).reduce((sum, t, i) => {
-      if (t === 'first') { player.hasFirstPlayerToken = true; return sum; }
-      return sum + (FLOOR_PENALTIES[i] || -3);
-    }, 0);
+    // Floor penalty — 'first' token occupies a slot and counts as -1
+    let penaltyIdx = 0;
+    let penalty = 0;
+    for (const t of player.floor.slice(0, 7)) {
+      if (t === 'first') { player.hasFirstPlayerToken = true; }
+      penalty += FLOOR_PENALTIES[penaltyIdx] ?? -3;
+      penaltyIdx++;
+    }
     player.score = Math.max(0, player.score + penalty);
     state.discard.push(...player.floor.filter(t => t !== 'first'));
     player.floor = [];
