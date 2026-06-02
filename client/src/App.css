@@ -207,21 +207,29 @@ input:focus { outline: none; border-color: var(--accent); }
   display: flex; flex-direction: column; align-items: center;
   min-height: 100vh;
   background: linear-gradient(160deg, #f5ddd0 0%, #fdf6f0 60%);
-  padding: 28px 16px 16px;
-  gap: 16px;
+  padding: 18px 16px 16px;
+  gap: 8px;
 }
-.landing-logo { width: 180px; max-width: 55vw; }
+.landing-logo { width: 180px; max-width: 55vw; margin-bottom: 0; }
 .tagline-text {
   font-family: 'Playfair Display', Georgia, serif;
   font-weight: 900;
-  font-size: clamp(16px, 4vw, 26px);
-  line-height: 1.3;
+  font-size: clamp(15px, 3.8vw, 23px);
+  line-height: 1.25;
   color: var(--accent);
   text-align: center;
   letter-spacing: -0.3px;
   text-shadow: 1px 1px 0 rgba(0,0,0,0.07);
-  max-width: 380px;
+  max-width: 340px;
+  margin-bottom: 2px;
 }
+.tut-launch-btn {
+  background: none; border: 1.5px solid var(--accent); color: var(--accent);
+  font-size: 13px; font-weight: 700; padding: 7px 18px; border-radius: 20px;
+  cursor: pointer; letter-spacing: 0.3px;
+  transition: background 0.15s, color 0.15s;
+}
+.tut-launch-btn:hover { background: var(--accent); color: white; }
 
 .auth-card {
   background: var(--card); border-radius: 20px; padding: 28px;
@@ -682,3 +690,142 @@ tr.me td { color: var(--accent); font-weight: 600; }
 .leaderboard-my-rank tr.me td { background: #fff5f0; font-weight: 700; color: var(--accent); }
 
 .difficulty-demanding { background: #e2d4f0; color: #5b2d8e; }
+
+/* ── Tutorial Modal ───────────────────────────── */
+.tut-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 5000; padding: 12px;
+}
+.tut-modal {
+  background: var(--card); border-radius: 20px;
+  width: 100%; max-width: 480px;
+  max-height: 92vh; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 12px;
+  padding: 18px 16px 16px;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.3);
+}
+.tut-header {
+  display: flex; justify-content: space-between; align-items: center;
+}
+.tut-step-counter {
+  font-size: 12px; font-weight: 700; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.6px;
+}
+.tut-close {
+  background: var(--bg); border: 1.5px solid var(--border);
+  color: var(--text-muted); padding: 4px 10px; font-size: 13px; border-radius: 8px;
+}
+.tut-progress-track {
+  height: 4px; background: var(--border); border-radius: 2px; overflow: hidden;
+}
+.tut-progress-fill {
+  height: 100%; background: var(--accent); border-radius: 2px;
+  transition: width 0.3s ease;
+}
+.tut-text { display: flex; flex-direction: column; gap: 4px; }
+.tut-title { font-size: 16px; font-weight: 800; color: var(--accent); }
+.tut-desc { font-size: 13px; color: var(--text); line-height: 1.5; }
+
+/* Factories */
+.tut-factories {
+  display: flex; flex-direction: column; gap: 6px;
+}
+.tut-area-label {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.7px; color: var(--text-muted);
+}
+.tut-factory-row {
+  display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+}
+.tut-factory {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 2px; padding: 4px; border-radius: 50%;
+  background: #ece4da; width: 38px; height: 38px;
+  border: 2px solid transparent; transition: border-color 0.2s;
+}
+.tut-factory-hl {
+  border-color: var(--accent);
+  box-shadow: 0 0 6px rgba(192,99,74,0.5);
+}
+.tut-center {
+  display: flex; flex-direction: column; gap: 3px; margin-left: 4px;
+}
+.tut-center-label { font-size: 9px; color: var(--text-muted); font-weight: 600; }
+.tut-center-tiles { display: flex; gap: 2px; flex-wrap: wrap; }
+
+/* Tiles */
+.tut-tile {
+  width: 14px; height: 14px; border-radius: 2px; flex-shrink: 0;
+  transition: background 0.3s, box-shadow 0.2s;
+}
+
+/* Player boards */
+.tut-boards {
+  display: flex; gap: 10px;
+}
+.tut-board {
+  flex: 1; background: var(--bg); border-radius: 10px;
+  padding: 8px; border: 1.5px solid var(--border);
+  position: relative; display: flex; flex-direction: column; gap: 5px;
+}
+.tut-board-label {
+  font-size: 11px; font-weight: 700; color: var(--text-muted);
+  display: flex; align-items: center; gap: 6px;
+}
+.tut-score-badge {
+  background: var(--accent); color: white; font-size: 10px;
+  font-weight: 800; padding: 1px 6px; border-radius: 10px;
+}
+.tut-board-inner { display: flex; gap: 4px; align-items: flex-start; }
+.tut-pattern { display: flex; flex-direction: column; gap: 2px; align-items: flex-end; }
+.tut-pline {
+  display: flex; gap: 2px;
+  transition: filter 0.2s;
+}
+.tut-pline-hl {
+  filter: drop-shadow(0 0 4px rgba(255,200,80,0.9));
+}
+.tut-wall { display: flex; flex-direction: column; gap: 2px; }
+.tut-wall-row { display: flex; gap: 2px; }
+
+/* Floor */
+.tut-floor {
+  display: flex; gap: 2px; flex-wrap: wrap;
+}
+.tut-floor-tile {
+  width: 12px; height: 12px; border-radius: 2px;
+  font-size: 7px; display: flex; align-items: center; justify-content: center;
+  color: white; font-weight: 800;
+}
+
+/* Score popup */
+.tut-score-popup {
+  position: absolute; top: -14px; right: 6px;
+  background: #2a9d4e; color: white;
+  font-size: 13px; font-weight: 800;
+  padding: 2px 8px; border-radius: 10px;
+  animation: tut-pop 0.4s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.tut-score-popup.penalty { background: #c0392b; }
+@keyframes tut-pop {
+  0%   { transform: scale(0.6) translateY(4px); opacity: 0; }
+  60%  { transform: scale(1.15) translateY(-2px); opacity: 1; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+/* Navigation */
+.tut-nav {
+  display: flex; justify-content: space-between; align-items: center; gap: 8px;
+}
+.tut-btn {
+  padding: 10px 20px; border-radius: 10px; font-size: 14px;
+  font-weight: 700; cursor: pointer; border: none;
+}
+.tut-btn-back {
+  background: var(--bg); border: 1.5px solid var(--border); color: var(--text-muted);
+}
+.tut-btn-back:disabled { opacity: 0.3; cursor: default; }
+.tut-btn-next { background: var(--accent); color: white; }
+.tut-btn-htp  { background: var(--accent); color: white; }

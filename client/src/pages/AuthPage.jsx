@@ -1,11 +1,15 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { register, login } from '../lib/api';
 import AzulDemo from '../components/AzulDemo';
+import TutorialModal from '../components/TutorialModal';
+import HowToPlayPage from './HowToPlayPage';
 
 export default function AuthPage({ onAuth }) {
   const [mode, setMode] = useState('login');
   const [form, setForm] = useState({ username: '', email: '', password: '' });
   const [error, setError] = useState('');
+  const [showTutorial, setShowTutorial] = useState(false);
+  const [showHtp, setShowHtp] = useState(false);
 
   async function submit(e) {
     e.preventDefault();
@@ -19,11 +23,28 @@ export default function AuthPage({ onAuth }) {
     onAuth(result.token, result.username);
   }
 
+  if (showHtp) {
+    return (
+      <div className="landing-page" style={{ justifyContent: 'flex-start', paddingTop: 20 }}>
+        <HowToPlayPage onClose={() => setShowHtp(false)} />
+      </div>
+    );
+  }
+
   return (
     <div className="landing-page">
+      {showTutorial && (
+        <TutorialModal
+          onClose={() => setShowTutorial(false)}
+          onHowToPlay={() => { setShowTutorial(false); setShowHtp(true); }}
+        />
+      )}
       <img src="/iberzo-logo.png" alt="Iberzo" className="landing-logo" />
       <p className="tagline-text">The challenging tile game you can play with friends or by yourself!</p>
       <AzulDemo />
+      <button className="tut-launch-btn" onClick={() => setShowTutorial(true)}>
+        ▶ Watch Tutorial
+      </button>
       <div className="auth-card">
         <div className="tabs">
           <button className={mode === 'login' ? 'active' : ''} onClick={() => setMode('login')}>Login</button>
