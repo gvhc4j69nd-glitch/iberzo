@@ -182,7 +182,7 @@ export default function App() {
       )}
       <div className="game-nav-shell">
         <div className="game-nav-top">
-          <img src="/iberzo-logo.png" alt="Iberzo" style={{ height: 44, objectFit: 'contain' }} />
+          <img src="/iberzo-logo.png" alt="Iberzo" style={{ height: 88, objectFit: 'contain' }} />
           <NavMenu onSelect={setNavPage} />
         </div>
         <div className="game-nav-tabs">

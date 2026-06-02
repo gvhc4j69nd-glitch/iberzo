@@ -27,6 +27,9 @@ body {
   color: var(--text);
   min-height: 100vh;
   -webkit-tap-highlight-color: transparent;
+  /* Prevent content spilling into notch/home-bar areas on PWA */
+  padding-bottom: env(safe-area-inset-bottom);
+  overflow-x: hidden;
 }
 
 button {
@@ -57,6 +60,10 @@ input:focus { outline: none; border-color: var(--accent); }
 .game-nav-shell {
   background: var(--card); border-bottom: 1.5px solid var(--border);
   flex-shrink: 0; position: sticky; top: 0; z-index: 400;
+  /* Respect iPhone notch / status bar in PWA mode */
+  padding-top: env(safe-area-inset-top);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 .game-nav-top {
   display: flex; align-items: center; justify-content: space-between;
@@ -66,6 +73,8 @@ input:focus { outline: none; border-color: var(--accent); }
 .game-nav-tabs {
   display: flex; gap: 4px; padding: 0 12px 8px;
   overflow-x: auto; -webkit-overflow-scrolling: touch;
+  padding-left: max(12px, env(safe-area-inset-left));
+  padding-right: max(12px, env(safe-area-inset-right));
 }
 /* keep old class working for any stray references */
 .game-nav { display: none; }
@@ -107,7 +116,7 @@ input:focus { outline: none; border-color: var(--accent); }
 }
 .nav-menu-btn.open .nav-menu-icon span { background: #fff; }
 .nav-menu-dropdown {
-  position: fixed; top: 70px; right: 12px; z-index: 800;
+  position: fixed; top: calc(120px + env(safe-area-inset-top)); right: max(12px, env(safe-area-inset-right)); z-index: 800;
   background: var(--card); border: 1.5px solid var(--border); border-radius: 12px;
   box-shadow: 0 8px 28px rgba(0,0,0,0.18); min-width: 180px;
   display: flex; flex-direction: column; overflow: hidden;
@@ -125,7 +134,7 @@ input:focus { outline: none; border-color: var(--accent); }
 .nav-page-overlay {
   position: fixed; inset: 0; z-index: 700;
   background: rgba(45,26,14,0.45); display: flex; align-items: flex-start; justify-content: flex-end;
-  padding: 72px 12px 12px;
+  padding: calc(130px + env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) 12px max(12px, env(safe-area-inset-left));
 }
 .nav-page {
   background: var(--card); border-radius: 16px; box-shadow: 0 12px 40px rgba(0,0,0,0.18);
