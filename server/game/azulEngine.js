@@ -121,13 +121,20 @@ function placeTiles(state, playerIndex, taken, patternRow) {
 }
 
 function endRound(state) {
+  const roundSummary = [];
+
   // Tiling phase
   state.players.forEach(player => {
+    const scoreBefore = player.score;
+    const tilePlacements = [];
+
     player.patternLines.forEach((line, row) => {
       if (line.count === line.slots) {
         const col = WALL_PATTERN[row].indexOf(line.color);
         player.wall[row][col] = line.color;
-        player.score += calcTileScore(player.wall, row, col);
+        const pts = calcTileScore(player.wall, row, col);
+        player.score += pts;
+        tilePlacements.push({ row, color: line.color, pts });
         state.discard.push(...Array(line.slots - 1).fill(line.color));
         line.color = null;
         line.count = 0;
@@ -142,10 +149,23 @@ function endRound(state) {
       penalty += FLOOR_PENALTIES[penaltyIdx] ?? -3;
       penaltyIdx++;
     }
+    const scoreAfterTiles = player.score;
     player.score = Math.max(0, player.score + penalty);
     state.discard.push(...player.floor.filter(t => t !== 'first'));
     player.floor = [];
+
+    const actualPenalty = player.score - scoreAfterTiles; // ≤ 0 (may be clamped)
+    roundSummary.push({
+      username: player.username,
+      scoreBefore,
+      tilePlacements,
+      tilePoints: scoreAfterTiles - scoreBefore,
+      floorPenalty: actualPenalty,
+      scoreAfter: player.score,
+    });
   });
+
+  state.roundSummary = roundSummary;
 
   // Check game over (any player completed a wall row)
   const gameOver = state.players.some(p => p.wall.some(row => row.every(Boolean)));
@@ -169,6 +189,7 @@ function endRound(state) {
   state.currentPlayerIndex = firstIdx >= 0 ? firstIdx : 0;
   state.round++;
   state.phase = 'drafting';
+  // roundSummary is cleared once a new move is made (handled client-side via phase change)
 }
 
 function calcTileScore(wall, row, col) {

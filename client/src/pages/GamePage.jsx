@@ -4,12 +4,15 @@ import PlayerBoard from '../components/PlayerBoard';
 import AdBanner from '../components/AdBanner';
 
 const COLOR_HEX = { blue: '#4a90d9', yellow: '#f5c842', red: '#e74c3c', black: '#2c2c2c', white: '#00b4d8' };
+const ROW_LABELS = ['Row 1', 'Row 2', 'Row 3', 'Row 4', 'Row 5'];
 
 export default function GamePage({ socket, username, roomId, initialState, onGameOver, onLeave, onAbandoned }) {
   const [state, setState] = useState(initialState);
   const [selected, setSelected] = useState(null); // { source, color }
   const [gameOverData, setGameOverData] = useState(null);
   const [moveError, setMoveError] = useState(null);
+  const [showSummary, setShowSummary] = useState(false);
+  const [summary, setSummary] = useState(null);
   const dragRef = useRef(null);
   const errorTimerRef = useRef(null);
 
@@ -18,7 +21,13 @@ export default function GamePage({ socket, username, roomId, initialState, onGam
 
   useEffect(() => {
     const onUpdate = ({ roomId: id, state }) => {
-      if (id === roomId) { setState(state); setSelected(null); }
+      if (id !== roomId) return;
+      setState(state);
+      setSelected(null);
+      if (state.roundSummary) {
+        setSummary(state.roundSummary);
+        setShowSummary(true);
+      }
     };
     const onOver = ({ roomId: id, players }) => {
       if (id === roomId) setGameOverData(players);
@@ -154,6 +163,49 @@ export default function GamePage({ socket, username, roomId, initialState, onGam
           />
         ))}
       </div>
+
+      {showSummary && summary && (
+        <div className="round-summary-overlay" onClick={() => setShowSummary(false)}>
+          <div className="round-summary-modal" onClick={e => e.stopPropagation()}>
+            <h2 className="round-summary-title">Round {state.round - 1} Scoring</h2>
+            <div className="round-summary-players">
+              {summary.map(p => (
+                <div key={p.username} className="round-summary-player">
+                  <div className="rsp-header">
+                    <span className="rsp-name">{p.username}</span>
+                    <span className="rsp-total">{p.scoreAfter} pts</span>
+                  </div>
+                  <div className="rsp-rows">
+                    {p.tilePlacements.length === 0 && (
+                      <div className="rsp-row rsp-none">No tiles placed on wall</div>
+                    )}
+                    {p.tilePlacements.map(t => (
+                      <div key={t.row} className="rsp-row">
+                        <span className="rsp-dot" style={{ background: COLOR_HEX[t.color] }} />
+                        <span className="rsp-label">{ROW_LABELS[t.row]}</span>
+                        <span className="rsp-pts">+{t.pts}</span>
+                      </div>
+                    ))}
+                    {p.floorPenalty < 0 && (
+                      <div className="rsp-row rsp-penalty">
+                        <span className="rsp-label">🟫 Floor penalty</span>
+                        <span className="rsp-pts">{p.floorPenalty}</span>
+                      </div>
+                    )}
+                    <div className="rsp-row rsp-net">
+                      <span className="rsp-label">Round total</span>
+                      <span className="rsp-pts">{p.scoreAfter - p.scoreBefore >= 0 ? '+' : ''}{p.scoreAfter - p.scoreBefore}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <button className="primary-btn rsp-close" onClick={() => setShowSummary(false)}>
+              Continue
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
