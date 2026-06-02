@@ -1,4 +1,4 @@
-const COLOR_HEX = { blue: '#4a90d9', yellow: '#f5c842', red: '#e74c3c', black: '#2c2c2c', white: '#00b4d8' };
+const COLOR_HEX = { blue: '#4a90d9', yellow: '#f5c842', red: '#e74c3c', black: '#2c2c2c', white: '#6b8c3e' };
 
 export default function Factory({ tiles, index, onSelect, onDragStart, selected, myTurn }) {
   if (!tiles.length) return <div className="factory empty" />;
