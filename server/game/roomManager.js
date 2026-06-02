@@ -275,6 +275,16 @@ async function leaveGame(roomId, userId) {
   const room = rooms.get(roomId);
   if (!room) return { action: 'none' };
 
+  // Deduct 5 points from the leaver if a ranked game (no bots) was in progress
+  const wasActiveGame = !!room.state && !room.hasBot && !isBotId(userId);
+  if (wasActiveGame) {
+    await pool.query(`
+      UPDATE leaderboard
+      SET elo_rating = GREATEST(100, elo_rating - 5)
+      WHERE user_id = $1
+    `, [userId]);
+  }
+
   room.players = room.players.filter(p => p.id !== userId);
   room.state = null;
   await pool.query('DELETE FROM room_players WHERE room_id = $1 AND user_id = $2', [roomId, userId]);
