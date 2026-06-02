@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { fetchLeaderboard, searchUsers } from '../lib/api';
+import { fetchLeaderboard, searchUsers, fetchFriends } from '../lib/api';
 import AdBanner from '../components/AdBanner';
 import HowToPlayPage from './HowToPlayPage';
 import TutorialModal from '../components/TutorialModal';
@@ -10,9 +10,6 @@ export default function LobbyPage({
   activeRoomId, activeRoomTab, showRoomOnly,
   token,
 }) {
-  function sendInvite(toUsername) {
-    socket.emit('send_invite', { toUsername });
-  }
   const [joinInput, setJoinInput] = useState('');
   const [showHtp, setShowHtp] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
@@ -24,6 +21,37 @@ export default function LobbyPage({
   const [searchResults, setSearchResults] = useState([]);
   const [onlineUsers, setOnlineUsers] = useState(new Set());
   const searchTimer = useRef(null);
+  const [friends, setFriends] = useState([]);
+  const [showEloInfo, setShowEloInfo] = useState(false);
+  const [friendToast, setFriendToast] = useState('');
+
+  function sendInvite(toUsername) { socket.emit('send_invite', { toUsername }); }
+
+  function sendFriendRequest(toUsername) {
+    socket.emit('send_friend_request', { toUsername });
+    setFriendToast(`Friend request sent to ${toUsername}`);
+    setTimeout(() => setFriendToast(''), 3000);
+  }
+
+  function sendGameInviteToFriend(toUsername) {
+    if (!activeRoomId) {
+      socket.once('room_created', ({ roomId }) => {
+        onRoomCreated?.(roomId, true, [username], username);
+        socket.emit('send_game_invite_friend', { toUsername, roomId });
+        setFriendToast(onlineUsers.has(toUsername)
+          ? `Game invite sent to ${toUsername}`
+          : `${toUsername} is offline — they'll see your invite when they log in`);
+        setTimeout(() => setFriendToast(''), 4000);
+      });
+      socket.emit('create_room');
+    } else {
+      socket.emit('send_game_invite_friend', { toUsername, roomId: activeRoomId });
+      setFriendToast(onlineUsers.has(toUsername)
+        ? `Game invite sent to ${toUsername}`
+        : `${toUsername} is offline — they'll see your invite when they log in`);
+      setTimeout(() => setFriendToast(''), 4000);
+    }
+  }
 
   // Normalize player entries — may be strings (legacy) or objects
   function normalizePlayers(list) {
@@ -41,6 +69,21 @@ export default function LobbyPage({
       setMyRank(data.myRank || null);
     });
   }, [showRoomOnly]);
+
+  const reloadFriends = () => {
+    if (!showRoomOnly && token) {
+      fetchFriends(token).then(d => { if (d && !d.error) setFriends(d.friends || []); });
+    }
+  };
+
+  useEffect(() => { reloadFriends(); }, [showRoomOnly, token]);
+
+  useEffect(() => {
+    if (!socket) return;
+    const onUpdated = () => reloadFriends();
+    socket.on('friends_updated', onUpdated);
+    return () => socket.off('friends_updated', onUpdated);
+  }, [socket]);
 
   useEffect(() => {
     if (activeRoomTab) {
@@ -215,6 +258,7 @@ export default function LobbyPage({
 
         <div className="room-panel">
           <h2>Find Players</h2>
+          {friendToast && <div className="friend-toast">{friendToast}</div>}
           <input
             placeholder="Search by username…"
             value={searchQuery}
@@ -225,6 +269,7 @@ export default function LobbyPage({
               {searchResults.map(r => {
                 const isOnline = onlineUsers.has(r.username);
                 const isMe = r.username === username;
+                const isFriend = friends.some(f => f.username === r.username);
                 return (
                   <li key={r.username} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{
@@ -233,6 +278,12 @@ export default function LobbyPage({
                       display: 'inline-block',
                     }} />
                     <span style={{ flex: 1 }}>{r.username}{isMe ? ' (you)' : ''}</span>
+                    {!isMe && !isFriend && (
+                      <button
+                        onClick={() => sendFriendRequest(r.username)}
+                        style={{ background: 'none', border: '1.5px solid #888', color: '#555', padding: '3px 8px', fontSize: 11, fontWeight: 600, borderRadius: 6, cursor: 'pointer' }}
+                      >+ Friend</button>
+                    )}
                     {isOnline && !isMe && (
                       <button
                         onClick={() => sendInvite(r.username)}
@@ -244,10 +295,58 @@ export default function LobbyPage({
               })}
             </ul>
           )}
+
+          {/* Friends list */}
+          {friends.length > 0 && (
+            <div style={{ marginTop: 16 }}>
+              <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 8, color: '#444' }}>Friends ({friends.length})</h3>
+              <ul className="player-list">
+                {friends.map(f => {
+                  const isOnline = onlineUsers.has(f.username);
+                  return (
+                    <li key={f.username} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{
+                        width: 9, height: 9, borderRadius: '50%', flexShrink: 0,
+                        background: isOnline ? '#2a9d4e' : '#ccc',
+                        display: 'inline-block',
+                      }} />
+                      <span style={{ flex: 1 }}>{f.username}</span>
+                      {isOnline ? (
+                        <button
+                          onClick={() => sendInvite(f.username)}
+                          style={{ background: '#2a9d4e', color: 'white', padding: '4px 10px', fontSize: 12, fontWeight: 600, borderRadius: 6 }}
+                        >Play</button>
+                      ) : (
+                        <button
+                          onClick={() => sendGameInviteToFriend(f.username)}
+                          style={{ background: '#6b8c3e', color: 'white', padding: '4px 10px', fontSize: 12, fontWeight: 600, borderRadius: 6 }}
+                        >Invite</button>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
         </div>
 
         <div className="leaderboard-panel">
-          <h2>Leaderboard</h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
+            <h2 style={{ margin: 0 }}>Leaderboard</h2>
+            <button
+              onClick={() => setShowEloInfo(v => !v)}
+              style={{ background: 'none', border: '1.5px solid #aaa', borderRadius: '50%', width: 20, height: 20, fontSize: 11, cursor: 'pointer', color: '#666', fontWeight: 700, lineHeight: '18px', padding: 0, flexShrink: 0 }}
+              title="How is Rating calculated?"
+            >ℹ</button>
+          </div>
+          {showEloInfo && (
+            <div className="elo-info-box">
+              <strong>How is Rating calculated?</strong>
+              <p>Ratings use the <strong>Elo system</strong> — the same method used in chess rankings. Starting at 1200, your rating rises when you beat higher-rated players and drops when you lose to lower-rated ones.</p>
+              <p>The size of the change depends on your experience: newer players see bigger swings (K=40 for first 10 games, K=24 up to 30 games, then K=16). Bot games don't affect your rating. Leaving an active game deducts 5 points.</p>
+              <button onClick={() => setShowEloInfo(false)} style={{ marginTop: 4, fontSize: 12, cursor: 'pointer' }}>Close</button>
+            </div>
+          )}
           <p className="hint" style={{ marginBottom: 8 }}>{onlineUsers.size} player{onlineUsers.size !== 1 ? 's' : ''} online</p>
 
           {/* Scrollable top-50 table, visually capped at 10 rows */}
@@ -275,7 +374,13 @@ export default function LobbyPage({
                       <td>{row.losses}</td>
                       <td>{row.total_score}</td>
                       <td>{row.elo_rating ?? 1200}</td>
-                      <td>
+                      <td style={{ whiteSpace: 'nowrap' }}>
+                        {!isMe && !friends.some(f => f.username === row.username) && (
+                          <button
+                            onClick={() => sendFriendRequest(row.username)}
+                            style={{ background: 'none', border: '1.5px solid #aaa', color: '#555', padding: '3px 6px', fontSize: 10, fontWeight: 600, borderRadius: 5, cursor: 'pointer', marginRight: 4 }}
+                          >+</button>
+                        )}
                         {isOnline && !isMe && (
                           <button
                             onClick={() => sendInvite(row.username)}

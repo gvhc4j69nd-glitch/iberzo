@@ -10,6 +10,7 @@ const authRoutes = require('./routes/auth');
 const leaderboardRoutes = require('./routes/leaderboard');
 const botStatsRoutes = require('./routes/botStats');
 const { createRoom, addBot, removeBot, joinRoom, startGame, handleMove, leaveGame, closeRoom, getRoom, getUserRooms, restoreRooms, closeStaleGames } = require('./game/roomManager');
+const { sendFriendRequest, acceptFriendRequest, declineFriendRequest, removeFriend, getFriendData, createGameInvite, respondGameInvite, getPendingGameInvites } = require('./friends/friendsManager');
 
 const path = require('path');
 
@@ -21,6 +22,28 @@ app.get('/health', (req, res) => res.json({ ok: true }));
 app.use('/api/auth', authRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
 app.use('/api/bot-stats', botStatsRoutes);
+
+// Helper DB lookups
+const { pool: _pool } = require('./db/schema');
+async function getUserIdByUsername(username) {
+  const { rows } = await _pool.query('SELECT id FROM users WHERE username = $1', [username]);
+  return rows[0]?.id ?? null;
+}
+async function getUsernameById(id) {
+  const { rows } = await _pool.query('SELECT username FROM users WHERE id = $1', [id]);
+  return rows[0]?.username ?? null;
+}
+
+app.get('/api/friends', async (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) return res.status(401).json({ error: 'Unauthorized' });
+  try {
+    const user = jwt.verify(token, process.env.JWT_SECRET);
+    res.json(await getFriendData(user.id));
+  } catch {
+    res.status(401).json({ error: 'Invalid token' });
+  }
+});
 
 app.get('/api/my-rooms', async (req, res) => {
   const token = req.headers.authorization?.split(' ')[1];
@@ -209,6 +232,90 @@ io.on('connection', async socket => {
   socket.on('reject_invite', ({ fromUsername }) => {
     const fromSocket = userSockets.get(fromUsername);
     if (fromSocket) fromSocket.emit('invite_rejected', { byUsername: user.username });
+  });
+
+  // --- Friends & game invites ---
+
+  // Deliver pending game invites on connect
+  getPendingGameInvites(user.id).then(pending => {
+    if (pending.length) socket.emit('pending_game_invites', pending);
+  }).catch(() => {});
+
+  socket.on('send_friend_request', async ({ toUsername }) => {
+    const result = await sendFriendRequest(user.id, toUsername);
+    if (result.error) return socket.emit('friend_error', result.error);
+    socket.emit('friend_request_sent', { toUsername });
+    const targetSocket = userSockets.get(toUsername);
+    if (targetSocket) targetSocket.emit('friend_request_received', { fromUsername: user.username });
+  });
+
+  socket.on('accept_friend_request', async ({ fromUsername }) => {
+    const fromId = onlineUsers.get(fromUsername) || await getUserIdByUsername(fromUsername);
+    if (!fromId) return socket.emit('friend_error', 'User not found');
+    const result = await acceptFriendRequest(user.id, fromId);
+    if (result.error) return socket.emit('friend_error', result.error);
+    socket.emit('friends_updated');
+    const fromSocket = userSockets.get(fromUsername);
+    if (fromSocket) fromSocket.emit('friends_updated');
+  });
+
+  socket.on('decline_friend_request', async ({ fromUsername }) => {
+    const fromId = onlineUsers.get(fromUsername) || await getUserIdByUsername(fromUsername);
+    if (!fromId) return;
+    await declineFriendRequest(user.id, fromId);
+    socket.emit('friends_updated');
+  });
+
+  socket.on('remove_friend', async ({ friendUsername }) => {
+    const friendId = onlineUsers.get(friendUsername) || await getUserIdByUsername(friendUsername);
+    if (!friendId) return;
+    await removeFriend(user.id, friendId);
+    socket.emit('friends_updated');
+    const friendSocket = userSockets.get(friendUsername);
+    if (friendSocket) friendSocket.emit('friends_updated');
+  });
+
+  socket.on('send_game_invite_friend', async ({ toUsername, roomId }) => {
+    const toId = onlineUsers.get(toUsername) || await getUserIdByUsername(toUsername);
+    if (!toId) return socket.emit('friend_error', 'User not found');
+    const result = await createGameInvite(user.id, toId, roomId);
+    if (result.error) return socket.emit('friend_error', result.error);
+    const targetSocket = userSockets.get(toUsername);
+    if (targetSocket) {
+      targetSocket.emit('game_invite_received', {
+        fromUsername: user.username,
+        roomId,
+        inviteId: result.inviteId,
+      });
+      socket.emit('game_invite_delivered', { toUsername, online: true });
+    } else {
+      socket.emit('game_invite_delivered', { toUsername, online: false });
+    }
+  });
+
+  socket.on('respond_game_invite', async ({ inviteId, accept }) => {
+    const result = await respondGameInvite(inviteId, user.id, accept);
+    if (result.error) return socket.emit('friend_error', result.error);
+    if (accept && result.roomId) {
+      const joinResult = await joinRoom(result.roomId, { id: user.id, userId: user.id, username: user.username });
+      if (!joinResult.error) {
+        socket.join(result.roomId);
+        const room = getRoom(result.roomId);
+        if (room) {
+          io.to(result.roomId).emit('room_update', {
+            roomId: result.roomId,
+            players: room.players.map(p => ({ username: p.username, isBot: !!p.isBot, difficulty: p.difficulty || null })),
+            hostUsername: room.players.find(p => p.id === room.host)?.username,
+          });
+        }
+        socket.emit('game_invite_joined', { roomId: result.roomId });
+      } else {
+        socket.emit('friend_error', 'Could not join room — it may have started or closed');
+      }
+      const fromUsername = await getUsernameById(result.fromUserId);
+      const fromSocket = fromUsername && userSockets.get(fromUsername);
+      if (fromSocket) fromSocket.emit('friends_updated');
+    }
   });
 
   socket.on('disconnect', () => {

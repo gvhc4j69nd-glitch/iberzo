@@ -89,6 +89,30 @@ async function init() {
       WHERE bot_name = $1 AND difficulty = 'medium'
     `, [name]);
   }
+
+  // Friendships
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS friendships (
+      id           SERIAL PRIMARY KEY,
+      requester_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      addressee_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      status       TEXT NOT NULL DEFAULT 'pending',
+      created_at   TIMESTAMPTZ DEFAULT NOW(),
+      UNIQUE (requester_id, addressee_id)
+    )
+  `);
+
+  // Game invites (for offline delivery)
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS game_invites (
+      id           SERIAL PRIMARY KEY,
+      from_user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      to_user_id   INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      room_id      TEXT,
+      status       TEXT NOT NULL DEFAULT 'pending',
+      created_at   TIMESTAMPTZ DEFAULT NOW()
+    )
+  `);
 }
 
 module.exports = { pool, init };

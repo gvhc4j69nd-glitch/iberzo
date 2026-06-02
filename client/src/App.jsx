@@ -21,6 +21,9 @@ export default function App() {
   const [currentTab, setCurrentTab] = useState(null); // roomId or 'lobby'
   const [unread, setUnread] = useState(new Set());
   const [incomingInvite, setIncomingInvite] = useState(null); // { fromUsername }
+  const [incomingGameInvites, setIncomingGameInvites] = useState([]); // [{inviteId, fromUsername, roomId}]
+  const [pendingGameInvites, setPendingGameInvites] = useState([]); // offline invites on login
+  const [friendRequestCount, setFriendRequestCount] = useState(0);
   const [navPage, setNavPage] = useState(null); // 'account' | 'howtoplay' | 'friends'
 
   // Restore tabs from server on login
@@ -89,6 +92,26 @@ export default function App() {
     const onInviteRejected = ({ byUsername }) => {
       alert(`${byUsername} declined your invite.`);
     };
+    const onFriendRequestReceived = ({ fromUsername }) => {
+      setFriendRequestCount(n => n + 1);
+    };
+    const onFriendsUpdated = () => {
+      // refresh badge — FriendsPage handles its own reload
+      setFriendRequestCount(0);
+    };
+    const onGameInviteReceived = (invite) => {
+      setIncomingGameInvites(prev => [...prev, invite]);
+    };
+    const onPendingGameInvites = (invites) => {
+      if (invites.length) setPendingGameInvites(invites);
+    };
+    const onGameInviteJoined = ({ roomId }) => {
+      setTabs(t => ({
+        ...t,
+        [roomId]: t[roomId] ? t[roomId] : { roomId, status: 'waiting', state: null, players: [], hostUsername: null, isHost: false },
+      }));
+      setCurrentTab(roomId);
+    };
 
     s.on('connect', onConnect);
     s.on('game_started', onGameStarted);
@@ -99,6 +122,11 @@ export default function App() {
     s.on('invite_received', onInviteReceived);
     s.on('invite_accepted', onInviteAccepted);
     s.on('invite_rejected', onInviteRejected);
+    s.on('friend_request_received', onFriendRequestReceived);
+    s.on('friends_updated', onFriendsUpdated);
+    s.on('game_invite_received', onGameInviteReceived);
+    s.on('pending_game_invites', onPendingGameInvites);
+    s.on('game_invite_joined', onGameInviteJoined);
 
     return () => {
       s.off('connect', onConnect);
@@ -110,6 +138,11 @@ export default function App() {
       s.off('invite_received', onInviteReceived);
       s.off('invite_accepted', onInviteAccepted);
       s.off('invite_rejected', onInviteRejected);
+      s.off('friend_request_received', onFriendRequestReceived);
+      s.off('friends_updated', onFriendsUpdated);
+      s.off('game_invite_received', onGameInviteReceived);
+      s.off('pending_game_invites', onPendingGameInvites);
+      s.off('game_invite_joined', onGameInviteJoined);
     };
   }, [token, username]);
 
@@ -170,6 +203,56 @@ export default function App() {
 
   return (
     <div className="app-shell">
+      {/* Offline game invites delivered on login */}
+      {pendingGameInvites.length > 0 && (
+        <div className="invite-overlay">
+          <div className="invite-card">
+            <p style={{ marginBottom: 8 }}><strong>Game invites waiting for you:</strong></p>
+            {pendingGameInvites.map((inv, i) => (
+              <div key={inv.id} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                <span style={{ flex: 1 }}><strong>{inv.from_username}</strong> invited you to room <code>{inv.room_id}</code></span>
+                <button className="primary-btn" style={{ width: 'auto', padding: '6px 14px', fontSize: 13 }}
+                  onClick={() => {
+                    socket.emit('respond_game_invite', { inviteId: inv.id, accept: true });
+                    setPendingGameInvites(prev => prev.filter((_, j) => j !== i));
+                  }}>Join</button>
+                <button className="close-room-btn" style={{ width: 'auto', padding: '6px 14px', fontSize: 13 }}
+                  onClick={() => {
+                    socket.emit('respond_game_invite', { inviteId: inv.id, accept: false });
+                    setPendingGameInvites(prev => prev.filter((_, j) => j !== i));
+                  }}>Decline</button>
+              </div>
+            ))}
+            <button className="secondary-btn" style={{ marginTop: 4 }} onClick={() => setPendingGameInvites([])}>Dismiss All</button>
+          </div>
+        </div>
+      )}
+
+      {/* Live game invite from a friend */}
+      {incomingGameInvites.length > 0 && pendingGameInvites.length === 0 && (
+        <div className="invite-overlay">
+          <div className="invite-card">
+            {incomingGameInvites.map((inv, i) => (
+              <div key={inv.inviteId} style={{ marginBottom: i < incomingGameInvites.length - 1 ? 12 : 0 }}>
+                <p><strong>{inv.fromUsername}</strong> invited you to a game!</p>
+                <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
+                  <button className="primary-btn" style={{ width: 'auto', padding: '10px 20px' }}
+                    onClick={() => {
+                      socket.emit('respond_game_invite', { inviteId: inv.inviteId, accept: true });
+                      setIncomingGameInvites(prev => prev.filter((_, j) => j !== i));
+                    }}>Accept</button>
+                  <button className="close-room-btn" style={{ width: 'auto', padding: '10px 20px' }}
+                    onClick={() => {
+                      socket.emit('respond_game_invite', { inviteId: inv.inviteId, accept: false });
+                      setIncomingGameInvites(prev => prev.filter((_, j) => j !== i));
+                    }}>Decline</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {incomingInvite && (
         <div className="invite-overlay">
           <div className="invite-card">
@@ -184,7 +267,7 @@ export default function App() {
       <div className="game-nav-shell">
         <div className="game-nav-top">
           <img src="/iberzo-logo.png" alt="Iberzo" style={{ height: 88, objectFit: 'contain' }} />
-          <NavMenu onSelect={setNavPage} />
+          <NavMenu onSelect={setNavPage} friendBadge={friendRequestCount} />
         </div>
         <div className="game-nav-tabs">
           <button
@@ -221,7 +304,17 @@ export default function App() {
             <HowToPlayPage onClose={() => setNavPage(null)} />
           )}
           {navPage === 'friends' && (
-            <FriendsPage onClose={() => setNavPage(null)} />
+            <FriendsPage
+              onClose={() => { setNavPage(null); setFriendRequestCount(0); }}
+              socket={socket}
+              token={token}
+              username={username}
+              onJoinRoom={(roomId) => {
+                // room_update will fire and addTab via onRoomCreated is not available here
+                // We navigate there via currentTab after join
+                setCurrentTab(roomId);
+              }}
+            />
           )}
           {navPage === 'botstats' && (
             <BotStatsPage token={token} onClose={() => setNavPage(null)} />

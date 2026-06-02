@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 
-export default function NavMenu({ onSelect }) {
+export default function NavMenu({ onSelect, friendBadge = 0 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
@@ -38,6 +38,7 @@ export default function NavMenu({ onSelect }) {
           </button>
           <button onClick={() => pick('friends')}>
             <span className="nav-menu-item-icon">👥</span> Friends
+            {friendBadge > 0 && <span className="nav-friend-badge">{friendBadge}</span>}
           </button>
           <button onClick={() => pick('botstats')}>
             <span className="nav-menu-item-icon">🤖</span> Bot Record

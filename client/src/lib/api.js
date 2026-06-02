@@ -55,3 +55,10 @@ export async function fetchBotStats(token) {
   });
   return res.json();
 }
+
+export async function fetchFriends(token) {
+  const res = await fetch(`${BASE}/friends`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return res.json();
+}
