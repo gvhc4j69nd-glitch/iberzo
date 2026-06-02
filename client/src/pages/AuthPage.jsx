@@ -21,34 +21,23 @@ export default function AuthPage({ onAuth }) {
 
   return (
     <div className="landing-page">
-      {/* Left — animated game demo */}
-      <div className="landing-demo">
-        <AzulDemo />
-      </div>
-
-      {/* Center — login / register */}
-      <div className="landing-auth">
-        <img src="/iberzo-logo.png" alt="Iberzo" className="landing-logo" />
-        <div className="auth-card">
-          <div className="tabs">
-            <button className={mode === 'login' ? 'active' : ''} onClick={() => setMode('login')}>Login</button>
-            <button className={mode === 'register' ? 'active' : ''} onClick={() => setMode('register')}>Register</button>
-          </div>
-          <form onSubmit={submit}>
-            <input placeholder="Username" value={form.username} onChange={e => setForm({ ...form, username: e.target.value })} required />
-            {mode === 'register' && (
-              <input type="email" placeholder="Email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} required />
-            )}
-            <input type="password" placeholder="Password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} required />
-            {error && <p className="error">{error}</p>}
-            <button type="submit">{mode === 'login' ? 'Login' : 'Register'}</button>
-          </form>
+      <img src="/iberzo-logo.png" alt="Iberzo" className="landing-logo" />
+      <p className="tagline-text">The challenging tile game you can play with friends or by yourself!</p>
+      <AzulDemo />
+      <div className="auth-card">
+        <div className="tabs">
+          <button className={mode === 'login' ? 'active' : ''} onClick={() => setMode('login')}>Login</button>
+          <button className={mode === 'register' ? 'active' : ''} onClick={() => setMode('register')}>Register</button>
         </div>
-      </div>
-
-      {/* Right — tagline */}
-      <div className="landing-tagline">
-        <p className="tagline-text">The addictive tile game you can play with friends!</p>
+        <form onSubmit={submit}>
+          <input placeholder="Username" value={form.username} onChange={e => setForm({ ...form, username: e.target.value })} required />
+          {mode === 'register' && (
+            <input type="email" placeholder="Email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} required />
+          )}
+          <input type="password" placeholder="Password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} required />
+          {error && <p className="error">{error}</p>}
+          <button type="submit">{mode === 'login' ? 'Login' : 'Register'}</button>
+        </form>
       </div>
     </div>
   );
