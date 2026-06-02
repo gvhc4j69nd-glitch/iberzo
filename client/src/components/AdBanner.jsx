@@ -1,32 +1,39 @@
 import { useEffect, useRef, useState } from 'react';
-import { CARBON_SERVE_ID, KOFI_URL, isNoAds, setNoAds } from '../lib/ads';
+import { PW_PUBLISHER_ID, PW_SITE_ID, PW_UNITS, KOFI_URL, isNoAds, setNoAds } from '../lib/ads';
+
+// Inject the Playwire Ramp script once globally when ads are enabled
+let pwScriptInjected = false;
+function injectPlaywireScript() {
+  if (pwScriptInjected || !PW_PUBLISHER_ID || !PW_SITE_ID) return;
+  pwScriptInjected = true;
+  const script = document.createElement('script');
+  script.src = `https://cdn.playwire.com/bolt/js/zeus/embed.js`;
+  script.setAttribute('data-pw-pubid', PW_PUBLISHER_ID);
+  script.setAttribute('data-pw-type', 'standard');
+  script.async = true;
+  document.head.appendChild(script);
+}
 
 /**
- * AdBanner — renders a Carbon Ads unit or a tasteful placeholder.
- * Pass variant="leaderboard" for the lobby sidebar (smaller),
- * or variant="postgame" for the game-over interstitial (larger).
- * Hidden entirely when the user has opted out via Ko-fi support.
+ * AdBanner
+ * variant="leaderboard" — lobby sidebar (medium rectangle)
+ * variant="postgame"    — game-over screen (medium rectangle)
+ *
+ * To activate: fill in PW_PUBLISHER_ID and PW_SITE_ID in src/lib/ads.js
+ * after Playwire approves your account at playwire.com
  */
 export default function AdBanner({ variant = 'leaderboard' }) {
   const [noAds, setNoAdsState] = useState(isNoAds());
   const [supported, setSupported] = useState(false);
-  const carbonRef = useRef(null);
+  const unitId = useRef(`pw-${variant}-${Math.random().toString(36).slice(2)}`);
 
   useEffect(() => {
-    if (noAds || !CARBON_SERVE_ID || !carbonRef.current) return;
-    // Remove any previous instance
-    carbonRef.current.innerHTML = '';
-    const script = document.createElement('script');
-    script.src = `//cdn.carbonads.com/carbon.js?serve=${CARBON_SERVE_ID}&placement=iberzo`;
-    script.id = '_carbonads_js';
-    script.async = true;
-    carbonRef.current.appendChild(script);
-    return () => { if (carbonRef.current) carbonRef.current.innerHTML = ''; };
+    if (noAds) return;
+    injectPlaywireScript();
   }, [noAds]);
 
   function handleSupport() {
     window.open(KOFI_URL, '_blank', 'noopener');
-    // Give them a moment to land on Ko-fi, then confirm
     setTimeout(() => {
       if (window.confirm('Thanks for supporting Iberzo! Click OK to remove ads on this device.')) {
         setNoAds();
@@ -37,31 +44,33 @@ export default function AdBanner({ variant = 'leaderboard' }) {
   }
 
   if (noAds) {
-    if (supported) {
-      return (
-        <div className="ad-thankyou">
-          ❤️ Thanks for supporting Iberzo — ads removed!
-        </div>
-      );
-    }
-    return null;
+    return supported ? (
+      <div className="ad-thankyou">❤️ Thanks for supporting Iberzo — ads removed!</div>
+    ) : null;
   }
 
   return (
     <div className={`ad-wrap ad-${variant}`}>
-      {CARBON_SERVE_ID ? (
-        // Real Carbon Ads unit — Carbon injects its own markup here
-        <div ref={carbonRef} className="carbon-wrap" />
+      <span className="ad-label">Advertisement</span>
+
+      {PW_PUBLISHER_ID && PW_SITE_ID ? (
+        // Playwire Ramp unit — script populates this div automatically
+        <div
+          id={unitId.current}
+          data-pw-desk={PW_UNITS[variant]}
+          data-pw-mobi={PW_UNITS[variant]}
+          className="pw-unit"
+        />
       ) : (
-        // Placeholder shown until Carbon Ads account is approved
+        // Placeholder until Playwire account is approved
         <div className="ad-placeholder">
-          <span className="ad-label">Advertisement</span>
           <div className="ad-placeholder-inner">
-            <p className="ad-placeholder-text">Your ad here</p>
-            <p className="ad-placeholder-sub">Powered by Carbon Ads</p>
+            <p className="ad-placeholder-text">Ad space</p>
+            <p className="ad-placeholder-sub">Powered by Playwire</p>
           </div>
         </div>
       )}
+
       <button className="ad-remove-btn" onClick={handleSupport}>
         ☕ Support Iberzo — remove ads
       </button>
