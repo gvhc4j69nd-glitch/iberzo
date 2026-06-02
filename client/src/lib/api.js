@@ -20,8 +20,9 @@ export async function login(username, password) {
   return res.json();
 }
 
-export async function fetchLeaderboard() {
-  const res = await fetch(`${BASE}/leaderboard`);
+export async function fetchLeaderboard(username) {
+  const qs = username ? `?username=${encodeURIComponent(username)}` : '';
+  const res = await fetch(`${BASE}/leaderboard${qs}`);
   return res.json();
 }
 

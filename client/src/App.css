@@ -648,3 +648,35 @@ tr.me td { color: var(--accent); font-weight: 600; }
 .demo-wall-tile {
   opacity: 0.85;
 }
+
+/* ── Leaderboard scroll + pinned rank ─────────── */
+.leaderboard-scroll {
+  max-height: 370px;   /* ~10 rows visible */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+}
+.leaderboard-scroll table {
+  width: 100%; border-collapse: collapse;
+}
+.leaderboard-scroll thead th {
+  position: sticky; top: 0;
+  background: var(--card); z-index: 1;
+  padding: 8px 10px;
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted);
+  border-bottom: 1.5px solid var(--border);
+}
+.leaderboard-scroll tbody tr td { padding: 8px 10px; font-size: 13px; border-bottom: 1px solid var(--border); }
+.leaderboard-scroll tbody tr:last-child td { border-bottom: none; }
+.leaderboard-scroll tbody tr.me td { background: #fff5f0; font-weight: 600; color: var(--accent); }
+
+.leaderboard-my-rank {
+  border: 2px solid var(--accent);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 2px;
+}
+.leaderboard-my-rank table { width: 100%; border-collapse: collapse; }
+.leaderboard-my-rank td { padding: 8px 10px; font-size: 13px; }
+.leaderboard-my-rank tr.me td { background: #fff5f0; font-weight: 700; color: var(--accent); }

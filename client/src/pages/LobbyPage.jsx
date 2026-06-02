@@ -15,6 +15,7 @@ export default function LobbyPage({
   const [joinInput, setJoinInput] = useState('');
   const [showHtp, setShowHtp] = useState(false);
   const [leaderboard, setLeaderboard] = useState([]);
+  const [myRank, setMyRank] = useState(null);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -33,7 +34,10 @@ export default function LobbyPage({
   const [isHost, setIsHost] = useState(activeRoomTab?.isHost ?? false);
 
   useEffect(() => {
-    if (!showRoomOnly) fetchLeaderboard().then(setLeaderboard);
+    if (!showRoomOnly) fetchLeaderboard(username).then(data => {
+      setLeaderboard(data.rows || []);
+      setMyRank(data.myRank || null);
+    });
   }, [showRoomOnly]);
 
   useEffect(() => {
@@ -230,45 +234,74 @@ export default function LobbyPage({
         <div className="leaderboard-panel">
           <h2>Leaderboard</h2>
           <p className="hint" style={{ marginBottom: 8 }}>{onlineUsers.size} player{onlineUsers.size !== 1 ? 's' : ''} online</p>
-          <table>
-            <thead><tr><th>#</th><th>Player</th><th>W</th><th>L</th><th>Score</th><th>Rating</th><th></th></tr></thead>
-            <tbody>
-              {leaderboard.map((row, i) => {
-                const isOnline = onlineUsers.has(row.username);
-                const isMe = row.username === username;
-                return (
-                  <tr key={row.username} className={isMe ? 'me' : ''}>
-                    <td>{i + 1}</td>
+
+          {/* Scrollable top-50 table, visually capped at 10 rows */}
+          <div className="leaderboard-scroll">
+            <table>
+              <thead><tr><th>#</th><th>Player</th><th>W</th><th>L</th><th>Score</th><th>Rating</th><th></th></tr></thead>
+              <tbody>
+                {leaderboard.map((row, i) => {
+                  const isOnline = onlineUsers.has(row.username);
+                  const isMe = row.username === username;
+                  return (
+                    <tr key={row.username} className={isMe ? 'me' : ''}>
+                      <td>{i + 1}</td>
+                      <td>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                          <span style={{
+                            width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
+                            background: isOnline ? '#2a9d4e' : '#ccc',
+                            display: 'inline-block',
+                          }} />
+                          {row.username}
+                        </span>
+                      </td>
+                      <td>{row.wins}</td>
+                      <td>{row.losses}</td>
+                      <td>{row.total_score}</td>
+                      <td>{row.elo_rating ?? 1200}</td>
+                      <td>
+                        {isOnline && !isMe && (
+                          <button
+                            onClick={() => sendInvite(row.username)}
+                            style={{ background: '#2a9d4e', color: 'white', padding: '4px 10px', fontSize: 12, fontWeight: 600, borderRadius: 6 }}
+                          >Play</button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+                {leaderboard.length === 0 && (
+                  <tr><td colSpan={7} style={{ textAlign: 'center', opacity: 0.5 }}>No games yet</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pinned: current user's rank (shown if they're in the leaderboard) */}
+          {myRank && (
+            <div className="leaderboard-my-rank">
+              <table>
+                <tbody>
+                  <tr className="me">
+                    <td>#{myRank.rank}</td>
                     <td>
                       <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                        <span style={{
-                          width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
-                          background: isOnline ? '#2a9d4e' : '#ccc',
-                          display: 'inline-block',
-                        }} />
-                        {row.username}
+                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#2a9d4e', display: 'inline-block' }} />
+                        {username} <span style={{ fontSize: 11, opacity: 0.6, marginLeft: 2 }}>(you)</span>
                       </span>
                     </td>
-                    <td>{row.wins}</td>
-                    <td>{row.losses}</td>
-                    <td>{row.total_score}</td>
-                    <td>{row.elo_rating ?? 1200}</td>
-                    <td>
-                      {isOnline && !isMe && (
-                        <button
-                          onClick={() => sendInvite(row.username)}
-                          style={{ background: '#2a9d4e', color: 'white', padding: '4px 10px', fontSize: 12, fontWeight: 600, borderRadius: 6 }}
-                        >Play</button>
-                      )}
-                    </td>
+                    <td>{myRank.wins}</td>
+                    <td>{myRank.losses}</td>
+                    <td>{myRank.total_score}</td>
+                    <td>{myRank.elo_rating ?? 1200}</td>
+                    <td></td>
                   </tr>
-                );
-              })}
-              {leaderboard.length === 0 && (
-                <tr><td colSpan={7} style={{ textAlign: 'center', opacity: 0.5 }}>No games yet</td></tr>
-              )}
-            </tbody>
-          </table>
+                </tbody>
+              </table>
+            </div>
+          )}
+
           <AdBanner variant="leaderboard" />
         </div>
       </div>
