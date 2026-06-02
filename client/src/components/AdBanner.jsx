@@ -1,36 +1,30 @@
-import { useEffect, useRef, useState } from 'react';
-import { PW_PUBLISHER_ID, PW_SITE_ID, PW_UNITS, KOFI_URL, isNoAds, setNoAds } from '../lib/ads';
+import { useEffect, useState } from 'react';
+import { ADSENSE_CLIENT, ADSENSE_SLOTS, KOFI_URL, isNoAds, setNoAds } from '../lib/ads';
 
-// Inject the Playwire Ramp script once globally when ads are enabled
-let pwScriptInjected = false;
-function injectPlaywireScript() {
-  if (pwScriptInjected || !PW_PUBLISHER_ID || !PW_SITE_ID) return;
-  pwScriptInjected = true;
+let adsenseScriptInjected = false;
+function injectAdSense() {
+  if (adsenseScriptInjected) return;
+  adsenseScriptInjected = true;
   const script = document.createElement('script');
-  script.src = `https://cdn.playwire.com/bolt/js/zeus/embed.js`;
-  script.setAttribute('data-pw-pubid', PW_PUBLISHER_ID);
-  script.setAttribute('data-pw-type', 'standard');
+  script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`;
   script.async = true;
+  script.crossOrigin = 'anonymous';
   document.head.appendChild(script);
 }
 
-/**
- * AdBanner
- * variant="leaderboard" — lobby sidebar (medium rectangle)
- * variant="postgame"    — game-over screen (medium rectangle)
- *
- * To activate: fill in PW_PUBLISHER_ID and PW_SITE_ID in src/lib/ads.js
- * after Playwire approves your account at playwire.com
- */
 export default function AdBanner({ variant = 'leaderboard' }) {
   const [noAds, setNoAdsState] = useState(isNoAds());
   const [supported, setSupported] = useState(false);
-  const unitId = useRef(`pw-${variant}-${Math.random().toString(36).slice(2)}`);
+  const slotId = ADSENSE_SLOTS[variant];
 
   useEffect(() => {
     if (noAds) return;
-    injectPlaywireScript();
-  }, [noAds]);
+    injectAdSense();
+    // Push the ad unit after script loads
+    if (slotId) {
+      try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch {}
+    }
+  }, [noAds, slotId]);
 
   function handleSupport() {
     window.open(KOFI_URL, '_blank', 'noopener');
@@ -53,20 +47,20 @@ export default function AdBanner({ variant = 'leaderboard' }) {
     <div className={`ad-wrap ad-${variant}`}>
       <span className="ad-label">Advertisement</span>
 
-      {PW_PUBLISHER_ID && PW_SITE_ID ? (
-        // Playwire Ramp unit — script populates this div automatically
-        <div
-          id={unitId.current}
-          data-pw-desk={PW_UNITS[variant]}
-          data-pw-mobi={PW_UNITS[variant]}
-          className="pw-unit"
+      {slotId ? (
+        <ins
+          className="adsbygoogle"
+          style={{ display: 'block', width: '100%' }}
+          data-ad-client={ADSENSE_CLIENT}
+          data-ad-slot={slotId}
+          data-ad-format="auto"
+          data-full-width-responsive="true"
         />
       ) : (
-        // Placeholder until Playwire account is approved
         <div className="ad-placeholder">
           <div className="ad-placeholder-inner">
             <p className="ad-placeholder-text">Ad space</p>
-            <p className="ad-placeholder-sub">Powered by Playwire</p>
+            <p className="ad-placeholder-sub">Powered by Google AdSense</p>
           </div>
         </div>
       )}
