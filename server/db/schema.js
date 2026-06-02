@@ -73,6 +73,15 @@ async function init() {
       PRIMARY KEY (user_id, bot_name, difficulty)
     )
   `);
+  // Fix bot_stats rows that were recorded as 'medium' for hard-difficulty bots
+  // (bug: difficulty was dropped from game state players before being written)
+  const HARD_BOT_NAMES = ['Bot Goya', 'Bot Sorolla', 'Bot Anglada', 'Bot Casas'];
+  for (const name of HARD_BOT_NAMES) {
+    await pool.query(`
+      UPDATE bot_stats SET difficulty = 'hard'
+      WHERE bot_name = $1 AND difficulty = 'medium'
+    `, [name]);
+  }
 }
 
 module.exports = { pool, init };

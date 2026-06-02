@@ -24,10 +24,12 @@ function shuffle(arr) {
   return arr;
 }
 
-function createPlayer(userId, username) {
+function createPlayer(p) {
   return {
-    userId,
-    username,
+    userId: p.userId,
+    username: p.username,
+    isBot: p.isBot || false,
+    difficulty: p.difficulty || null,
     patternLines: Array.from({ length: 5 }, (_, i) => ({ slots: i + 1, color: null, count: 0 })),
     wall: Array.from({ length: 5 }, () => Array(5).fill(null)),
     floor: [],
@@ -46,7 +48,7 @@ function createGame(players) {
   });
 
   return {
-    players: players.map(p => createPlayer(p.userId, p.username)),
+    players: players.map(p => createPlayer(p)),
     factories,
     center: ['first'],
     bag,
