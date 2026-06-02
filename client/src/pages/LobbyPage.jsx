@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { fetchLeaderboard, searchUsers } from '../lib/api';
 import AdBanner from '../components/AdBanner';
+import HowToPlayPage from './HowToPlayPage';
 
 export default function LobbyPage({
   socket, username, onLogout,
@@ -12,6 +13,7 @@ export default function LobbyPage({
     socket.emit('send_invite', { toUsername });
   }
   const [joinInput, setJoinInput] = useState('');
+  const [showHtp, setShowHtp] = useState(false);
   const [leaderboard, setLeaderboard] = useState([]);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
@@ -158,6 +160,17 @@ export default function LobbyPage({
             <button onClick={joinRoom}>Join</button>
           </div>
           {error && <p className="error">{error}</p>}
+          <button
+            className="htp-toggle-btn"
+            onClick={() => setShowHtp(v => !v)}
+          >
+            {showHtp ? '▲ Hide How to Play' : '▼ How to Play'}
+          </button>
+          {showHtp && (
+            <div className="htp-inline">
+              <HowToPlayPage />
+            </div>
+          )}
         </div>
 
         <div className="room-panel">
