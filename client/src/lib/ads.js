@@ -4,8 +4,8 @@ export const ADSENSE_CLIENT = 'ca-pub-3107493448711439';
 // Ad slot IDs — create these in your AdSense dashboard under Ads → By ad unit
 // For each placement, create a "Display ad" unit and paste the slot ID below
 export const ADSENSE_SLOTS = {
-  leaderboard: null,  // e.g. '1234567890'
-  postgame:    null,  // e.g. '0987654321'
+  leaderboard: '7802890438',
+  postgame:    '9398053455',
 };
 
 // Ko-fi page for supporter donations
