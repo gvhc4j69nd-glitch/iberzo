@@ -7,6 +7,7 @@ import HowToPlayPage from './pages/HowToPlayPage';
 import FriendsPage from './pages/FriendsPage';
 import BotStatsPage from './pages/BotStatsPage';
 import NavMenu from './components/NavMenu';
+import NotificationBell from './components/NotificationBell';
 import { getSocket, disconnectSocket } from './lib/socket';
 import { fetchMyRooms } from './lib/api';
 import './App.css';
@@ -267,7 +268,18 @@ export default function App() {
       <div className="game-nav-shell">
         <div className="game-nav-top">
           <img src="/iberzo-logo.png" alt="Iberzo" style={{ height: 'clamp(52px, 12vw, 88px)', objectFit: 'contain' }} />
-          <NavMenu onSelect={setNavPage} friendBadge={friendRequestCount} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <NotificationBell
+              socket={socket}
+              token={token}
+              username={username}
+              onJoinRoom={(roomId) => {
+                setTabs(t => ({ ...t, [roomId]: t[roomId] || { roomId, status: 'waiting', state: null, players: [], hostUsername: null, isHost: false } }));
+                setCurrentTab(roomId);
+              }}
+            />
+            <NavMenu onSelect={setNavPage} friendBadge={friendRequestCount} />
+          </div>
         </div>
         <div className="game-nav-tabs">
           <button

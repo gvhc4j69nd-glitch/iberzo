@@ -11,6 +11,8 @@ const leaderboardRoutes = require('./routes/leaderboard');
 const botStatsRoutes = require('./routes/botStats');
 const { createRoom, addBot, removeBot, joinRoom, startGame, handleMove, leaveGame, closeRoom, getRoom, getUserRooms, restoreRooms, closeStaleGames } = require('./game/roomManager');
 const { sendFriendRequest, acceptFriendRequest, declineFriendRequest, removeFriend, getFriendData, createGameInvite, respondGameInvite, getPendingGameInvites } = require('./friends/friendsManager');
+const { createNotification, getUnreadCount } = require('./notifications/notificationsManager');
+const notificationsRoutes = require('./routes/notifications');
 
 const path = require('path');
 
@@ -25,6 +27,7 @@ app.get('/ads.txt', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
 app.use('/api/bot-stats', botStatsRoutes);
+app.use('/api/notifications', notificationsRoutes);
 
 // Helper DB lookups
 const { pool: _pool } = require('./db/schema');
@@ -109,6 +112,16 @@ app.get('/api/users/search', async (req, res) => {
     res.status(401).json({ error: 'Invalid token' });
   }
 });
+
+// Push a notification to a user and emit live update if they're online
+async function pushNotification(userId, username, type, subject, body, data) {
+  const result = await createNotification(userId, type, subject, body, data);
+  const targetSocket = userSockets.get(username);
+  if (targetSocket) {
+    const count = await getUnreadCount(userId);
+    targetSocket.emit('notification_pushed', { id: result.id, type, subject, body, data, read: false, created_at: new Date().toISOString(), count });
+  }
+}
 
 io.on('connection', async socket => {
   const user = socket.user;
@@ -239,6 +252,11 @@ io.on('connection', async socket => {
 
   // --- Friends & game invites ---
 
+  // Deliver unread notification count on connect
+  getUnreadCount(user.id).then(count => {
+    socket.emit('notification_count', { count });
+  }).catch(() => {});
+
   // Deliver pending game invites on connect
   getPendingGameInvites(user.id).then(pending => {
     if (pending.length) socket.emit('pending_game_invites', pending);
@@ -248,8 +266,12 @@ io.on('connection', async socket => {
     const result = await sendFriendRequest(user.id, toUsername);
     if (result.error) return socket.emit('friend_error', result.error);
     socket.emit('friend_request_sent', { toUsername });
-    const targetSocket = userSockets.get(toUsername);
-    if (targetSocket) targetSocket.emit('friend_request_received', { fromUsername: user.username });
+    const toId = onlineUsers.get(toUsername) || await getUserIdByUsername(toUsername);
+    if (toId) await pushNotification(toId, toUsername, 'friend_request',
+      `Friend request from ${user.username}`,
+      `${user.username} wants to be your friend.`,
+      { fromUsername: user.username, fromId: user.id }
+    );
   });
 
   socket.on('accept_friend_request', async ({ fromUsername }) => {
@@ -260,6 +282,10 @@ io.on('connection', async socket => {
     socket.emit('friends_updated');
     const fromSocket = userSockets.get(fromUsername);
     if (fromSocket) fromSocket.emit('friends_updated');
+    await pushNotification(fromId, fromUsername, 'system',
+      `${user.username} accepted your friend request`,
+      `You and ${user.username} are now friends.`, null
+    );
   });
 
   socket.on('decline_friend_request', async ({ fromUsername }) => {
@@ -284,12 +310,13 @@ io.on('connection', async socket => {
     const result = await createGameInvite(user.id, toId, roomId);
     if (result.error) return socket.emit('friend_error', result.error);
     const targetSocket = userSockets.get(toUsername);
+    await pushNotification(toId, toUsername, 'game_invite',
+      `Game invite from ${user.username}`,
+      `${user.username} invited you to play a game.`,
+      { fromUsername: user.username, roomId, inviteId: result.inviteId }
+    );
     if (targetSocket) {
-      targetSocket.emit('game_invite_received', {
-        fromUsername: user.username,
-        roomId,
-        inviteId: result.inviteId,
-      });
+      targetSocket.emit('game_invite_received', { fromUsername: user.username, roomId, inviteId: result.inviteId });
       socket.emit('game_invite_delivered', { toUsername, online: true });
     } else {
       socket.emit('game_invite_delivered', { toUsername, online: false });

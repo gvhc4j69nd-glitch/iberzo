@@ -66,3 +66,34 @@ export async function fetchFriends(token) {
   });
   return res.json();
 }
+
+export async function fetchNotifications(token) {
+  const res = await fetch(`${BASE}/notifications`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return res.json();
+}
+
+export async function markNotificationRead(token, id) {
+  const res = await fetch(`${BASE}/notifications/${id}/read`, {
+    method: 'PATCH',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return res.json();
+}
+
+export async function markAllNotificationsRead(token) {
+  const res = await fetch(`${BASE}/notifications/read-all`, {
+    method: 'PATCH',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return res.json();
+}
+
+export async function deleteNotification(token, id) {
+  const res = await fetch(`${BASE}/notifications/${id}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return res.json();
+}

@@ -102,6 +102,21 @@ async function init() {
     )
   `);
 
+  // Notifications
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS notifications (
+      id           SERIAL PRIMARY KEY,
+      user_id      INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      type         TEXT NOT NULL,
+      subject      TEXT NOT NULL,
+      body         TEXT,
+      data         JSONB,
+      read         BOOLEAN DEFAULT false,
+      created_at   TIMESTAMPTZ DEFAULT NOW()
+    )
+  `);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id, created_at DESC)`);
+
   // Game invites (for offline delivery)
   await pool.query(`
     CREATE TABLE IF NOT EXISTS game_invites (
