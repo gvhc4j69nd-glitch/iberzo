@@ -19,6 +19,9 @@ app.use(cors({ origin: true }));
 app.use(express.json());
 
 app.get('/health', (req, res) => res.json({ ok: true }));
+app.get('/ads.txt', (req, res) => {
+  res.type('text/plain').send('google.com, pub-3107493448711439, DIRECT, f08c47fec0942fa0\n');
+});
 app.use('/api/auth', authRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
 app.use('/api/bot-stats', botStatsRoutes);
