@@ -131,7 +131,7 @@ export default function GamePage({ socket, username, roomId, initialState, onGam
 
     // Phase 2: end-game bonus scoring
     if (gameOverPhase === 'final' && gameOverData.finalSummary) {
-      const COL_LABELS = ['Col A', 'Col B', 'Col C', 'Col D', 'Col E'];
+      const COL_LABELS = ['Column A', 'Column B', 'Column C', 'Column D', 'Column E'];
       return (
         <div className="game-over game-over-scoring">
           <h1>End-Game Bonuses</h1>
@@ -162,7 +162,7 @@ export default function GamePage({ socket, username, roomId, initialState, onGam
                   {p.completedColors.length > 0 && p.completedColors.map(color => (
                     <div key={color} className="rsp-row">
                       <span className="rsp-dot" style={{ background: COLOR_HEX[color] }} />
-                      <span className="rsp-label">All 5 {color}</span>
+                      <span className="rsp-label">All 5 {color === 'white' ? 'green' : color}</span>
                       <span className="rsp-pts">+10</span>
                     </div>
                   ))}
