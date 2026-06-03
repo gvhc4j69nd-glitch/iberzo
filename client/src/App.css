@@ -21,6 +21,7 @@
   :root { --tile: 32px; --gap: 4px; }
 }
 
+html { overflow-x: hidden; max-width: 100%; }
 body {
   font-family: 'Segoe UI', system-ui, sans-serif;
   background: var(--bg);
@@ -30,6 +31,7 @@ body {
   /* Prevent content spilling into notch/home-bar areas on PWA */
   padding-bottom: env(safe-area-inset-bottom);
   overflow-x: hidden;
+  max-width: 100%;
 }
 
 button {
@@ -54,12 +56,13 @@ input:focus { outline: none; border-color: var(--accent); }
 .loading { display: flex; align-items: center; justify-content: center; height: 100vh; font-size: 18px; opacity: 0.5; }
 
 /* ── Multi-game nav ───────────────────────────── */
-.app-shell { display: flex; flex-direction: column; min-height: 100vh; }
+.app-shell { display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; width: 100%; }
 
 /* Top bar: logo left, hamburger right — never scrolls */
 .game-nav-shell {
   background: var(--card); border-bottom: 1.5px solid var(--border);
   flex-shrink: 0; position: sticky; top: 0; z-index: 400;
+  width: 100%; overflow-x: hidden;
   /* Respect iPhone notch / status bar in PWA mode */
   padding-top: env(safe-area-inset-top);
   padding-left: env(safe-area-inset-left);
@@ -205,10 +208,10 @@ input:focus { outline: none; border-color: var(--accent); }
 /* ── Landing Page ─────────────────────────────── */
 .landing-page {
   display: flex; flex-direction: column; align-items: center;
-  min-height: 100vh;
+  min-height: 100vh; width: 100%; overflow-x: hidden;
   background: linear-gradient(160deg, #f5ddd0 0%, #fdf6f0 60%);
   padding: 18px 16px 16px;
-  gap: 8px;
+  gap: 8px; box-sizing: border-box;
 }
 .landing-logo { width: 180px; max-width: 55vw; margin-bottom: 0; }
 .tagline-text {
@@ -243,7 +246,7 @@ input:focus { outline: none; border-color: var(--accent); }
 .auth-card button[type=submit] { background: var(--blue); color: white; font-weight: 600; margin-top: 4px; box-shadow: 0 2px 8px rgba(192,87,43,0.3); }
 
 /* ── Lobby ────────────────────────────────────── */
-.lobby-page { max-width: 1100px; margin: 0 auto; padding: 12px; }
+.lobby-page { max-width: 1100px; margin: 0 auto; padding: 12px; overflow-x: hidden; width: 100%; }
 .lobby-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
 .lobby-welcome { font-size: 14px; color: var(--text-muted); }
 .logout-btn { background: var(--bg); border: 1.5px solid var(--border); color: var(--text-muted); padding: 8px 14px; font-size: 13px; }
@@ -269,15 +272,20 @@ code { background: var(--bg); border: 1.5px solid var(--border); padding: 4px 10
 /* ── Leaderboard ──────────────────────────────── */
 .leaderboard-panel { background: var(--card); border-radius: 16px; padding: 20px 20px 20px 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow-x: auto; }
 .leaderboard-panel h2 { font-size: 17px; color: var(--text); font-weight: 700; margin-bottom: 14px; }
-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-th { text-align: left; padding: 6px 10px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); border-bottom: 1.5px solid var(--border); white-space: nowrap; }
-td { padding: 9px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { text-align: left; padding: 6px 6px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); border-bottom: 1.5px solid var(--border); white-space: nowrap; }
+td { padding: 8px 6px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+@media (min-width: 500px) {
+  table { font-size: 14px; }
+  th { padding: 6px 10px; font-size: 11px; }
+  td { padding: 9px 10px; }
+}
 .leaderboard-panel table td:last-child,
 .leaderboard-panel table th:last-child { padding-right: 16px; }
 tr.me td { color: var(--accent); font-weight: 600; }
 
 /* ── Game ─────────────────────────────────────── */
-.game-page { padding: 8px; max-width: 1400px; margin: 0 auto; overflow-x: hidden; }
+.game-page { padding: 8px; max-width: 1400px; margin: 0 auto; overflow-x: hidden; width: 100%; }
 .game-header {
   display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center;
   margin-bottom: 12px; background: var(--card); padding: 10px 14px; border-radius: 12px;

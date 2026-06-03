@@ -266,7 +266,7 @@ export default function App() {
       )}
       <div className="game-nav-shell">
         <div className="game-nav-top">
-          <img src="/iberzo-logo.png" alt="Iberzo" style={{ height: 88, objectFit: 'contain' }} />
+          <img src="/iberzo-logo.png" alt="Iberzo" style={{ height: 'clamp(52px, 12vw, 88px)', objectFit: 'contain' }} />
           <NavMenu onSelect={setNavPage} friendBadge={friendRequestCount} />
         </div>
         <div className="game-nav-tabs">
