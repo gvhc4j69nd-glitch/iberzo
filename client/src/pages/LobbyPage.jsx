@@ -360,16 +360,7 @@ export default function LobbyPage({
                   return (
                     <tr key={row.username} className={isMe ? 'me' : ''}>
                       <td>{i + 1}</td>
-                      <td>
-                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                          <span style={{
-                            width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
-                            background: isOnline ? '#2a9d4e' : '#ccc',
-                            display: 'inline-block',
-                          }} />
-                          {row.username}
-                        </span>
-                      </td>
+                      <td>{row.username}</td>
                       <td>{row.wins}</td>
                       <td>{row.losses}</td>
                       <td>{row.total_score}</td>
