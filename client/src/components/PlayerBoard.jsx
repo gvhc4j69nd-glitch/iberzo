@@ -8,7 +8,7 @@ const WALL_PATTERN = [
 const COLOR_HEX = { blue: '#4a90d9', yellow: '#f0c97a', red: '#c0634a', black: '#2c2c2c', white: '#6b8c3e' };
 const FLOOR_PENALTIES = [-1, -1, -2, -2, -2, -3, -3];
 
-export default function PlayerBoard({ player, isMe, onSelectRow, onDrop, selectedTiles, myTurn }) {
+export default function PlayerBoard({ player, isMe, onSelectRow, onDrop, selectedTiles, myTurn, isCurrent }) {
   function handleDragOver(e) {
     if (isMe && myTurn) e.preventDefault();
   }
@@ -20,7 +20,7 @@ export default function PlayerBoard({ player, isMe, onSelectRow, onDrop, selecte
   }
 
   return (
-    <div className={`player-board ${isMe ? 'mine' : ''}`}>
+    <div className={`player-board ${isMe ? 'mine' : ''} ${isCurrent ? 'active-turn' : ''}`}>
       <div className="board-header">
         <strong>{player.username}</strong>
         <span className="score">Score: {player.score}</span>

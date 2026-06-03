@@ -263,6 +263,7 @@ export default function GamePage({ socket, username, roomId, initialState, onGam
             player={player}
             isMe={player.username === username}
             myTurn={myTurn}
+            isCurrent={state.players[state.currentPlayerIndex]?.username === player.username}
             selectedTiles={selected}
             onSelectRow={placeOnRow}
             onDrop={placeOnRow}
