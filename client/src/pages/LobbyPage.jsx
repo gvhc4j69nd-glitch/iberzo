@@ -390,12 +390,7 @@ export default function LobbyPage({
                 <tbody>
                   <tr className="me">
                     <td>#{myRank.rank}</td>
-                    <td>
-                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#2a9d4e', display: 'inline-block' }} />
-                        {username} <span style={{ fontSize: 11, opacity: 0.6, marginLeft: 2 }}>(you)</span>
-                      </span>
-                    </td>
+                    <td>{username} <span style={{ fontSize: 11, opacity: 0.6 }}>(you)</span></td>
                     <td>{myRank.wins}</td>
                     <td>{myRank.losses}</td>
                     <td>{myRank.total_score}</td>
