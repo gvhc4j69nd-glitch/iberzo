@@ -369,14 +369,8 @@ export default function LobbyPage({
                         {!isMe && !friends.some(f => f.username === row.username) && (
                           <button
                             onClick={() => sendFriendRequest(row.username)}
-                            style={{ background: 'none', border: '1.5px solid #aaa', color: '#555', padding: '3px 6px', fontSize: 10, fontWeight: 600, borderRadius: 5, cursor: 'pointer', marginRight: 4 }}
+                            style={{ background: 'none', border: '1.5px solid #aaa', color: '#555', padding: '3px 6px', fontSize: 10, fontWeight: 600, borderRadius: 5, cursor: 'pointer' }}
                           >+</button>
-                        )}
-                        {isOnline && !isMe && (
-                          <button
-                            onClick={() => sendInvite(row.username)}
-                            style={{ background: '#2a9d4e', color: 'white', padding: '4px 10px', fontSize: 12, fontWeight: 600, borderRadius: 6 }}
-                          >Play</button>
                         )}
                       </td>
                     </tr>
