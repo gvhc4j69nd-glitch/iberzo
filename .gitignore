@@ -5,3 +5,7 @@ client/dist/
 server/db/azul.db
 .env
 *.env
+
+# Capacitor native projects (generated — open in Xcode / Android Studio locally)
+client/ios/
+client/android/

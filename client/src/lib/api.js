@@ -1,6 +1,10 @@
-const BASE = import.meta.env.PROD
-  ? '/api'
-  : `http://${window.location.hostname}:3001/api`;
+const PROD_URL = 'https://www.iberzo.com';
+
+const BASE = (typeof window !== 'undefined' && window.Capacitor)
+  ? `${PROD_URL}/api`
+  : import.meta.env.PROD
+    ? '/api'
+    : `http://${window.location.hostname}:3001/api`;
 
 export async function register(username, email, password) {
   const res = await fetch(`${BASE}/auth/register`, {
