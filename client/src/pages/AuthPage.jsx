@@ -10,6 +10,7 @@ export default function AuthPage({ onAuth }) {
   const [error, setError] = useState('');
   const [showTutorial, setShowTutorial] = useState(false);
   const [showHtp, setShowHtp] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   async function submit(e) {
     e.preventDefault();
@@ -55,7 +56,10 @@ export default function AuthPage({ onAuth }) {
           {mode === 'register' && (
             <input type="email" placeholder="Email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} required />
           )}
-          <input type="password" placeholder="Password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} required />
+          <div className="password-field">
+            <input type={showPassword ? 'text' : 'password'} placeholder="Password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} required />
+            <button type="button" className="password-toggle" onClick={() => setShowPassword(v => !v)}>{showPassword ? '🙈' : '👁'}</button>
+          </div>
           {error && <p className="error">{error}</p>}
           <button type="submit">{mode === 'login' ? 'Login' : 'Register'}</button>
         </form>

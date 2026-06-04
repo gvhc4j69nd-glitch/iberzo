@@ -7,6 +7,9 @@ export default function AccountPage({ username, token, onClose }) {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [status, setStatus] = useState(null); // { type: 'success'|'error', msg }
   const [loading, setLoading] = useState(false);
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   async function handleChangePassword(e) {
     e.preventDefault();
@@ -46,34 +49,24 @@ export default function AccountPage({ username, token, onClose }) {
           <form onSubmit={handleChangePassword} className="account-form">
             <div className="form-group">
               <label>Current Password</label>
-              <input
-                type="password"
-                value={currentPassword}
-                onChange={e => setCurrentPassword(e.target.value)}
-                placeholder="Enter current password"
-                required
-              />
+              <div className="password-field">
+                <input type={showCurrent ? 'text' : 'password'} value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} placeholder="Enter current password" required />
+                <button type="button" className="password-toggle" onClick={() => setShowCurrent(v => !v)}>{showCurrent ? '🙈' : '👁'}</button>
+              </div>
             </div>
             <div className="form-group">
               <label>New Password</label>
-              <input
-                type="password"
-                value={newPassword}
-                onChange={e => setNewPassword(e.target.value)}
-                placeholder="At least 6 characters"
-                minLength={6}
-                required
-              />
+              <div className="password-field">
+                <input type={showNew ? 'text' : 'password'} value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="At least 6 characters" minLength={6} required />
+                <button type="button" className="password-toggle" onClick={() => setShowNew(v => !v)}>{showNew ? '🙈' : '👁'}</button>
+              </div>
             </div>
             <div className="form-group">
               <label>Confirm New Password</label>
-              <input
-                type="password"
-                value={confirmPassword}
-                onChange={e => setConfirmPassword(e.target.value)}
-                placeholder="Repeat new password"
-                required
-              />
+              <div className="password-field">
+                <input type={showConfirm ? 'text' : 'password'} value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="Repeat new password" required />
+                <button type="button" className="password-toggle" onClick={() => setShowConfirm(v => !v)}>{showConfirm ? '🙈' : '👁'}</button>
+              </div>
             </div>
             {status && (
               <p className={status.type === 'success' ? 'account-success' : 'error'}>
