@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import PrivacyPage from './pages/PrivacyPage';
+import DeleteAccountPage from './pages/DeleteAccountPage';
 import AuthPage from './pages/AuthPage';
 import LobbyPage from './pages/LobbyPage';
 import GamePage from './pages/GamePage';
@@ -186,6 +187,7 @@ export default function App() {
   }
 
   if (window.location.pathname === '/privacy') return <PrivacyPage />;
+  if (window.location.pathname === '/delete-account') return <DeleteAccountPage />;
   if (!token) return <AuthPage onAuth={handleAuth} />;
   if (!socket) return <div className="loading">Connecting…</div>;
 
