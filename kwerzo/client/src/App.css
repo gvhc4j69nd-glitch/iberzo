@@ -516,7 +516,7 @@
 .crown { font-size: 20px; }
 
 /* Responsive */
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .game-sidebar { display: none; }
 }
 

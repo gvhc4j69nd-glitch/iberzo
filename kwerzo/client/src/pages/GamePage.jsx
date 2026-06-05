@@ -13,7 +13,10 @@ export default function GamePage({ socket, user, roomId, initialRoom, onLeave })
   const [lastMsg, setLastMsg] = useState('');
   const [moveError, setMoveError] = useState('');
   const [gameOver, setGameOver] = useState(null);
-  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 640);
+  const [isMobile, setIsMobile] = useState(() =>
+    window.matchMedia('(max-width: 768px)').matches ||
+    (navigator.maxTouchPoints > 0 && window.innerWidth <= 1024)
+  );
 
   // Board pan/zoom state
   const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -68,11 +71,18 @@ export default function GamePage({ socket, user, roomId, initialRoom, onLeave })
     };
   }, [socket]);
 
-  // Mobile detection
+  // Mobile detection — mirrors CSS breakpoint + touch capability
   useEffect(() => {
-    const update = () => setIsMobile(window.innerWidth <= 640);
+    const mq = window.matchMedia('(max-width: 768px)');
+    const update = () => setIsMobile(
+      mq.matches || (navigator.maxTouchPoints > 0 && window.innerWidth <= 1024)
+    );
+    mq.addEventListener('change', update);
     window.addEventListener('resize', update);
-    return () => window.removeEventListener('resize', update);
+    return () => {
+      mq.removeEventListener('change', update);
+      window.removeEventListener('resize', update);
+    };
   }, []);
 
   // Auto-center board on first tiles
