@@ -144,7 +144,11 @@ function scoreMove(board, placements) {
     for (const dir of ['h', 'v']) {
       const line = getLine(tempBoard, x, y, dir);
       if (line.length < 2) continue;
-      const lineKey = `${dir}:${line.map(p => key(p.x, p.y)).sort().join('|')}`;
+      const lineKey = `${dir}:${line.map(p => key(p.x, p.y)).sort((a, b) => {
+        const [ax, ay] = a.split(',').map(Number);
+        const [bx, by] = b.split(',').map(Number);
+        return ax !== bx ? ax - bx : ay - by;
+      }).join('|')}`;
       if (scoredLines.has(lineKey)) continue;
       scoredLines.add(lineKey);
       total += line.length;

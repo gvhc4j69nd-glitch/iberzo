@@ -14,14 +14,17 @@ export default function GamePage({ socket, user, roomId, initialRoom, onLeave })
   const [moveError, setMoveError] = useState('');
   const [gameOver, setGameOver] = useState(null);
 
-  // Board pan state
+  // Board pan/zoom state
   const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
   const panRef = useRef(pan);
+  const zoomRef = useRef(1);
   const dragging = useRef(false);
   const dragStart = useRef(null);
   const boardRef = useRef(null);
 
   panRef.current = pan;
+  zoomRef.current = zoom;
 
   const myTurn = gameState &&
     gameState.players[gameState.currentPlayerIndex]?.id === user.id;
@@ -99,6 +102,21 @@ export default function GamePage({ socket, user, roomId, initialRoom, onLeave })
     setPan({ x: e.clientX - dragStart.current.x, y: e.clientY - dragStart.current.y });
   }
   function onMouseUp() { dragging.current = false; }
+
+  function handleZoom(delta) {
+    const oldZoom = zoomRef.current;
+    const newZoom = Math.min(2.5, Math.max(0.3, oldZoom + delta));
+    if (boardRef.current) {
+      const rect = boardRef.current.getBoundingClientRect();
+      const cx = rect.width / 2;
+      const cy = rect.height / 2;
+      setPan(p => ({
+        x: cx + (p.x - cx) * newZoom / oldZoom,
+        y: cy + (p.y - cy) * newZoom / oldZoom
+      }));
+    }
+    setZoom(newZoom);
+  }
 
   // Compute which empty cells are adjacent to placed tiles (valid drop targets)
   function getValidDropCells() {
@@ -305,7 +323,12 @@ export default function GamePage({ socket, user, roomId, initialRoom, onLeave })
       >
         <div
           className="board-container"
-          style={{ transform: `translate(${pan.x}px, ${pan.y}px)`, width: boardW, height: boardH }}
+          style={{
+            transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+            transformOrigin: '0 0',
+            width: boardW,
+            height: boardH
+          }}
         >
           {/* Valid drop target cells */}
           {myTurn && selectedHandIdx !== null && [...validDropCells].map(k => {
@@ -361,7 +384,22 @@ export default function GamePage({ socket, user, roomId, initialRoom, onLeave })
           })}
         </div>
 
-        <div className="board-hint">Drag to pan board</div>
+        <div className="zoom-controls">
+          <button
+            className="zoom-btn"
+            onMouseDown={e => e.stopPropagation()}
+            onClick={() => handleZoom(0.15)}
+            title="Zoom in"
+          >+</button>
+          <button
+            className="zoom-btn"
+            onMouseDown={e => e.stopPropagation()}
+            onClick={() => handleZoom(-0.15)}
+            title="Zoom out"
+          >−</button>
+        </div>
+
+        <div className="board-hint">Drag to pan · +/− to zoom</div>
       </main>
 
       {/* Hand */}
