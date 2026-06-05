@@ -2,7 +2,7 @@
 nixPkgs = ["nodejs_22"]
 
 [phases.install]
-cmds = ["cd kwerzo/server && npm install && npm run build"]
+cmds = ["cd server && npm install && npm run build"]
 
 [start]
-cmd = "cd kwerzo/server && node index.js"
+cmd = "cd server && node index.js"
