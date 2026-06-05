@@ -2,7 +2,7 @@
 
 const express = require('express');
 const jwt = require('jsonwebtoken');
-const { pool, DEV_MODE, memDb } = require('../db/schema');
+const { db } = require('../db/schema');
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'kwerzo-dev-secret';
@@ -19,11 +19,9 @@ function authMiddleware(req, res, next) {
 }
 
 router.get('/', authMiddleware, async (req, res) => {
-  if (DEV_MODE) {
-    return res.json({ top: [], me: null });
-  }
+  if (db.devMode) return res.json({ top: [], me: null });
   try {
-    const result = await pool.query(`
+    const result = await db.pool.query(`
       SELECT u.username, l.wins, l.losses, l.games_played, l.total_score, l.elo_rating,
              RANK() OVER (ORDER BY l.elo_rating DESC) AS rank
       FROM kwerzo_leaderboard l
@@ -32,7 +30,7 @@ router.get('/', authMiddleware, async (req, res) => {
       ORDER BY l.elo_rating DESC
       LIMIT 50
     `);
-    const myRow = await pool.query(`
+    const myRow = await db.pool.query(`
       SELECT l.wins, l.losses, l.games_played, l.total_score, l.elo_rating,
              RANK() OVER (ORDER BY l.elo_rating DESC) AS rank
       FROM kwerzo_leaderboard l
@@ -46,11 +44,11 @@ router.get('/', authMiddleware, async (req, res) => {
 });
 
 async function updateStats(winnerIds, allPlayerIds, scores) {
-  if (DEV_MODE) return;
+  if (db.devMode) return;
   for (const userId of allPlayerIds) {
     const isWinner = winnerIds.includes(userId);
     const score = scores[userId] || 0;
-    await pool.query(`
+    await db.pool.query(`
       INSERT INTO kwerzo_leaderboard (user_id, wins, losses, games_played, total_score)
       VALUES ($1, $2, $3, 1, $4)
       ON CONFLICT (user_id) DO UPDATE SET

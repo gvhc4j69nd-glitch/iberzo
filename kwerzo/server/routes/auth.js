@@ -3,7 +3,7 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { pool, DEV_MODE, memDb, memNextId } = require('../db/schema');
+const { db, memDb, memNextId } = require('../db/schema');
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'kwerzo-dev-secret';
@@ -23,7 +23,7 @@ router.post('/register', async (req, res) => {
   try {
     const hash = await bcrypt.hash(password, 10);
 
-    if (DEV_MODE) {
+    if (db.devMode) {
       const lname = username.trim().toLowerCase();
       const lemail = email.trim().toLowerCase();
       if (memDb.users.find(u => u.username.toLowerCase() === lname)) {
@@ -38,12 +38,12 @@ router.post('/register', async (req, res) => {
       return res.json({ token, user: { id: user.id, username: user.username, email: user.email } });
     }
 
-    const result = await pool.query(
+    const result = await db.pool.query(
       'INSERT INTO kwerzo_users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING id, username, email',
       [username.trim(), email.trim().toLowerCase(), hash]
     );
     const user = result.rows[0];
-    await pool.query(
+    await db.pool.query(
       'INSERT INTO kwerzo_leaderboard (user_id) VALUES ($1) ON CONFLICT DO NOTHING',
       [user.id]
     );
@@ -66,7 +66,7 @@ router.post('/login', async (req, res) => {
   }
 
   try {
-    if (DEV_MODE) {
+    if (db.devMode) {
       const user = memDb.users.find(u => u.username.toLowerCase() === username.trim().toLowerCase());
       if (!user) return res.status(401).json({ error: 'Invalid username or password' });
       const valid = await bcrypt.compare(password, user.password_hash);
@@ -75,7 +75,7 @@ router.post('/login', async (req, res) => {
       return res.json({ token, user: { id: user.id, username: user.username, email: user.email } });
     }
 
-    const result = await pool.query(
+    const result = await db.pool.query(
       'SELECT id, username, email, password_hash FROM kwerzo_users WHERE LOWER(username) = LOWER($1)',
       [username.trim()]
     );
