@@ -64,9 +64,13 @@ export default function AuthPage({ onAuth }) {
           <button type="submit">{mode === 'login' ? 'Login' : 'Register'}</button>
         </form>
         <p style={{ fontSize: 11, color: '#9a7060', textAlign: 'center', marginTop: 4 }}>
-          <a href="/privacy" style={{ color: '#9a7060' }}>Privacy Policy</a>
+          <a href="/about" style={{ color: '#9a7060' }}>About Us</a>
           {' · '}
-          <a href="mailto:joecpeffer@gmail.com?subject=Account Deletion Request&body=Please delete my Iberzo account and all associated data. My username is: " style={{ color: '#9a7060' }}>Delete My Account</a>
+          <a href="mailto:iberzogames@gmail.com" style={{ color: '#9a7060' }}>Contact Us</a>
+          {' · '}
+          <a href="/privacy" style={{ color: '#9a7060' }}>Privacy</a>
+          {' · '}
+          <a href="/delete-account" style={{ color: '#9a7060' }}>Delete Account</a>
         </p>
       </div>
     </div>
