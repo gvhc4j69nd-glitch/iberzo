@@ -2,7 +2,7 @@
 
 const express = require('express');
 const jwt = require('jsonwebtoken');
-const { pool } = require('../db/schema');
+const { pool, DEV_MODE, memDb } = require('../db/schema');
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'kwerzo-dev-secret';
@@ -19,6 +19,9 @@ function authMiddleware(req, res, next) {
 }
 
 router.get('/', authMiddleware, async (req, res) => {
+  if (DEV_MODE) {
+    return res.json({ top: [], me: null });
+  }
   try {
     const result = await pool.query(`
       SELECT u.username, l.wins, l.losses, l.games_played, l.total_score, l.elo_rating,
@@ -43,6 +46,7 @@ router.get('/', authMiddleware, async (req, res) => {
 });
 
 async function updateStats(winnerIds, allPlayerIds, scores) {
+  if (DEV_MODE) return;
   for (const userId of allPlayerIds) {
     const isWinner = winnerIds.includes(userId);
     const score = scores[userId] || 0;

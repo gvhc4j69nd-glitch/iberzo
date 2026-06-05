@@ -28,7 +28,7 @@ app.use('/api/leaderboard', leaderboardRouter);
 // Serve built client
 const clientDist = path.join(__dirname, '../client/dist');
 app.use(express.static(clientDist));
-app.get('*', (req, res) => {
+app.get(/(.*)/, (req, res) => {
   if (!req.path.startsWith('/api')) {
     res.sendFile(path.join(clientDist, 'index.html'));
   }
