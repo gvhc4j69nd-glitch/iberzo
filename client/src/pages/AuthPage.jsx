@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { register, login } from '../lib/api';
 import AzulDemo from '../components/AzulDemo';
 import TutorialModal from '../components/TutorialModal';
+import PrivacyModal from '../components/PrivacyModal';
 import HowToPlayPage from './HowToPlayPage';
 
 export default function AuthPage({ onAuth }) {
@@ -11,10 +12,15 @@ export default function AuthPage({ onAuth }) {
   const [showTutorial, setShowTutorial] = useState(false);
   const [showHtp, setShowHtp] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [agreedToPrivacy, setAgreedToPrivacy] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
   async function submit(e) {
     e.preventDefault();
     setError('');
+    if (mode === 'register' && !agreedToPrivacy) {
+      return setError('You must read and agree to the Privacy Policy to register.');
+    }
     const result = mode === 'login'
       ? await login(form.username, form.password)
       : await register(form.username, form.email, form.password);
@@ -40,6 +46,9 @@ export default function AuthPage({ onAuth }) {
           onHowToPlay={() => { setShowTutorial(false); setShowHtp(true); }}
         />
       )}
+      {showPrivacyModal && (
+        <PrivacyModal onClose={() => setShowPrivacyModal(false)} />
+      )}
       <img src="/iberzo-logo.png" alt="Iberzo" className="landing-logo" />
       <p className="tagline-text">The challenging tile game you can play with friends or by yourself!</p>
       <AzulDemo />
@@ -60,6 +69,21 @@ export default function AuthPage({ onAuth }) {
             <input type={showPassword ? 'text' : 'password'} placeholder="Password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} required />
             <button type="button" className="password-toggle" onClick={() => setShowPassword(v => !v)}>{showPassword ? '🙈' : '👁'}</button>
           </div>
+          {mode === 'register' && (
+            <label className="privacy-checkbox-row">
+              <input
+                type="checkbox"
+                checked={agreedToPrivacy}
+                onChange={e => setAgreedToPrivacy(e.target.checked)}
+              />
+              <span>
+                I have read and understand Iberzo's{' '}
+                <button type="button" onClick={() => setShowPrivacyModal(true)}>
+                  Privacy Policy
+                </button>
+              </span>
+            </label>
+          )}
           {error && <p className="error">{error}</p>}
           <button type="submit">{mode === 'login' ? 'Login' : 'Register'}</button>
         </form>
