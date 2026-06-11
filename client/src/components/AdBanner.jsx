@@ -1,10 +1,16 @@
 import { useEffect, useState } from 'react';
 import { ADSENSE_CLIENT, ADSENSE_SLOTS, KOFI_URL, isNoAds, setNoAds } from '../lib/ads';
+import { initTracking, personalizedAdsAllowed } from '../lib/tracking';
 
 let adsenseScriptInjected = false;
 function injectAdSense() {
   if (adsenseScriptInjected) return;
   adsenseScriptInjected = true;
+  // Respect the user's App Tracking Transparency choice (iOS): if they
+  // declined tracking, request non-personalized ads only.
+  if (!personalizedAdsAllowed()) {
+    (window.adsbygoogle = window.adsbygoogle || []).requestNonPersonalizedAds = 1;
+  }
   const script = document.createElement('script');
   script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`;
   script.async = true;
@@ -19,11 +25,17 @@ export default function AdBanner({ variant = 'leaderboard' }) {
 
   useEffect(() => {
     if (noAds) return;
-    injectAdSense();
-    // Push the ad unit after script loads
-    if (slotId) {
-      try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch {}
-    }
+    let cancelled = false;
+    // Wait for the ATT decision (iOS) before requesting any ads.
+    initTracking().then(() => {
+      if (cancelled) return;
+      injectAdSense();
+      // Push the ad unit after script loads
+      if (slotId) {
+        try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch {}
+      }
+    });
+    return () => { cancelled = true; };
   }, [noAds, slotId]);
 
   function handleSupport() {

@@ -63,16 +63,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
-    <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3107493448711439" crossorigin="anonymous"></script>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-MB5E3YTQHT"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-MB5E3YTQHT');
-    </script>
+    <!-- Google AdSense and Analytics are loaded dynamically from
+         src/lib/tracking.js and src/components/AdBanner.jsx so that,
+         on iOS, they respect the user's App Tracking Transparency choice. -->
   </head>
   <body>
     <div id="root"></div>
