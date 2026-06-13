@@ -18,16 +18,16 @@ const WALL_PATTERN = [
 
 // A fixed demo scenario that looks like a real mid-game state
 const DEMO_FACTORIES = [
-  ['blue','blue','red','yellow'],
-  ['black','black','white','blue'],
-  ['red','red','yellow','yellow'],
-  ['white','white','black','red'],
-  ['blue','yellow','red','black'],
+  ['blue','red','yellow','black'],
+  ['yellow','yellow','white','red'],
+  ['black','black','white','red'],
+  ['red','red','white','blue'],
+  ['red','white','blue','black'],
 ];
 
 // Pattern lines: { color, count, slots }
 const INITIAL_PATTERN = [
-  { color: 'blue',   count: 1, slots: 1 },
+  { color: null,     count: 0, slots: 1 },
   { color: 'red',    count: 1, slots: 2 },
   { color: null,     count: 0, slots: 3 },
   { color: 'black',  count: 2, slots: 4 },
@@ -44,11 +44,14 @@ const INITIAL_WALL = [
 ];
 
 // Sequence of moves to animate: { factoryIdx, color, targetRow }
+// Each move takes ALL tiles of the chosen color from a factory, matching
+// real Azul rules — and only ever places into an empty row or a row
+// already holding that same color.
 const MOVES = [
-  { factoryIdx: 0, color: 'blue',   targetRow: 2 },
-  { factoryIdx: 2, color: 'yellow', targetRow: 4 },
-  { factoryIdx: 1, color: 'black',  targetRow: 3 },
-  { factoryIdx: 3, color: 'white',  targetRow: 2 },
+  { factoryIdx: 0, color: 'blue',   targetRow: 0 },
+  { factoryIdx: 1, color: 'yellow', targetRow: 4 },
+  { factoryIdx: 2, color: 'black',  targetRow: 3 },
+  { factoryIdx: 3, color: 'red',    targetRow: 2 },
   { factoryIdx: 4, color: 'red',    targetRow: 1 },
 ];
 
@@ -69,6 +72,7 @@ export default function AzulDemo() {
   const [flyTarget, setFlyTarget]       = useState(null);
 
   const timerRef = useRef(null);
+  const factoriesRef = useRef(DEMO_FACTORIES.map(f => [...f]));
 
   useEffect(() => {
     function runPhase(ph, idx) {
@@ -82,22 +86,20 @@ export default function AzulDemo() {
           runPhase('fly', idx);
         } else if (ph === 'fly') {
           setPhase('settle');
+          // Real Azul rule: a factory pick takes EVERY tile of the chosen
+          // color from that factory, and they all go to the pattern line.
+          const takeCount = factoriesRef.current[move.factoryIdx].filter(c => c === move.color).length;
           // Update pattern line
           setPatternLines(prev => {
             const next = prev.map(l => ({ ...l }));
             const line = next[move.targetRow];
             if (!line.color) line.color = move.color;
-            line.count = Math.min(line.count + 1, line.slots);
+            line.count = Math.min(line.count + takeCount, line.slots);
             return next;
           });
-          // Remove one tile of that color from factory
-          setFactories(prev => {
-            const next = prev.map(f => [...f]);
-            const fi = next[move.factoryIdx];
-            const i = fi.indexOf(move.color);
-            if (i !== -1) fi.splice(i, 1);
-            return next;
-          });
+          // Remove all tiles of that color from the factory
+          factoriesRef.current[move.factoryIdx] = factoriesRef.current[move.factoryIdx].filter(c => c !== move.color);
+          setFactories(factoriesRef.current.map(f => [...f]));
           setFlyColor(null);
           runPhase('settle', idx);
         } else if (ph === 'settle') {
@@ -112,7 +114,8 @@ export default function AzulDemo() {
           if ((nextIdx % MOVES.length) === 0) {
             setPatternLines(INITIAL_PATTERN.map(l => ({ ...l })));
             setWall(INITIAL_WALL.map(r => [...r]));
-            setFactories(DEMO_FACTORIES.map(f => [...f]));
+            factoriesRef.current = DEMO_FACTORIES.map(f => [...f]);
+            setFactories(factoriesRef.current.map(f => [...f]));
           }
           setPhase('pause');
           runPhase('pause', nextIdx);
