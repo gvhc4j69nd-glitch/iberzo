@@ -599,6 +599,16 @@ tr.me td { color: var(--accent); font-weight: 600; }
   box-shadow: 0 0 8px rgba(192,99,74,0.4);
 }
 
+/* Center pool — leftover tiles from used factories */
+.demo-center {
+  display: flex; flex-wrap: wrap; gap: 3px;
+  justify-content: center;
+  max-width: 220px;
+  padding: 4px 6px;
+  border-radius: 8px;
+  background: #ece4da;
+}
+
 /* Tiles */
 .demo-tile {
   width: 16px; height: 16px;

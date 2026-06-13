@@ -65,6 +65,7 @@ export default function AzulDemo() {
   const [patternLines, setPatternLines] = useState(INITIAL_PATTERN.map(l => ({ ...l })));
   const [wall, setWall]                 = useState(INITIAL_WALL.map(r => [...r]));
   const [factories, setFactories]       = useState(DEMO_FACTORIES.map(f => [...f]));
+  const [center, setCenter]             = useState([]);
   const [moveIdx, setMoveIdx]           = useState(0);
   const [phase, setPhase]               = useState('pause'); // pause | fly | settle | inter
   const [flyColor, setFlyColor]         = useState(null);
@@ -87,8 +88,12 @@ export default function AzulDemo() {
         } else if (ph === 'fly') {
           setPhase('settle');
           // Real Azul rule: a factory pick takes EVERY tile of the chosen
-          // color from that factory, and they all go to the pattern line.
-          const takeCount = factoriesRef.current[move.factoryIdx].filter(c => c === move.color).length;
+          // color from that factory (they go to the pattern line), and the
+          // remaining tiles of other colors all move to the center pool —
+          // the factory ends up completely empty.
+          const factoryTiles = factoriesRef.current[move.factoryIdx];
+          const takeCount = factoryTiles.filter(c => c === move.color).length;
+          const leftover = factoryTiles.filter(c => c !== move.color);
           // Update pattern line
           setPatternLines(prev => {
             const next = prev.map(l => ({ ...l }));
@@ -97,9 +102,10 @@ export default function AzulDemo() {
             line.count = Math.min(line.count + takeCount, line.slots);
             return next;
           });
-          // Remove all tiles of that color from the factory
-          factoriesRef.current[move.factoryIdx] = factoriesRef.current[move.factoryIdx].filter(c => c !== move.color);
+          // Empty the factory; leftover tiles go to the center
+          factoriesRef.current[move.factoryIdx] = [];
           setFactories(factoriesRef.current.map(f => [...f]));
+          setCenter(prev => [...prev, ...leftover]);
           setFlyColor(null);
           runPhase('settle', idx);
         } else if (ph === 'settle') {
@@ -116,6 +122,7 @@ export default function AzulDemo() {
             setWall(INITIAL_WALL.map(r => [...r]));
             factoriesRef.current = DEMO_FACTORIES.map(f => [...f]);
             setFactories(factoriesRef.current.map(f => [...f]));
+            setCenter([]);
           }
           setPhase('pause');
           runPhase('pause', nextIdx);
@@ -153,6 +160,19 @@ export default function AzulDemo() {
           </div>
         ))}
       </div>
+
+      {/* Center pool — leftover tiles from used factories */}
+      {center.length > 0 && (
+        <div className="demo-center">
+          {center.map((color, i) => (
+            <div
+              key={i}
+              className="demo-tile"
+              style={{ background: COLOR_HEX[color] }}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Flying tile */}
       {phase === 'fly' && flyColor && (
