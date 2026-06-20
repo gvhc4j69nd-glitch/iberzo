@@ -723,6 +723,30 @@ tr.me td { color: var(--accent); font-weight: 600; }
 .leaderboard-my-rank td { padding: 7px 4px; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .leaderboard-my-rank tr.me td { background: #fff5f0; font-weight: 700; color: var(--accent); }
 
+/* Bot Record tab: Player, W, L, Rating — overrides the 7-col widths above */
+.bot-leaderboard-scroll table th:nth-child(1),
+.bot-leaderboard-scroll table td:nth-child(1) { width: auto; }
+.bot-leaderboard-scroll table th:nth-child(2),
+.bot-leaderboard-scroll table td:nth-child(2),
+.bot-leaderboard-scroll table th:nth-child(3),
+.bot-leaderboard-scroll table td:nth-child(3) { width: 30px; text-align: center; }
+.bot-leaderboard-scroll table th:nth-child(4),
+.bot-leaderboard-scroll table td:nth-child(4) { width: 54px; text-align: right; }
+
+.grandmaster-badge {
+  display: inline-block;
+  margin-left: 6px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #f0c97a, #c0634a);
+  color: white;
+  vertical-align: middle;
+}
+
 .difficulty-demanding { background: #e2d4f0; color: #5b2d8e; }
 .difficulty-expert    { background: #2c2c2c; color: #f0c97a; }
 

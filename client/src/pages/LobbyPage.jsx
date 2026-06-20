@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { fetchLeaderboard, searchUsers, fetchFriends } from '../lib/api';
+import { fetchLeaderboard, fetchBotLeaderboard, searchUsers, fetchFriends } from '../lib/api';
 import AdBanner from '../components/AdBanner';
 import HowToPlayPage from './HowToPlayPage';
 import TutorialModal from '../components/TutorialModal';
@@ -15,6 +15,9 @@ export default function LobbyPage({
   const [showTutorial, setShowTutorial] = useState(false);
   const [leaderboard, setLeaderboard] = useState([]);
   const [myRank, setMyRank] = useState(null);
+  const [leaderboardTab, setLeaderboardTab] = useState('pvp');
+  const [botLeaderboard, setBotLeaderboard] = useState([]);
+  const [botMyRank, setBotMyRank] = useState(null);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -67,6 +70,13 @@ export default function LobbyPage({
     if (!showRoomOnly) fetchLeaderboard(username).then(data => {
       setLeaderboard(data.rows || []);
       setMyRank(data.myRank || null);
+    });
+  }, [showRoomOnly]);
+
+  useEffect(() => {
+    if (!showRoomOnly) fetchBotLeaderboard(username).then(data => {
+      setBotLeaderboard(data.rows || []);
+      setBotMyRank(data.myRank || null);
     });
   }, [showRoomOnly]);
 
@@ -334,13 +344,15 @@ export default function LobbyPage({
         <div className="leaderboard-panel">
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
             <h2 style={{ margin: 0 }}>Leaderboard</h2>
-            <button
-              onClick={() => setShowEloInfo(v => !v)}
-              style={{ background: 'none', border: '1.5px solid #aaa', borderRadius: '50%', width: 20, height: 20, fontSize: 11, cursor: 'pointer', color: '#666', fontWeight: 700, lineHeight: '18px', padding: 0, flexShrink: 0 }}
-              title="How is Rating calculated?"
-            >ℹ</button>
+            {leaderboardTab === 'pvp' && (
+              <button
+                onClick={() => setShowEloInfo(v => !v)}
+                style={{ background: 'none', border: '1.5px solid #aaa', borderRadius: '50%', width: 20, height: 20, fontSize: 11, cursor: 'pointer', color: '#666', fontWeight: 700, lineHeight: '18px', padding: 0, flexShrink: 0 }}
+                title="How is Rating calculated?"
+              >ℹ</button>
+            )}
           </div>
-          {showEloInfo && (
+          {showEloInfo && leaderboardTab === 'pvp' && (
             <div className="elo-info-box">
               <strong>How is Rating calculated?</strong>
               <p>Ratings use the <strong>Elo system</strong> — the same method used in chess rankings. Starting at 1200, your rating rises when you beat higher-rated players and drops when you lose to lower-rated ones.</p>
@@ -348,59 +360,119 @@ export default function LobbyPage({
               <button onClick={() => setShowEloInfo(false)} style={{ marginTop: 4, fontSize: 12, cursor: 'pointer' }}>Close</button>
             </div>
           )}
-          <p className="hint" style={{ marginBottom: 8 }}>{onlineUsers.size} player{onlineUsers.size !== 1 ? 's' : ''} online</p>
 
-          {/* Scrollable top-50 table, visually capped at 10 rows */}
-          <div className="leaderboard-scroll">
-            <table>
-              <thead><tr><th>#</th><th>Player</th><th>W</th><th>L</th><th>Score</th><th>Rating</th><th></th></tr></thead>
-              <tbody>
-                {leaderboard.map((row, i) => {
-                  const isOnline = onlineUsers.has(row.username);
-                  const isMe = row.username === username;
-                  return (
-                    <tr key={row.username} className={isMe ? 'me' : ''}>
-                      <td>{i + 1}</td>
-                      <td>{row.username}</td>
-                      <td>{row.wins}</td>
-                      <td>{row.losses}</td>
-                      <td>{row.total_score}</td>
-                      <td>{row.elo_rating ?? 1200}</td>
-                      <td style={{ whiteSpace: 'nowrap' }}>
-                        {!isMe && !friends.some(f => f.username === row.username) && (
-                          <button
-                            onClick={() => sendFriendRequest(row.username)}
-                            style={{ background: 'none', border: '1.5px solid #aaa', color: '#555', padding: '3px 6px', fontSize: 10, fontWeight: 600, borderRadius: 5, cursor: 'pointer' }}
-                          >+</button>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-                {leaderboard.length === 0 && (
-                  <tr><td colSpan={7} style={{ textAlign: 'center', opacity: 0.5 }}>No games yet</td></tr>
-                )}
-              </tbody>
-            </table>
+          <div className="tabs" style={{ marginBottom: 10 }}>
+            <button className={leaderboardTab === 'pvp' ? 'active' : ''} onClick={() => setLeaderboardTab('pvp')}>Leaderboard</button>
+            <button className={leaderboardTab === 'bots' ? 'active' : ''} onClick={() => setLeaderboardTab('bots')}>Bot Record</button>
           </div>
 
-          {/* Pinned: current user's rank (shown if they're in the leaderboard) */}
-          {myRank && (
-            <div className="leaderboard-my-rank">
-              <table>
-                <tbody>
-                  <tr className="me">
-                    <td>#{myRank.rank}</td>
-                    <td>{username} <span style={{ fontSize: 11, opacity: 0.6 }}>(you)</span></td>
-                    <td>{myRank.wins}</td>
-                    <td>{myRank.losses}</td>
-                    <td>{myRank.total_score}</td>
-                    <td>{myRank.elo_rating ?? 1200}</td>
-                    <td></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+          {leaderboardTab === 'pvp' && (
+            <>
+              <p className="hint" style={{ marginBottom: 8 }}>{onlineUsers.size} player{onlineUsers.size !== 1 ? 's' : ''} online</p>
+
+              {/* Scrollable top-50 table, visually capped at 10 rows */}
+              <div className="leaderboard-scroll">
+                <table>
+                  <thead><tr><th>#</th><th>Player</th><th>W</th><th>L</th><th>Score</th><th>Rating</th><th></th></tr></thead>
+                  <tbody>
+                    {leaderboard.map((row, i) => {
+                      const isMe = row.username === username;
+                      return (
+                        <tr key={row.username} className={isMe ? 'me' : ''}>
+                          <td>{i + 1}</td>
+                          <td>{row.username}</td>
+                          <td>{row.wins}</td>
+                          <td>{row.losses}</td>
+                          <td>{row.total_score}</td>
+                          <td>{row.elo_rating ?? 1200}</td>
+                          <td style={{ whiteSpace: 'nowrap' }}>
+                            {!isMe && !friends.some(f => f.username === row.username) && (
+                              <button
+                                onClick={() => sendFriendRequest(row.username)}
+                                style={{ background: 'none', border: '1.5px solid #aaa', color: '#555', padding: '3px 6px', fontSize: 10, fontWeight: 600, borderRadius: 5, cursor: 'pointer' }}
+                              >+</button>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    {leaderboard.length === 0 && (
+                      <tr><td colSpan={7} style={{ textAlign: 'center', opacity: 0.5 }}>No games yet</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Pinned: current user's rank (shown if they're in the leaderboard) */}
+              {myRank && (
+                <div className="leaderboard-my-rank">
+                  <table>
+                    <tbody>
+                      <tr className="me">
+                        <td>#{myRank.rank}</td>
+                        <td>{username} <span style={{ fontSize: 11, opacity: 0.6 }}>(you)</span></td>
+                        <td>{myRank.wins}</td>
+                        <td>{myRank.losses}</td>
+                        <td>{myRank.total_score}</td>
+                        <td>{myRank.elo_rating ?? 1200}</td>
+                        <td></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </>
+          )}
+
+          {leaderboardTab === 'bots' && (
+            <>
+              <p className="hint" style={{ marginBottom: 8 }}>
+                Beating higher-difficulty bots increases your ranking. Solo games only (you vs. bots).
+              </p>
+
+              <div className="leaderboard-scroll bot-leaderboard-scroll">
+                <table>
+                  <thead><tr><th>Player</th><th>W</th><th>L</th><th>Rating</th></tr></thead>
+                  <tbody>
+                    {botLeaderboard.map((row, i) => {
+                      const isMe = row.username === username;
+                      return (
+                        <tr key={row.username} className={isMe ? 'me' : ''}>
+                          <td>
+                            {row.username}
+                            {i === 0 && <span className="grandmaster-badge">Grand Master</span>}
+                          </td>
+                          <td>{row.wins}</td>
+                          <td>{row.losses}</td>
+                          <td>{row.elo_rating ?? 1200}</td>
+                        </tr>
+                      );
+                    })}
+                    {botLeaderboard.length === 0 && (
+                      <tr><td colSpan={4} style={{ textAlign: 'center', opacity: 0.5 }}>No solo bot games yet</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {botMyRank && (
+                <div className="leaderboard-my-rank">
+                  <table>
+                    <tbody>
+                      <tr className="me">
+                        <td>
+                          {username} <span style={{ fontSize: 11, opacity: 0.6 }}>(you)</span>
+                          {botMyRank.rank === 1 && <span className="grandmaster-badge">Grand Master</span>}
+                        </td>
+                        <td>{botMyRank.wins}</td>
+                        <td>{botMyRank.losses}</td>
+                        <td>{botMyRank.elo_rating ?? 1200}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </>
           )}
 
           <AdBanner variant="leaderboard" />

@@ -30,6 +30,12 @@ export async function fetchLeaderboard(username) {
   return res.json();
 }
 
+export async function fetchBotLeaderboard(username) {
+  const qs = username ? `?username=${encodeURIComponent(username)}` : '';
+  const res = await fetch(`${BASE}/bot-leaderboard${qs}`);
+  return res.json();
+}
+
 export async function fetchMyRooms(token) {
   const res = await fetch(`${BASE}/my-rooms`, {
     headers: { Authorization: `Bearer ${token}` },

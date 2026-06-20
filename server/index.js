@@ -9,6 +9,7 @@ const { init } = require('./db/schema');
 const authRoutes = require('./routes/auth');
 const leaderboardRoutes = require('./routes/leaderboard');
 const botStatsRoutes = require('./routes/botStats');
+const botLeaderboardRoutes = require('./routes/botLeaderboard');
 const { createRoom, addBot, removeBot, joinRoom, startGame, handleMove, leaveGame, closeRoom, getRoom, getUserRooms, restoreRooms, closeStaleGames } = require('./game/roomManager');
 const { sendFriendRequest, acceptFriendRequest, declineFriendRequest, removeFriend, getFriendData, createGameInvite, respondGameInvite, getPendingGameInvites } = require('./friends/friendsManager');
 const { createNotification, getUnreadCount } = require('./notifications/notificationsManager');
@@ -27,6 +28,7 @@ app.get('/ads.txt', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
 app.use('/api/bot-stats', botStatsRoutes);
+app.use('/api/bot-leaderboard', botLeaderboardRoutes);
 app.use('/api/notifications', notificationsRoutes);
 
 // Helper DB lookups

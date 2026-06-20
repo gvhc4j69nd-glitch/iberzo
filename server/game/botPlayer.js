@@ -10,6 +10,17 @@ const BOT_NAMES = {
   expert:    ['Bot Kasparov',     'Bot Capablanca',   'Bot Carlsen',     'Bot Polgár'],
 };
 
+// Fixed "opponent strength" per difficulty, used to weight Elo gains on the
+// global bot-record leaderboard — beating a higher-rated (harder) bot earns
+// more rating than beating an easy one, same as facing a stronger human.
+const BOT_DIFFICULTY_RATING = {
+  easy: 800,
+  medium: 1000,
+  hard: 1300,
+  demanding: 1600,
+  expert: 1900,
+};
+
 function makeBotId(n) { return `bot-${n}`; }
 function isBotId(id) { return typeof id === 'string' && id.startsWith('bot-'); }
 
@@ -281,4 +292,4 @@ function chooseBotMove(state, playerIndex) {
   return best;
 }
 
-module.exports = { createBot, isBotId, chooseBotMove };
+module.exports = { createBot, isBotId, chooseBotMove, BOT_DIFFICULTY_RATING };

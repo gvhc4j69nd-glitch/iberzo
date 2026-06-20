@@ -90,6 +90,18 @@ async function init() {
     `, [name]);
   }
 
+  // Global bot-record leaderboard — Elo rating earned from solo (1 human +
+  // bots) games only, weighted by the difficulty of the bots faced
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS bot_leaderboard (
+      user_id      INTEGER PRIMARY KEY REFERENCES users(id),
+      wins         INTEGER DEFAULT 0,
+      losses       INTEGER DEFAULT 0,
+      games_played INTEGER DEFAULT 0,
+      elo_rating   INTEGER DEFAULT 1200
+    )
+  `);
+
   // Friendships
   await pool.query(`
     CREATE TABLE IF NOT EXISTS friendships (

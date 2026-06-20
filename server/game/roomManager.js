@@ -1,5 +1,5 @@
 const { createGame, takeTiles, placeTiles, validatePlacement, endRound, isDraftingOver } = require('./azulEngine');
-const { createBot, isBotId, chooseBotMove } = require('./botPlayer');
+const { createBot, isBotId, chooseBotMove, BOT_DIFFICULTY_RATING } = require('./botPlayer');
 const { pool } = require('../db/schema');
 
 const rooms = new Map();
@@ -249,7 +249,6 @@ async function finishGame(room) {
   if (room.hasBot) {
     const bots = sorted.filter(p => isBotId(p.userId));
     const humans = sorted.filter(p => !isBotId(p.userId));
-    const humanWinner = humans.find(p => sorted.indexOf(p) === 0 || !bots.some(b => sorted.indexOf(b) < sorted.indexOf(p)));
     for (const human of humans) {
       const humanRank = sorted.indexOf(human);
       // Win = human placed above ALL bots; loss = any bot placed above human
@@ -263,6 +262,40 @@ async function finishGame(room) {
             wins   = bot_stats.wins   + $4,
             losses = bot_stats.losses + $5
         `, [human.userId, bot.username, bot.difficulty || 'medium', isWin, 1 - isWin]);
+      }
+
+      // Global bot-record Elo — solo games only (exactly one human at the
+      // table). Each bot is treated as a fixed-rating "opponent" (rated by
+      // difficulty), and the human's rating moves via the same pairwise Elo
+      // formula used for PvP, so beating harder bots earns more rating.
+      if (humans.length === 1) {
+        const { rows: blRows } = await pool.query(
+          'SELECT elo_rating, games_played FROM bot_leaderboard WHERE user_id = $1',
+          [human.userId]
+        );
+        const currentElo = blRows[0]?.elo_rating ?? 1200;
+        const gamesPlayed = blRows[0]?.games_played ?? 0;
+        const K = kFactor(gamesPlayed);
+
+        let delta = 0;
+        for (const bot of bots) {
+          const botRank = sorted.indexOf(bot);
+          const wonVsBot = humanRank < botRank ? 1 : 0;
+          const botRating = BOT_DIFFICULTY_RATING[bot.difficulty] ?? 1000;
+          const E = 1 / (1 + Math.pow(10, (botRating - currentElo) / 400));
+          delta += K * (wonVsBot - E);
+        }
+        const newElo = Math.max(100, Math.round(currentElo + delta));
+
+        await pool.query(`
+          INSERT INTO bot_leaderboard (user_id, wins, losses, games_played, elo_rating)
+          VALUES ($1, $2, $3, 1, $4)
+          ON CONFLICT (user_id) DO UPDATE SET
+            wins = bot_leaderboard.wins + $2,
+            losses = bot_leaderboard.losses + $3,
+            games_played = bot_leaderboard.games_played + 1,
+            elo_rating = $4
+        `, [human.userId, isWin, 1 - isWin, newElo]);
       }
     }
   }
