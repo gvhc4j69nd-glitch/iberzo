@@ -363,7 +363,7 @@ export default function LobbyPage({
 
           <div className="tabs" style={{ marginBottom: 10 }}>
             <button className={leaderboardTab === 'pvp' ? 'active' : ''} onClick={() => setLeaderboardTab('pvp')}>Leaderboard</button>
-            <button className={leaderboardTab === 'bots' ? 'active' : ''} onClick={() => setLeaderboardTab('bots')}>Bot Record</button>
+            <button className={leaderboardTab === 'bots' ? 'active' : ''} onClick={() => setLeaderboardTab('bots')}>Bot Leaderboard</button>
           </div>
 
           {leaderboardTab === 'pvp' && (

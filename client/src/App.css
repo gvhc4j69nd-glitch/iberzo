@@ -723,7 +723,7 @@ tr.me td { color: var(--accent); font-weight: 600; }
 .leaderboard-my-rank td { padding: 7px 4px; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .leaderboard-my-rank tr.me td { background: #fff5f0; font-weight: 700; color: var(--accent); }
 
-/* Bot Record tab: Player, W, L, Rating — overrides the 7-col widths above */
+/* Bot Leaderboard tab: Player, W, L, Rating — overrides the 7-col widths above */
 .bot-leaderboard-scroll table th:nth-child(1),
 .bot-leaderboard-scroll table td:nth-child(1) { width: auto; }
 .bot-leaderboard-scroll table th:nth-child(2),
