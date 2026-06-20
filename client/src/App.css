@@ -724,6 +724,7 @@ tr.me td { color: var(--accent); font-weight: 600; }
 .leaderboard-my-rank tr.me td { background: #fff5f0; font-weight: 700; color: var(--accent); }
 
 .difficulty-demanding { background: #e2d4f0; color: #5b2d8e; }
+.difficulty-expert    { background: #2c2c2c; color: #f0c97a; }
 
 /* ── Tutorial Modal ───────────────────────────── */
 .tut-overlay {

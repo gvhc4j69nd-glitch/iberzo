@@ -1,4 +1,4 @@
-const { WALL_PATTERN } = require('./azulEngine');
+const { WALL_PATTERN, takeTiles, placeTiles } = require('./azulEngine');
 
 const FLOOR_PENALTIES = [-1, -1, -2, -2, -2, -3, -3];
 
@@ -7,13 +7,14 @@ const BOT_NAMES = {
   medium:    ['Bot Velázquez',    'Bot El Greco',     'Bot Zurbarán',    'Bot Ribera'],
   hard:      ['Bot Goya',         'Bot Sorolla',      'Bot Anglada',     'Bot Casas'],
   demanding: ['Bot Michelangelo', 'Bot Da Vinci',     'Bot Machiavelli', 'Bot Raphael'],
+  expert:    ['Bot Kasparov',     'Bot Capablanca',   'Bot Carlsen',     'Bot Polgár'],
 };
 
 function makeBotId(n) { return `bot-${n}`; }
 function isBotId(id) { return typeof id === 'string' && id.startsWith('bot-'); }
 
 function createBot(n, difficulty = 'medium') {
-  const diff = ['easy', 'medium', 'hard', 'demanding'].includes(difficulty) ? difficulty : 'medium';
+  const diff = ['easy', 'medium', 'hard', 'demanding', 'expert'].includes(difficulty) ? difficulty : 'medium';
   const names = BOT_NAMES[diff];
   const name = names[(n - 1) % names.length];
   return { id: makeBotId(n), userId: makeBotId(n), username: name, isBot: true, difficulty: diff };
@@ -172,6 +173,32 @@ function opponentDenialScore(state, playerIndex, source, color) {
   return maxBenefit;
 }
 
+// Deep-clone just enough state to safely simulate a move without mutating the real game
+function cloneState(state) {
+  return {
+    ...state,
+    factories: state.factories.map(f => [...f]),
+    center: [...state.center],
+    players: state.players.map(p => ({
+      ...p,
+      patternLines: p.patternLines.map(l => ({ ...l })),
+      wall: p.wall.map(r => [...r]),
+      floor: [...p.floor],
+    })),
+  };
+}
+
+// Apply a move to a cloned state and advance the turn, for lookahead search
+function simulateMove(state, playerIndex, move) {
+  const clone = cloneState(state);
+  clone.currentPlayerIndex = playerIndex;
+  const { taken, error } = takeTiles(clone, playerIndex, move.source, move.color);
+  if (error) return null;
+  placeTiles(clone, playerIndex, taken, move.patternRow);
+  clone.currentPlayerIndex = (playerIndex + 1) % clone.players.length;
+  return clone;
+}
+
 function chooseBotMove(state, playerIndex) {
   const moves = getLegalMoves(state, playerIndex);
   if (!moves.length) return null;
@@ -199,17 +226,59 @@ function chooseBotMove(state, playerIndex) {
     return moves[0];
   }
 
-  // demanding: best heuristic + opponent denial bonus
-  // Re-score with denial layer on top of the base heuristic
-  const scored = moves.map(move => {
+  if (difficulty === 'demanding') {
+    // best heuristic + opponent denial bonus
+    // Re-score with denial layer on top of the base heuristic
+    const scored = moves.map(move => {
+      const base = scoreMoveHeuristic(state, playerIndex, move);
+      const denial = move.patternRow !== 'floor'
+        ? opponentDenialScore(state, playerIndex, move.source, move.color) * 0.6
+        : 0;
+      return { move, score: base + denial };
+    });
+    scored.sort((a, b) => b.score - a.score);
+    return scored[0].move;
+  }
+
+  // expert: full-weight denial + a real 2-ply lookahead, layered on the same
+  // heuristic scale 'demanding' already uses (rather than a separate position
+  // evaluator, which proved to produce a weaker bot than 'demanding' in
+  // testing — the scales didn't line up). For each top candidate, this
+  // simulates the move, then simulates the very next player's best reply and
+  // subtracts a fraction of it — a shallow minimax so the bot avoids moves
+  // that hand the next player a strong follow-up (e.g. completing their
+  // pattern line or a cheap wall combo).
+  const candidates = moves.slice(0, Math.min(6, moves.length));
+  let best = candidates[0];
+  let bestValue = -Infinity;
+
+  for (const move of candidates) {
     const base = scoreMoveHeuristic(state, playerIndex, move);
     const denial = move.patternRow !== 'floor'
-      ? opponentDenialScore(state, playerIndex, move.source, move.color) * 0.6
+      ? opponentDenialScore(state, playerIndex, move.source, move.color)
       : 0;
-    return { move, score: base + denial };
-  });
-  scored.sort((a, b) => b.score - a.score);
-  return scored[0].move;
+
+    let value = base + denial;
+
+    const afterSelf = simulateMove(state, playerIndex, move);
+    if (afterSelf) {
+      const nextPlayerIdx = afterSelf.currentPlayerIndex;
+      if (nextPlayerIdx !== playerIndex) {
+        const oppMoves = getLegalMoves(afterSelf, nextPlayerIdx);
+        if (oppMoves.length) {
+          const oppBest = Math.max(...oppMoves.map(m => scoreMoveHeuristic(afterSelf, nextPlayerIdx, m)));
+          value -= oppBest * 0.3;
+        }
+      }
+    }
+
+    if (value > bestValue) {
+      bestValue = value;
+      best = move;
+    }
+  }
+
+  return best;
 }
 
 module.exports = { createBot, isBotId, chooseBotMove };

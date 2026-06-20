@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { fetchBotStats } from '../lib/api';
 
-const DIFF_ORDER = { easy: 0, medium: 1, hard: 2 };
+const DIFF_ORDER = { easy: 0, medium: 1, hard: 2, demanding: 3, expert: 4 };
 
 export default function BotStatsPage({ token, onClose }) {
   const [stats, setStats] = useState(null);
