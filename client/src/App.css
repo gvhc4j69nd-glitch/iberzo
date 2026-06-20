@@ -572,14 +572,14 @@ tr.me td { color: var(--accent); font-weight: 600; }
 
 /* ── Azul Demo Animation ──────────────────────── */
 .azul-demo {
-  display: flex; flex-direction: column; gap: 12px;
+  display: flex; flex-direction: column; gap: 10px;
   align-items: center;
-  padding: 16px 16px 10px;
+  padding: 16px 16px 12px;
   background: var(--card);
   border-radius: 20px;
   box-shadow: 0 4px 24px rgba(0,0,0,0.10);
   position: relative;
-  width: 260px;
+  width: 320px;
 }
 
 /* Factories row */
@@ -599,14 +599,20 @@ tr.me td { color: var(--accent); font-weight: 600; }
   box-shadow: 0 0 8px rgba(192,99,74,0.4);
 }
 
-/* Center pool — leftover tiles from used factories */
+/* Center pool — leftover tiles from used factories, or a pick source */
 .demo-center {
   display: flex; flex-wrap: wrap; gap: 3px;
   justify-content: center;
-  max-width: 220px;
+  max-width: 260px;
   padding: 4px 6px;
   border-radius: 8px;
   background: #ece4da;
+  border: 2px solid transparent;
+  transition: border-color 0.3s;
+}
+.demo-center-active {
+  border-color: var(--accent);
+  box-shadow: 0 0 8px rgba(192,99,74,0.4);
 }
 
 /* Tiles */
@@ -616,39 +622,62 @@ tr.me td { color: var(--accent); font-weight: 600; }
   transition: background 0.3s, transform 0.2s;
   flex-shrink: 0;
 }
+.demo-tile-sm {
+  width: 8px; height: 8px;
+  border-radius: 2px;
+}
 .demo-tile-picked {
   transform: scale(1.25);
   box-shadow: 0 2px 8px rgba(0,0,0,0.25);
 }
 
-/* Flying tile */
+/* Flying tile — lands on whichever player's board the move targets */
 .demo-flying-tile {
   position: absolute;
-  width: 18px; height: 18px;
+  width: 16px; height: 16px;
   border-radius: 4px;
   top: 60px; left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateX(0px);
   box-shadow: 0 4px 12px rgba(0,0,0,0.3);
   animation: fly-to-board 0.7s ease-in-out forwards;
   z-index: 10;
 }
 @keyframes fly-to-board {
-  0%   { top: 60px;  left: 50%; transform: translateX(-50%) scale(1.2); opacity: 1; }
-  40%  { top: 120px; left: 40%; transform: translateX(-50%) scale(1.3) rotate(-8deg); }
-  100% { top: 220px; left: 22%; transform: translateX(-50%) scale(1);   opacity: 0.2; }
+  0%   { top: 60px;  transform: translateX(-50%) translateX(0px) scale(1.2); opacity: 1; }
+  40%  { top: 140px; transform: translateX(-50%) translateX(calc(var(--fly-x, 0px) * 0.6)) scale(1.3) rotate(-8deg); }
+  100% { top: 230px; transform: translateX(-50%) translateX(var(--fly-x, 0px)) scale(1); opacity: 0.2; }
 }
 
-/* Player board */
-.demo-board {
-  display: flex; gap: 6px; align-items: flex-start;
+/* Three player boards */
+.demo-players {
+  display: flex; gap: 8px; justify-content: center;
+}
+.demo-player {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+.demo-player-label {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 1px 7px;
+  border-radius: 10px;
+  background: #ece4da;
+  transition: background 0.3s, color 0.3s;
+}
+.demo-player-active .demo-player-label {
+  background: var(--accent);
+  color: white;
+}
+.demo-mini-board {
+  display: flex; gap: 4px; align-items: flex-start;
 }
 
-/* Pattern lines */
-.demo-pattern {
-  display: flex; flex-direction: column; gap: 3px; align-items: flex-end;
+/* Mini pattern lines */
+.demo-mini-pattern {
+  display: flex; flex-direction: column; gap: 2px; align-items: flex-end;
 }
-.demo-pattern-row {
-  display: flex; gap: 3px;
+.demo-mini-pattern-row {
+  display: flex; gap: 2px;
   transition: filter 0.3s;
 }
 .demo-row-flash {
@@ -660,12 +689,12 @@ tr.me td { color: var(--accent); font-weight: 600; }
   50%      { filter: drop-shadow(0 0 6px rgba(255,200,100,1)); }
 }
 
-/* Wall */
-.demo-wall {
-  display: flex; flex-direction: column; gap: 3px;
+/* Mini wall */
+.demo-mini-wall {
+  display: flex; flex-direction: column; gap: 2px;
 }
-.demo-wall-row {
-  display: flex; gap: 3px;
+.demo-mini-wall-row {
+  display: flex; gap: 2px;
 }
 .demo-wall-tile {
   opacity: 0.85;
