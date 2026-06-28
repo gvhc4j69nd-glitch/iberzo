@@ -17,6 +17,14 @@ const notificationsRoutes = require('./routes/notifications');
 
 const path = require('path');
 
+// A single bad DB query or unexpected error in a socket handler used to
+// crash the entire process (Node terminates on unhandled rejections by
+// default), taking the whole site down for every player. Log instead of
+// dying — the request that triggered it will simply fail.
+process.on('unhandledRejection', err => {
+  console.error('Unhandled rejection (process kept alive):', err);
+});
+
 const app = express();
 app.use(cors({ origin: true }));
 app.use(express.json());
@@ -191,7 +199,13 @@ io.on('connection', async socket => {
   });
 
   socket.on('leave_game', async ({ roomId }) => {
-    const result = await leaveGame(roomId, user.id);
+    let result;
+    try {
+      result = await leaveGame(roomId, user.id);
+    } catch (err) {
+      console.error('leave_game failed:', err);
+      return socket.emit('game_error', 'Failed to leave game');
+    }
     if (result.action === 'close') {
       io.to(roomId).emit('room_closed');
     } else if (result.action === 'reset') {

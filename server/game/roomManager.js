@@ -329,7 +329,18 @@ async function leaveGame(roomId, userId) {
     return { action: 'close' };
   }
 
-  if (room.host === userId) room.host = room.players[0].id;
+  if (room.host === userId) {
+    // host_id is an INTEGER FK to users — never hand the host seat to a bot
+    const nextHost = room.players.find(p => !isBotId(p.id));
+    if (!nextHost) {
+      // No human left in the room — bots can't host, so close it
+      rooms.delete(roomId);
+      await pool.query('DELETE FROM room_players WHERE room_id = $1', [roomId]);
+      await pool.query('UPDATE rooms SET status = $1 WHERE id = $2', ['closed', roomId]);
+      return { action: 'close' };
+    }
+    room.host = nextHost.id;
+  }
   await pool.query('UPDATE rooms SET host_id = $1, status = $2 WHERE id = $3', [room.host, 'waiting', roomId]);
 
   return {
