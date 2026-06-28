@@ -5,10 +5,10 @@ import TutorialModal from '../components/TutorialModal';
 import PrivacyModal from '../components/PrivacyModal';
 import HowToPlayPage from './HowToPlayPage';
 
-export default function AuthPage({ onAuth }) {
+export default function AuthPage({ onAuth, sessionExpired }) {
   const [mode, setMode] = useState('login');
   const [form, setForm] = useState({ username: '', email: '', password: '' });
-  const [error, setError] = useState('');
+  const [error, setError] = useState(sessionExpired ? 'Your session expired — please log in again.' : '');
   const [showTutorial, setShowTutorial] = useState(false);
   const [showHtp, setShowHtp] = useState(false);
   const [showPassword, setShowPassword] = useState(false);

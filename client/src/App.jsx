@@ -29,6 +29,7 @@ export default function App() {
   const [pendingGameInvites, setPendingGameInvites] = useState([]); // offline invites on login
   const [friendRequestCount, setFriendRequestCount] = useState(0);
   const [navPage, setNavPage] = useState(null); // 'account' | 'howtoplay' | 'friends'
+  const [sessionExpired, setSessionExpired] = useState(false);
 
   // Restore tabs from server on login
   useEffect(() => {
@@ -116,8 +117,19 @@ export default function App() {
       }));
       setCurrentTab(roomId);
     };
+    // If the stored token is expired/invalid, the server rejects the socket
+    // handshake before 'connect' ever fires — every emit() after that just
+    // sits there forever with no error anywhere. Force a clean re-login
+    // instead of leaving the user stuck on a dead session.
+    const onConnectError = (err) => {
+      if (err.message === 'Unauthorized' || err.message === 'Invalid token') {
+        handleLogout();
+        setSessionExpired(true);
+      }
+    };
 
     s.on('connect', onConnect);
+    s.on('connect_error', onConnectError);
     s.on('game_started', onGameStarted);
     s.on('game_update', onGameUpdate);
     s.on('room_update', onRoomUpdate);
@@ -147,6 +159,7 @@ export default function App() {
       s.off('game_invite_received', onGameInviteReceived);
       s.off('pending_game_invites', onPendingGameInvites);
       s.off('game_invite_joined', onGameInviteJoined);
+      s.off('connect_error', onConnectError);
     };
   }, [token, username]);
 
@@ -154,6 +167,7 @@ export default function App() {
     setToken(newToken);
     setUsername(newUsername);
     setSocket(getSocket(newToken));
+    setSessionExpired(false);
   }
 
   function handleLogout() {
@@ -190,7 +204,7 @@ export default function App() {
   if (window.location.pathname === '/privacy') return <PrivacyPage />;
   if (window.location.pathname === '/delete-account') return <DeleteAccountPage />;
   if (window.location.pathname === '/about') return <AboutPage />;
-  if (!token) return <AuthPage onAuth={handleAuth} />;
+  if (!token) return <AuthPage onAuth={handleAuth} sessionExpired={sessionExpired} />;
   if (!socket) return <div className="loading">Connecting…</div>;
 
   const tabIds = Object.keys(tabs);
