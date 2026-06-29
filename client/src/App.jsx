@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react';
 import PrivacyPage from './pages/PrivacyPage';
 import DeleteAccountPage from './pages/DeleteAccountPage';
 import AboutPage from './pages/AboutPage';
+import VerifyEmailPage from './pages/VerifyEmailPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 import AuthPage from './pages/AuthPage';
 import LobbyPage from './pages/LobbyPage';
 import GamePage from './pages/GamePage';
@@ -12,7 +15,7 @@ import BotStatsPage from './pages/BotStatsPage';
 import NavMenu from './components/NavMenu';
 import NotificationBell from './components/NotificationBell';
 import { getSocket, disconnectSocket } from './lib/socket';
-import { fetchMyRooms } from './lib/api';
+import { fetchMyRooms, fetchMe, resendVerification } from './lib/api';
 import './App.css';
 
 // tab: { roomId, status: 'waiting'|'active', state, players, hostUsername, isHost }
@@ -30,6 +33,9 @@ export default function App() {
   const [friendRequestCount, setFriendRequestCount] = useState(0);
   const [navPage, setNavPage] = useState(null); // 'account' | 'howtoplay' | 'friends'
   const [sessionExpired, setSessionExpired] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(true);
+  const [verifyBannerDismissed, setVerifyBannerDismissed] = useState(false);
+  const [resendStatus, setResendStatus] = useState(''); // '' | 'sending' | 'sent'
 
   // Restore tabs from server on login
   useEffect(() => {
@@ -50,6 +56,25 @@ export default function App() {
       setTabs(restored);
     });
   }, [token]);
+
+  // Check email-verification status so the reminder banner reflects reality
+  // even across tabs/devices (e.g. they verified on their phone already)
+  useEffect(() => {
+    if (!token) return;
+    fetchMe(token).then(me => {
+      if (!me.error) setEmailVerified(!!me.emailVerified);
+    });
+  }, [token]);
+
+  async function handleResendVerification() {
+    setResendStatus('sending');
+    try {
+      await resendVerification(token);
+      setResendStatus('sent');
+    } catch {
+      setResendStatus('');
+    }
+  }
 
   // Wire socket events
   useEffect(() => {
@@ -168,6 +193,9 @@ export default function App() {
     setUsername(newUsername);
     setSocket(getSocket(newToken));
     setSessionExpired(false);
+    setEmailVerified(true); // unknown yet — avoids a flash before /me resolves
+    setVerifyBannerDismissed(false);
+    setResendStatus('');
   }
 
   function handleLogout() {
@@ -204,6 +232,9 @@ export default function App() {
   if (window.location.pathname === '/privacy') return <PrivacyPage />;
   if (window.location.pathname === '/delete-account') return <DeleteAccountPage />;
   if (window.location.pathname === '/about') return <AboutPage />;
+  if (window.location.pathname === '/verify-email') return <VerifyEmailPage />;
+  if (window.location.pathname === '/forgot-password') return <ForgotPasswordPage />;
+  if (window.location.pathname === '/reset-password') return <ResetPasswordPage />;
   if (!token) return <AuthPage onAuth={handleAuth} sessionExpired={sessionExpired} />;
   if (!socket) return <div className="loading">Connecting…</div>;
 
@@ -224,6 +255,32 @@ export default function App() {
 
   return (
     <div className="app-shell">
+      {!emailVerified && !verifyBannerDismissed && (
+        <div style={{
+          background: '#fff3cd', color: '#7a5a10', padding: '10px 16px',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          gap: 12, fontSize: 13, flexWrap: 'wrap', textAlign: 'center',
+        }}>
+          <span>Please verify your email address to secure your account.</span>
+          {resendStatus === 'sent' ? (
+            <strong>Email sent — check your inbox!</strong>
+          ) : (
+            <button
+              onClick={handleResendVerification}
+              disabled={resendStatus === 'sending'}
+              style={{ background: 'none', border: '1.5px solid #7a5a10', color: '#7a5a10', borderRadius: 6, padding: '3px 10px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
+            >
+              {resendStatus === 'sending' ? 'Sending…' : 'Resend email'}
+            </button>
+          )}
+          <button
+            onClick={() => setVerifyBannerDismissed(true)}
+            style={{ background: 'none', border: 'none', color: '#7a5a10', fontSize: 16, cursor: 'pointer', lineHeight: 1, padding: 0 }}
+            title="Dismiss"
+          >✕</button>
+        </div>
+      )}
+
       {/* Offline game invites delivered on login */}
       {pendingGameInvites.length > 0 && (
         <div className="invite-overlay">

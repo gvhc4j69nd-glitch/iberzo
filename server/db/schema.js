@@ -15,6 +15,29 @@ async function init() {
       created_at TIMESTAMPTZ DEFAULT NOW()
     )
   `);
+  // Email verification: backfill existing accounts as already-verified (they
+  // predate this feature), then flip the default so new registrations start
+  // unverified. ADD COLUMN ... DEFAULT true backfills all current rows in
+  // one metadata-only operation; the later SET DEFAULT only affects new rows.
+  await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verified BOOLEAN DEFAULT true`);
+  await pool.query(`ALTER TABLE users ALTER COLUMN email_verified SET DEFAULT false`);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS email_verification_tokens (
+      user_id    INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+      token      TEXT UNIQUE NOT NULL,
+      expires_at TIMESTAMPTZ NOT NULL,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    )
+  `);
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS password_reset_tokens (
+      user_id    INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+      token      TEXT UNIQUE NOT NULL,
+      expires_at TIMESTAMPTZ NOT NULL,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    )
+  `);
   await pool.query(`
     CREATE TABLE IF NOT EXISTS rooms (
       id TEXT PRIMARY KEY,

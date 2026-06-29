@@ -87,6 +87,11 @@ export default function AuthPage({ onAuth, sessionExpired }) {
           {error && <p className="error">{error}</p>}
           <button type="submit">{mode === 'login' ? 'Login' : 'Register'}</button>
         </form>
+        {mode === 'login' && (
+          <p style={{ fontSize: 12, color: '#9a7060', textAlign: 'center', marginTop: 8 }}>
+            <a href="/forgot-password" style={{ color: '#9a7060' }}>Forgot password?</a>
+          </p>
+        )}
         <p style={{ fontSize: 11, color: '#9a7060', textAlign: 'center', marginTop: 4 }}>
           <a href="/about" style={{ color: '#9a7060' }}>About Us</a>
           {' · '}

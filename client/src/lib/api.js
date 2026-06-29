@@ -24,6 +24,48 @@ export async function login(username, password) {
   return res.json();
 }
 
+export async function fetchMe(token) {
+  const res = await fetch(`${BASE}/auth/me`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return res.json();
+}
+
+export async function resendVerification(token) {
+  const res = await fetch(`${BASE}/auth/resend-verification`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return res.json();
+}
+
+export async function verifyEmail(verifyToken) {
+  const res = await fetch(`${BASE}/auth/verify-email`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token: verifyToken }),
+  });
+  return res.json();
+}
+
+export async function forgotPassword(email) {
+  const res = await fetch(`${BASE}/auth/forgot-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email }),
+  });
+  return res.json();
+}
+
+export async function resetPassword(resetToken, newPassword) {
+  const res = await fetch(`${BASE}/auth/reset-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token: resetToken, newPassword }),
+  });
+  return res.json();
+}
+
 export async function fetchLeaderboard(username) {
   const qs = username ? `?username=${encodeURIComponent(username)}` : '';
   const res = await fetch(`${BASE}/leaderboard${qs}`);
