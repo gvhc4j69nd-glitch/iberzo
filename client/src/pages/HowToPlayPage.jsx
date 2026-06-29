@@ -72,6 +72,33 @@ export default function HowToPlayPage({ onClose }) {
           <p>The game ends at the <strong>end of the round</strong> in which any player completes a full horizontal wall row. Final bonuses are applied, then the player with the most points wins.</p>
         </section>
 
+        <section className="htp-section">
+          <h3>Bot Leaderboard</h3>
+          <p>Only <strong>solo games</strong> count — you playing alone against one or more bots. Games with other human players don't affect this leaderboard.</p>
+          <ul className="htp-list">
+            <li><strong>Win</strong> — you finish ranked above every bot in the game.</li>
+            <li><strong>Loss</strong> — any single bot finishes ranked above you (placing above 2 of 3 bots but behind 1 still counts as a loss).</li>
+          </ul>
+          <p style={{ marginTop: 10 }}>Your <strong>Rating</strong> uses the same Elo system as the main leaderboard, but each bot difficulty stands in as a fixed-strength opponent:</p>
+          <div className="htp-table-wrap">
+            <table className="htp-table">
+              <thead>
+                <tr><th>Difficulty</th><th>Rating</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Easy</td><td>800</td></tr>
+                <tr><td>Medium</td><td>1000</td></tr>
+                <tr><td>Hard</td><td>1300</td></tr>
+                <tr><td>Demanding</td><td>1600</td></tr>
+                <tr><td>Expert</td><td>1900</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p style={{ marginTop: 10, fontSize: 12, opacity: 0.7 }}>
+            Beating a higher-difficulty bot earns more rating than beating an easy one — you were less expected to win, so the upset is worth more. Losing to an easy bot costs more than losing to an expert one, since you were heavily favored. If a game has multiple bots, each one applies its own rating adjustment. Swings are larger in your first 10 solo games and settle down after that. The player with the highest rating earns the <strong>Grand Master</strong> badge.
+          </p>
+        </section>
+
       </div>
     </div>
   );
