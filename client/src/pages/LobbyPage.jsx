@@ -475,7 +475,13 @@ export default function LobbyPage({
             </>
           )}
 
-          <AdBanner variant="leaderboard" />
+          {/* AdSense policy: never pair an ad with a screen that has no
+              real content to show alongside it (e.g. a brand-new account
+              with an empty leaderboard) — only render once there's
+              something substantive on screen. */}
+          {(leaderboard.length > 0 || botLeaderboard.length > 0) && (
+            <AdBanner variant="leaderboard" />
+          )}
         </div>
       </div>
     </div>

@@ -24,7 +24,7 @@ export default function AdBanner({ variant = 'leaderboard' }) {
   const slotId = ADSENSE_SLOTS[variant];
 
   useEffect(() => {
-    if (noAds) return;
+    if (noAds || !slotId) return;
     let cancelled = false;
     // Wait for the ATT decision (iOS) before requesting any ads.
     initTracking().then(() => {
@@ -55,27 +55,22 @@ export default function AdBanner({ variant = 'leaderboard' }) {
     ) : null;
   }
 
+  // No slot configured for this variant — never show a fake/placeholder
+  // "Powered by Google AdSense" box with no real ad behind it.
+  if (!slotId) return null;
+
   return (
     <div className={`ad-wrap ad-${variant}`}>
       <span className="ad-label">Advertisement</span>
 
-      {slotId ? (
-        <ins
-          className="adsbygoogle"
-          style={{ display: 'block', width: '100%' }}
-          data-ad-client={ADSENSE_CLIENT}
-          data-ad-slot={slotId}
-          data-ad-format="auto"
-          data-full-width-responsive="true"
-        />
-      ) : (
-        <div className="ad-placeholder">
-          <div className="ad-placeholder-inner">
-            <p className="ad-placeholder-text">Ad space</p>
-            <p className="ad-placeholder-sub">Powered by Google AdSense</p>
-          </div>
-        </div>
-      )}
+      <ins
+        className="adsbygoogle"
+        style={{ display: 'block', width: '100%' }}
+        data-ad-client={ADSENSE_CLIENT}
+        data-ad-slot={slotId}
+        data-ad-format="auto"
+        data-full-width-responsive="true"
+      />
 
       <button className="ad-remove-btn" onClick={handleSupport}>
         ☕ Support Iberzo — remove ads
