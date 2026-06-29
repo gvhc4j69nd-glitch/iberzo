@@ -20,7 +20,7 @@ async function restoreRooms() {
   const grouped = {};
   for (const row of rows) {
     if (!grouped[row.id]) {
-      grouped[row.id] = { id: row.id, host: row.host_id, players: [], state: null, gameId: row.game_id || null };
+      grouped[row.id] = { id: row.id, host: row.host_id, players: [], state: null, gameId: row.game_id || null, hasBot: false };
     }
     grouped[row.id].players.push({ id: row.user_id, userId: row.user_id, username: row.username });
     if (row.state_json && !grouped[row.id].state) {
@@ -28,7 +28,36 @@ async function restoreRooms() {
     }
   }
 
-  for (const room of Object.values(grouped)) rooms.set(room.id, room);
+  for (const room of Object.values(grouped)) {
+    // room_players never stores bots (they're not real DB users) — the only
+    // place bots show up is inside the persisted game state. Without this,
+    // every restart silently resets hasBot to false for every active bot
+    // game, which disables bot auto-play, bot-stats recording, and the
+    // PvP-leaderboard bypass until that room is recreated.
+    if (room.state) {
+      room.hasBot = room.state.players.some(p => isBotId(p.userId));
+    }
+    rooms.set(room.id, room);
+  }
+
+  // If the server restarted mid-game while it was a bot's turn, nothing
+  // would ever resume it — the bot only moves reactively inside another
+  // player's handleMove call, and it's not their turn. Drive any pending
+  // bot turn now so the game doesn't sit frozen until someone notices.
+  for (const room of rooms.values()) {
+    if (!room.state || !room.hasBot || room.state.gameOver) continue;
+    const current = room.state.players[room.state.currentPlayerIndex];
+    if (!current || !isBotId(current.userId)) continue;
+
+    autoPlayBots(room);
+
+    if (room.state.gameOver) {
+      await finishGame(room);
+    } else {
+      await pool.query('UPDATE games SET state_json = $1, last_move_at = NOW() WHERE id = $2', [JSON.stringify(room.state), room.gameId]);
+    }
+  }
+
   console.log(`Restored ${rooms.size} rooms from DB`);
 }
 
@@ -129,6 +158,29 @@ function applyMove(state, playerIndex, move) {
   return {};
 }
 
+// Plays every consecutive bot turn starting from the current player, in
+// place on room.state. Shared by handleMove (reactive, after a human's
+// move) and restoreRooms (resuming a turn a restart interrupted).
+function autoPlayBots(room) {
+  if (!room.hasBot) return;
+  let safety = 0;
+  while (!room.state.gameOver && safety++ < 200) {
+    const nextIdx = room.state.currentPlayerIndex;
+    const nextPlayer = room.state.players[nextIdx];
+    if (!isBotId(nextPlayer.userId)) break;
+    const botMove = chooseBotMove(room.state, nextIdx);
+    if (!botMove) {
+      console.warn(`Bot ${nextPlayer.username} has no legal moves — forcing floor`);
+      break;
+    }
+    const botResult = applyMove(room.state, nextIdx, botMove);
+    if (botResult.error) {
+      console.warn(`Bot move error: ${botResult.error}`, botMove);
+      break;
+    }
+  }
+}
+
 async function handleMove(roomId, userId, move) {
   const room = rooms.get(roomId);
   if (!room || !room.state) return { error: 'No active game' };
@@ -142,25 +194,7 @@ async function handleMove(roomId, userId, move) {
   const result = applyMove(room.state, playerIndex, move);
   if (result.error) return result;
 
-  // Auto-play any consecutive bot turns
-  if (room.hasBot) {
-    let safety = 0;
-    while (!room.state.gameOver && safety++ < 200) {
-      const nextIdx = room.state.currentPlayerIndex;
-      const nextPlayer = room.state.players[nextIdx];
-      if (!isBotId(nextPlayer.userId)) break;
-      const botMove = chooseBotMove(room.state, nextIdx);
-      if (!botMove) {
-        console.warn(`Bot ${nextPlayer.username} has no legal moves — forcing floor`);
-        break;
-      }
-      const botResult = applyMove(room.state, nextIdx, botMove);
-      if (botResult.error) {
-        console.warn(`Bot move error: ${botResult.error}`, botMove);
-        break;
-      }
-    }
-  }
+  autoPlayBots(room);
 
   const isOver = room.state.gameOver;
   const finalState = isOver ? { ...room.state } : room.state;
