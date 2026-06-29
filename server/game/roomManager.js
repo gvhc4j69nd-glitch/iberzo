@@ -29,13 +29,16 @@ async function restoreRooms() {
   }
 
   for (const room of Object.values(grouped)) {
-    // room_players never stores bots (they're not real DB users) — the only
-    // place bots show up is inside the persisted game state. Without this,
-    // every restart silently resets hasBot to false for every active bot
-    // game, which disables bot auto-play, bot-stats recording, and the
-    // PvP-leaderboard bypass until that room is recreated.
+    // room_players never stores bots (they're not real DB users), so the
+    // join above silently drops them from room.players too. Restore them
+    // from the persisted game state — otherwise a 1-human-1-bot game looks
+    // like a 1-player room after a restart, and leaveGame()'s "last player
+    // leaving closes the room" check fires incorrectly on the human's very
+    // next leave, force-closing an otherwise-live game.
     if (room.state) {
-      room.hasBot = room.state.players.some(p => isBotId(p.userId));
+      const bots = room.state.players.filter(p => isBotId(p.userId));
+      room.players.push(...bots.map(b => ({ id: b.userId, userId: b.userId, username: b.username, isBot: true, difficulty: b.difficulty })));
+      room.hasBot = bots.length > 0;
     }
     rooms.set(room.id, room);
   }
