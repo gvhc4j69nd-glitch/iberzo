@@ -366,6 +366,15 @@ async function runStaleCleanup() {
 
 const PORT = process.env.PORT || 3001;
 
+// Serve scarcinality static pages
+const scarcDir = path.join(__dirname, '../scarcinality');
+const scarc = (file) => (_req, res) => res.sendFile(path.join(scarcDir, file));
+app.get('/dispatches', scarc('dispatches.html'));
+app.get('/dispatch-financing-model', scarc('dispatch-financing-model.html'));
+app.get('/dispatch-order-of-operations', scarc('dispatch-order-of-operations.html'));
+app.get('/dispatch-counterfeit-shortage-of-care', scarc('dispatch-counterfeit-shortage-of-care.html'));
+app.get('/dispatch-when-the-shortage-is-real', scarc('dispatch-when-the-shortage-is-real.html'));
+
 // Serve built client in production
 const clientDist = path.join(__dirname, '../client/dist');
 app.use(express.static(clientDist));

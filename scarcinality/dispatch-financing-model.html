@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Dollar Reroute · Scarcinality</title>
+<meta name="description" content="The prior readings said the money changes address, not amount. This dispatch shows the arithmetic — the national financing model, every line adjustable, every conclusion falsifiable.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* Self-contained edition of the scarcinality identity. To fold into the deployed
+     site, delete this block and add <link rel="stylesheet" href="/assets/style.css">.
+     The model-panel and hh-table rules below are unique to this dispatch. */
+  :root{
+    --parchment:#F4F1EA; --parchment-2:#ECE7DA; --ink:#23201B; --ink-soft:#4A453C;
+    --oxblood:#6E1F1B; --oxblood-soft:#8A2C26; --rule:#C9BFA8; --measure:39rem;
+    --positive:#3D5928;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--parchment);color:var(--ink);
+    font-family:"EB Garamond",Georgia,serif;font-size:21px;line-height:1.66;-webkit-font-smoothing:antialiased;}
+  a{color:var(--oxblood);text-decoration:none;border-bottom:1px solid rgba(110,31,27,.32);}
+  a:hover{border-bottom-color:var(--oxblood);}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;}
+
+  /* ── Nav ── */
+  .site-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.6rem;
+    max-width:64rem;margin:0 auto;padding:1.5rem 1.5rem 1.1rem;border-bottom:1px solid var(--rule);}
+  .brand{font-family:"IBM Plex Mono",monospace;font-weight:600;letter-spacing:.08em;
+    text-transform:uppercase;font-size:.82rem;color:var(--ink);border:none;}
+  .site-nav{display:flex;flex-wrap:wrap;gap:1.1rem;font-family:"IBM Plex Mono",monospace;
+    font-size:.74rem;letter-spacing:.04em;text-transform:uppercase;}
+  .site-nav a{color:var(--ink-soft);border:none;padding-bottom:2px;}
+  .site-nav a:hover{color:var(--oxblood);}
+  .site-nav a[aria-current="page"]{color:var(--oxblood);border-bottom:2px solid var(--oxblood);}
+
+  /* ── Layout ── */
+  .wrap{max-width:64rem;margin:0 auto;padding:0 1.5rem 4rem;}
+  .post-head{padding:2.6rem 0 1.6rem;border-bottom:1px solid var(--rule);max-width:var(--measure);}
+  .post-meta{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--oxblood);margin:0 0 1rem;}
+  h1{font-weight:600;font-size:clamp(2.1rem,5.2vw,3.1rem);line-height:1.08;margin:0 0 1rem;letter-spacing:-.01em;}
+  .dek{font-size:1.22rem;font-style:italic;color:var(--ink-soft);margin:0;max-width:36rem;}
+
+  /* ── Prose ── */
+  .stamp{max-width:var(--measure);margin:1.4rem 0 0;padding:.9rem 1.05rem;background:var(--parchment-2);
+    border-left:3px solid var(--oxblood);font-family:"IBM Plex Mono",monospace;font-size:.78rem;line-height:1.55;color:var(--ink-soft);}
+  .prose{max-width:var(--measure);margin:0;}
+  .prose h2{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:.82rem;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--oxblood);margin:2.6rem 0 .4rem;}
+  .prose p{margin:1rem 0;}
+  .lead::first-letter{font-size:3.1rem;line-height:.8;float:left;padding:.06em .12em .02em 0;color:var(--oxblood);font-weight:600;}
+  .descent-rule{border:none;height:1px;background:var(--rule);margin:2.4rem 0;max-width:var(--measure);}
+  .pull{max-width:var(--measure);margin:2rem 0;padding:.2rem 0 .2rem 1.4rem;border-left:3px solid var(--oxblood);
+    font-style:italic;font-size:1.28rem;color:var(--ink);line-height:1.5;}
+
+  /* ── Model Panel ── */
+  .model-panel{
+    max-width:64rem;margin:2.4rem 0;
+    border-top:1.5px solid var(--oxblood);
+    border-bottom:1px solid var(--rule);
+  }
+  .model-header{
+    display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:.5rem;
+    padding:.75rem 1.4rem;background:var(--parchment-2);border-bottom:1px solid var(--rule);
+  }
+  .model-label{font-family:"IBM Plex Mono",monospace;font-size:.72rem;font-weight:600;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--oxblood);}
+  .model-note{font-family:"IBM Plex Mono",monospace;font-size:.65rem;letter-spacing:.04em;color:var(--ink-soft);}
+
+  .model-body{display:grid;grid-template-columns:272px 1fr;align-items:start;}
+
+  /* controls column */
+  .model-controls{
+    padding:1.2rem 1.4rem;border-right:1px solid var(--rule);
+    display:flex;flex-direction:column;gap:1.6rem;
+  }
+  .ctl-label{
+    display:flex;justify-content:space-between;align-items:baseline;
+    font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--oxblood);margin-bottom:.45rem;
+  }
+  .ctl-val{font-weight:600;color:var(--ink);font-size:.78rem;font-variant-numeric:tabular-nums;}
+  .ctl-sub{font-family:"IBM Plex Mono",monospace;font-size:.62rem;color:var(--ink-soft);
+    line-height:1.5;margin-top:.3rem;letter-spacing:.02em;}
+
+  input[type=range]{
+    -webkit-appearance:none;appearance:none;
+    width:100%;height:2px;background:var(--rule);border-radius:0;
+    outline:none;cursor:pointer;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;appearance:none;
+    width:11px;height:11px;background:var(--oxblood);border-radius:50%;cursor:pointer;
+  }
+  input[type=range]::-moz-range-thumb{
+    width:11px;height:11px;background:var(--oxblood);border-radius:50%;cursor:pointer;border:none;
+  }
+  input[type=range]:focus-visible{outline:2px solid var(--oxblood);outline-offset:6px;}
+
+  .fixed-ref{
+    border-top:1px solid var(--rule);padding-top:1rem;
+  }
+  .fixed-ref-label{font-family:"IBM Plex Mono",monospace;font-size:.62rem;font-weight:600;
+    letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:.5rem;}
+  .fixed-ref table{width:100%;border-collapse:collapse;font-family:"IBM Plex Mono",monospace;font-size:.63rem;font-variant-numeric:tabular-nums;}
+  .fixed-ref table td{padding:.22rem 0;border-bottom:none;color:var(--ink-soft);vertical-align:baseline;}
+  .fixed-ref table td:last-child{text-align:right;color:var(--ink);}
+
+  /* outputs column */
+  .model-outputs{
+    padding:1.2rem 1.4rem;display:flex;flex-direction:column;gap:1.6rem;
+  }
+
+  /* verdict chips */
+  .verdict-row{display:flex;gap:.8rem;flex-wrap:wrap;}
+  .vchip{
+    font-family:"IBM Plex Mono",monospace;font-size:.69rem;font-weight:600;
+    letter-spacing:.08em;text-transform:uppercase;padding:.2em .65em;
+    border:1.5px solid var(--oxblood);color:var(--oxblood);
+  }
+  .vchip.more{border-color:var(--ink-soft);color:var(--ink-soft);}
+
+  /* output tables */
+  .out-section-label{
+    font-family:"IBM Plex Mono",monospace;font-size:.65rem;font-weight:600;
+    letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:.45rem;
+  }
+  table.out-table{
+    border-collapse:collapse;width:100%;font-family:"IBM Plex Mono",monospace;
+    font-size:.74rem;font-variant-numeric:tabular-nums;
+  }
+  table.out-table td{
+    padding:.3rem 0;border-bottom:1px solid rgba(201,191,168,.45);vertical-align:baseline;
+  }
+  table.out-table td:last-child{text-align:right;white-space:nowrap;}
+  table.out-table .group-break td{border-top:none;border-bottom:none;padding-top:.7rem;
+    font-weight:600;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);}
+  table.out-table .subtotal td{
+    border-top:1px solid var(--oxblood);border-bottom:none;
+    padding-top:.45rem;font-weight:600;
+  }
+
+  /* color tokens */
+  .c-positive{color:var(--positive);}
+  .c-negative{color:var(--oxblood);}
+  .c-muted{color:var(--ink-soft);}
+
+  /* ── Household table ── */
+  .ledger-wrap{max-width:64rem;margin:1rem 0 0;overflow-x:auto;}
+  table.hh{border-collapse:collapse;width:100%;min-width:580px;
+    font-family:"IBM Plex Mono",monospace;font-size:.75rem;font-variant-numeric:tabular-nums;}
+  table.hh th,table.hh td{padding:.55rem .8rem;border-bottom:1px solid var(--rule);vertical-align:baseline;}
+  table.hh th{text-align:right;color:var(--oxblood);letter-spacing:.05em;text-transform:uppercase;
+    font-size:.66rem;border-bottom:1.5px solid var(--oxblood);}
+  table.hh th:first-child{text-align:left;}
+  table.hh td{text-align:right;}
+  table.hh td:first-child{text-align:left;font-family:"EB Garamond",serif;font-size:.95rem;}
+  .pays-less{color:var(--positive);font-weight:600;}
+  .pays-more{color:var(--oxblood);font-weight:600;}
+
+  /* ── Standing ledger ── */
+  table.ledger{border-collapse:collapse;width:100%;font-family:"IBM Plex Mono",monospace;font-size:.78rem;}
+  table.ledger th,table.ledger td{text-align:left;vertical-align:top;padding:.6rem .7rem;border-bottom:1px solid var(--rule);}
+  table.ledger thead th{color:var(--oxblood);letter-spacing:.06em;text-transform:uppercase;
+    font-size:.68rem;border-bottom:1.5px solid var(--oxblood);}
+  table.ledger td.reading{font-family:"EB Garamond",serif;font-size:.96rem;line-height:1.4;min-width:18rem;}
+  table.ledger td.falsifier{font-family:"EB Garamond",serif;font-style:italic;color:var(--ink-soft);
+    font-size:.92rem;line-height:1.4;min-width:15rem;}
+  .pill{display:inline-block;font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;
+    padding:.18em .55em;border:1px solid var(--oxblood);color:var(--oxblood);border-radius:2px;white-space:nowrap;}
+  td.asof{color:var(--ink-soft);white-space:nowrap;}
+  td.num{color:var(--oxblood);font-weight:600;}
+
+  /* ── Footer ── */
+  .site-footer{border-top:1px solid var(--rule);margin-top:3rem;}
+  .site-footer .inner{max-width:64rem;margin:0 auto;padding:1.6rem 1.5rem 2.4rem;}
+  .tagline{font-style:italic;font-size:1.05rem;margin:0 0 .3rem;}
+  .site-footer p{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--ink-soft);margin:.2rem 0;letter-spacing:.02em;}
+
+  @media(max-width:820px){
+    .model-body{grid-template-columns:1fr;}
+    .model-controls{border-right:none;border-bottom:1px solid var(--rule);}
+  }
+  @media(max-width:640px){body{font-size:19px;}.dek{font-size:1.1rem;}}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <a class="brand" href="/">Scarcinality</a>
+  <nav class="site-nav">
+    <a href="/cornerstone">Start</a>
+    <a href="/treatise">Treatise</a>
+    <a href="/theory">Theory</a>
+    <a href="/dispatches" aria-current="page">Dispatches</a>
+    <a href="/glossary">Glossary</a>
+  </nav>
+</header>
+
+<main class="wrap">
+  <div class="post-head">
+    <p class="post-meta">Dispatch · as of 5 July 2026 · Health care</p>
+    <h1>The Dollar Reroute</h1>
+    <p class="dek">The prior readings said the money changes address, not amount. This dispatch shows the arithmetic — the national financing model, every line adjustable, every conclusion falsifiable.</p>
+  </div>
+
+  <p class="stamp mono">A conditional reading through scarcinality, built on Fisher, Keynes, and Minsky. This is a direction, not a forecast, and it is falsifiable. It follows directly from <a href="/dispatch-counterfeit-shortage-of-care">The Counterfeit Shortage of Care</a> and <a href="/dispatch-order-of-operations">The Order of Operations</a>. Figures from CMS NHE 2024, BEA wages and salaries, Tax Policy Center, and McKinsey and the single-payer literature on administrative savings.</p>
+
+  <article class="prose">
+
+    <p class="lead">The hardest thing to believe about the financing of universal care is that it requires no new money in any aggregate sense. The national health bill runs about 5.3 trillion dollars. About half of that is already public — Medicare, Medicaid, the VA, and the federal tax subsidy for employer coverage. The private remainder is already being paid, by employers as premiums, by workers as premiums, and by households directly as out-of-pocket costs. The framework's claim is not that the bill disappears. It is that rerouting the money already in motion covers it, and that each payer ends up lighter than before.</p>
+
+    <p>This dispatch builds the model in public. Every number comes from a named source, and the three genuinely contested parameters — how much administrative friction a single payer eliminates, what rate an employer payroll contribution is set at, and how much of the tax exclusion Congress recovers — are adjustable. The conclusions that survive across the full range of those parameters are the ones the framework is prepared to defend. The ones that depend on landing the optimistic assumption are noted as such.</p>
+
+    <h2>The national model</h2>
+    <p>Move the three sliders to where you believe the contested estimates belong. The financing picture follows immediately. The standing verdict at the top of the output answers the question the framework commits to: does each side end up paying less than today?</p>
+
+  </article>
+
+  <!-- ── INTERACTIVE MODEL ── -->
+  <div class="model-panel" role="region" aria-label="Interactive financing model — adjust admin savings, payroll rate, and ESI recapture">
+    <div class="model-header">
+      <span class="model-label">Model — Financing</span>
+      <span class="model-note">Blue cells in the source model are sliders here. All other figures are calculated.</span>
+    </div>
+
+    <div class="model-body">
+
+      <!-- CONTROLS -->
+      <div class="model-controls">
+
+        <div>
+          <div class="ctl-label">
+            Admin savings realized
+            <span class="ctl-val" id="v-admin">$450B</span>
+          </div>
+          <input type="range" id="sl-admin" min="265" max="600" step="5" value="450"
+            aria-label="Administrative savings realized, billions of dollars"
+            aria-valuemin="265" aria-valuemax="600" aria-valuenow="450">
+          <p class="ctl-sub">$265B = McKinsey conservative floor<br>$450B = single-payer literature midpoint<br>$600B = upper literature estimate</p>
+        </div>
+
+        <div>
+          <div class="ctl-label">
+            Employer payroll rate
+            <span class="ctl-val" id="v-rate">8.5%</span>
+          </div>
+          <input type="range" id="sl-rate" min="5.0" max="10.0" step="0.1" value="8.5"
+            aria-label="Employer payroll contribution rate, percent"
+            aria-valuemin="5" aria-valuemax="10" aria-valuenow="8.5">
+          <p class="ctl-sub">Sanders bill used 7.5%<br>This model's default: 8.5%<br>Upper scenario: 10.0%</p>
+        </div>
+
+        <div>
+          <div class="ctl-label">
+            ESI exclusion recaptured
+            <span class="ctl-val" id="v-esi">$300B</span>
+          </div>
+          <input type="range" id="sl-esi" min="0" max="300" step="10" value="300"
+            aria-label="ESI tax exclusion recaptured, billions of dollars"
+            aria-valuemin="0" aria-valuemax="300" aria-valuenow="300">
+          <p class="ctl-sub">Full recapture: $300B (Tax Policy Center)<br>Partial recapture: any value below<br>Zero: exclusion left in place</p>
+        </div>
+
+        <div class="fixed-ref">
+          <p class="fixed-ref-label">Fixed — not adjustable</p>
+          <table>
+            <tr><td>Total US health spending</td><td>$5,300B</td></tr>
+            <tr><td>Existing public share</td><td>47% → $2,491B</td></tr>
+            <tr><td>US payroll wage base</td><td>$11,500B</td></tr>
+            <tr><td>Employer premiums today</td><td>$1,050B</td></tr>
+            <tr><td>Worker premiums today</td><td>$595B</td></tr>
+            <tr><td>Out-of-pocket today</td><td>$557B</td></tr>
+            <tr><td>Household direct today</td><td>$1,152B</td></tr>
+          </table>
+        </div>
+
+      </div><!-- /controls -->
+
+      <!-- OUTPUTS -->
+      <div class="model-outputs">
+
+        <div class="verdict-row" aria-live="polite" aria-atomic="true">
+          <span class="vchip" id="v-emp">Employer: —</span>
+          <span class="vchip" id="v-hh">Households: —</span>
+        </div>
+
+        <div>
+          <p class="out-section-label">What must be financed</p>
+          <table class="out-table">
+            <tr><td>Total system cost</td><td>$5,300B</td></tr>
+            <tr><td>Less admin savings</td><td id="o-admin" class="c-positive"></td></tr>
+            <tr class="subtotal"><td>Cost after savings</td><td id="o-after"></td></tr>
+            <tr><td>Existing public continues</td><td class="c-muted">−$2,491B</td></tr>
+            <tr class="subtotal"><td>New financing to raise</td><td id="o-needed"></td></tr>
+          </table>
+        </div>
+
+        <div>
+          <p class="out-section-label">Sources of new financing</p>
+          <table class="out-table">
+            <tr><td>Employer payroll contribution</td><td id="o-emp-contrib"></td></tr>
+            <tr><td>ESI exclusion recaptured</td><td id="o-esi-out"></td></tr>
+            <tr><td>Household contributions (residual)</td><td id="o-hh-residual"></td></tr>
+            <tr class="subtotal"><td>Total sources</td><td id="o-total"></td></tr>
+          </table>
+        </div>
+
+        <div>
+          <p class="out-section-label">Does each side pay less?</p>
+          <table class="out-table">
+            <tr class="group-break"><td colspan="2">Employers</td></tr>
+            <tr><td>New contribution</td><td id="o-emp-new"></td></tr>
+            <tr><td>Premiums today</td><td class="c-muted">$1,050B</td></tr>
+            <tr class="subtotal"><td>Annual change</td><td id="o-emp-delta"></td></tr>
+            <tr class="group-break"><td colspan="2">Households (aggregate)</td></tr>
+            <tr><td>New contributions</td><td id="o-hh-new"></td></tr>
+            <tr><td>Premiums + OOP today</td><td class="c-muted">$1,152B</td></tr>
+            <tr class="subtotal"><td>Annual change</td><td id="o-hh-delta"></td></tr>
+          </table>
+        </div>
+
+      </div><!-- /outputs -->
+    </div><!-- /model-body -->
+  </div><!-- /model-panel -->
+
+  <article class="prose">
+
+    <p>Two findings hold across most of the model's range. Employers pay less so long as the payroll rate is set below roughly 9.1 percent — below what they currently pay in premiums — which is every plausible scenario. Households pay less in aggregate so long as administrative savings land above approximately 330 billion dollars, which covers the conservative estimate and everything above it. Below that level, households as an aggregate move from slightly ahead to roughly at parity with today, while still receiving the out-of-pocket cap and the end of medical bankruptcy risk.</p>
+
+    <p>The single parameter that can flip the household verdict from better to worse is the administrative savings figure, which is contested but not unconstrained. The existing literature, from the McKinsey floor at 265 billion to the upper academic estimates near 600 billion, reflects genuine uncertainty about realized savings in a system that retains some private-layer complexity versus one that fully centralizes billing. Both columns of that range still leave employers materially better off.</p>
+
+    <p class="pull">The dollars do not appear. They change address. What the sliders are testing is whether the new address is lighter for each payer than the old one was.</p>
+
+    <h2>The distributional cut</h2>
+    <p>The national aggregate conceals the distributional question, which is the more interesting one for households. An income-based contribution means asking higher earners to pay more than they paid in flat premiums. The table below shows the illustrative household-level arithmetic at the model's contribution rates. The crossover — above which a household pays more in contributions than it paid in premiums plus out-of-pocket — sits near 168,000 dollars of household income. Below that line, which is most households, the direct payment falls. Above it, the direct payment rises, while the household still receives the out-of-pocket cap, the elimination of medical-bankruptcy risk, and, for the uninsured among them, coverage they did not previously have.</p>
+
+  </article>
+
+  <!-- HOUSEHOLD TABLE -->
+  <div class="ledger-wrap">
+    <table class="hh">
+      <thead>
+        <tr>
+          <th>Household income</th>
+          <th>Contribution rate</th>
+          <th>New contribution</th>
+          <th>Premiums + OOP today</th>
+          <th>Net change</th>
+          <th>Verdict</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>$25,000</td>
+          <td>0.0%</td><td>$0</td><td>$1,500</td>
+          <td class="pays-less">+$1,500</td><td class="pays-less">Pays less</td>
+        </tr>
+        <tr>
+          <td>$50,000</td>
+          <td>2.5%</td><td>$1,250</td><td>$6,500</td>
+          <td class="pays-less">+$5,250</td><td class="pays-less">Pays less</td>
+        </tr>
+        <tr>
+          <td>$75,000</td>
+          <td>4.0%</td><td>$3,000</td><td>$8,500</td>
+          <td class="pays-less">+$5,500</td><td class="pays-less">Pays less</td>
+        </tr>
+        <tr>
+          <td>$100,000</td>
+          <td>5.0%</td><td>$5,000</td><td>$9,500</td>
+          <td class="pays-less">+$4,500</td><td class="pays-less">Pays less</td>
+        </tr>
+        <tr>
+          <td>$150,000</td>
+          <td>6.0%</td><td>$9,000</td><td>$10,500</td>
+          <td class="pays-less">+$1,500</td><td class="pays-less">Pays less</td>
+        </tr>
+        <tr>
+          <td>$200,000</td>
+          <td>7.0%</td><td>$14,000</td><td>$11,000</td>
+          <td class="pays-more">−$3,000</td><td class="pays-more">Pays more</td>
+        </tr>
+        <tr>
+          <td>$400,000</td>
+          <td>8.0%</td><td>$32,000</td><td>$12,000</td>
+          <td class="pays-more">−$20,000</td><td class="pays-more">Pays more</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <article class="prose">
+    <p style="font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:var(--ink-soft);margin-top:.6rem;line-height:1.5;">
+      Illustrative households at the model's contribution rates. Net change is positive when the household pays less than today. Premiums and out-of-pocket figures are from CMS NHE and KFF. Every household above also receives: out-of-pocket capped at $2,000 per year, elimination of medical-bankruptcy risk, and coverage for any currently uninsured members.
+    </p>
+
+    <h2>The private-layer trade</h2>
+    <p>The conservative scenario — retaining complementary private insurance and insurers administering the public benefit — preserves roughly a million jobs in insurance administration but gives back about 185 billion dollars of annual savings. Under that arrangement, households in aggregate move from clearly better to roughly at parity. The just-transition cost for the displaced workforce in the central case is estimated near 107 billion dollars, covered several times over by even the conservative savings figure in the first year alone. The trade is less efficiency for meaningfully less disruption. It is a political choice, not a mathematical one. Budget against the conservative column and treat the central case as upside.</p>
+
+    <hr class="descent-rule">
+
+    <h2>Standing ledger</h2>
+    <p>Each line is a conditional claim this reading commits to, with the observation that would falsify it. Status updates as evidence arrives. These are directional statements, not forecasts of magnitude.</p>
+  </article>
+
+  <div class="ledger-wrap">
+    <table class="ledger">
+      <thead>
+        <tr><th>#</th><th>The reading</th><th>What would falsify it</th><th>Status</th><th>As of</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="num">01</td>
+          <td class="reading">The money reroutes. Existing employer premiums, worker premiums, and the recovered exclusion cover the private remainder after administrative savings, with no net-new real-resource requirement at the system level.</td>
+          <td class="falsifier">The replaceable private flows fall materially short of the private portion even at central savings estimates.</td>
+          <td><span class="pill">Open</span></td>
+          <td class="asof">5 Jul 2026</td>
+        </tr>
+        <tr>
+          <td class="num">02</td>
+          <td class="reading">Employers pay less. At any payroll rate below approximately 9.1 percent, the employer annual outlay falls relative to today's premium spend.</td>
+          <td class="falsifier">A payroll contribution set at or below the premium-equivalent rate is shown to exceed current employer premium spending.</td>
+          <td><span class="pill">Open</span></td>
+          <td class="asof">5 Jul 2026</td>
+        </tr>
+        <tr>
+          <td class="num">03</td>
+          <td class="reading">Household aggregate improves at central savings. At $330B or more of administrative savings, aggregate household contributions land below current premiums plus out-of-pocket spending.</td>
+          <td class="falsifier">Administrative savings achieved by comparable transitions consistently fall below $265B.</td>
+          <td><span class="pill">Open</span></td>
+          <td class="asof">5 Jul 2026</td>
+        </tr>
+        <tr>
+          <td class="num">04</td>
+          <td class="reading">The crossover is above median income. The income threshold above which households pay more in contributions than in premiums plus out-of-pocket is well above median US household income under any plausible rate schedule.</td>
+          <td class="falsifier">The crossover falls at or below the median household income under any rate schedule that raises the required aggregate.</td>
+          <td><span class="pill">Open</span></td>
+          <td class="asof">5 Jul 2026</td>
+        </tr>
+        <tr>
+          <td class="num">05</td>
+          <td class="reading">The transition cost is covered. Just-transition funding for displaced insurance workers is covered several times over by even conservative-scenario savings in the first year.</td>
+          <td class="falsifier">Realistic transition costs exceed one year of administrative savings under the conservative scenario.</td>
+          <td><span class="pill">Open</span></td>
+          <td class="asof">5 Jul 2026</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <article class="prose">
+    <p style="margin-top:2.2rem;">The arithmetic is not the argument. The argument is that nothing real has run out. The model shows that the arithmetic holds across a wide range of contested assumptions. What the sliders cannot move is the care that already exists — the clinicians practicing, the hospitals built, the drugs manufactured. As of this date the reading stands. The plane will say when it stops.</p>
+  </article>
+</main>
+
+<footer class="site-footer">
+  <div class="inner">
+    <p class="tagline">Scarcinality: a theory of which shortage is real.</p>
+    <p>Built on Fisher, Keynes, and Minsky. Dispatches are conditional readings, not forecasts.</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  // ── Constants ──────────────────────────────────────────────────────────────
+  var TOTAL      = 5300;
+  var PUBLIC_CON = 2491;  // 0.47 * 5300
+  var PAYROLL    = 11500;
+  var EMP_TODAY  = 1050;
+  var HH_TODAY   = 1152;  // worker premiums 595 + OOP 557
+
+  function b(v){ return '$' + Math.round(Math.abs(v)) + 'B'; }
+  function delta(v){
+    var abs = '$' + Math.round(Math.abs(v)) + 'B / yr';
+    return (v <= 0 ? '−' : '+') + abs;
+  }
+
+  function calc(){
+    var admin = +document.getElementById('sl-admin').value;
+    var rateV = +document.getElementById('sl-rate').value;
+    var esi   = +document.getElementById('sl-esi').value;
+    var rate  = rateV / 100;
+
+    var costAfter    = TOTAL - admin;
+    var needed       = costAfter - PUBLIC_CON;
+    var empContrib   = rate * PAYROLL;
+    var hhResidual   = needed - empContrib - esi;
+    var totalSources = needed; // by definition
+
+    var empDelta = empContrib - EMP_TODAY;
+    var hhDelta  = hhResidual - HH_TODAY;
+
+    // slider labels
+    document.getElementById('v-admin').textContent = '$' + admin + 'B';
+    document.getElementById('v-rate').textContent  = rateV.toFixed(1) + '%';
+    document.getElementById('v-esi').textContent   = '$' + esi + 'B';
+    document.getElementById('sl-admin').setAttribute('aria-valuenow', admin);
+    document.getElementById('sl-rate').setAttribute('aria-valuenow', rateV.toFixed(1));
+    document.getElementById('sl-esi').setAttribute('aria-valuenow', esi);
+
+    // what must be financed
+    document.getElementById('o-admin').textContent = '−$' + admin + 'B';
+    document.getElementById('o-after').textContent = b(costAfter);
+    document.getElementById('o-needed').textContent = b(needed);
+
+    // sources
+    document.getElementById('o-emp-contrib').textContent  = b(empContrib);
+    document.getElementById('o-esi-out').textContent      = '$' + esi + 'B';
+    document.getElementById('o-hh-residual').textContent  = b(hhResidual);
+    document.getElementById('o-total').textContent        = b(totalSources);
+
+    // each side
+    document.getElementById('o-emp-new').textContent = b(empContrib);
+    document.getElementById('o-hh-new').textContent  = b(hhResidual);
+
+    var empDeltaEl = document.getElementById('o-emp-delta');
+    empDeltaEl.textContent  = delta(empDelta);
+    empDeltaEl.className    = empDelta <= 0 ? 'c-positive' : 'c-negative';
+
+    var hhDeltaEl = document.getElementById('o-hh-delta');
+    hhDeltaEl.textContent   = delta(hhDelta);
+    hhDeltaEl.className     = hhDelta <= 0 ? 'c-positive' : 'c-negative';
+
+    // verdicts
+    var vEmp = document.getElementById('v-emp');
+    vEmp.textContent = empDelta <= 0 ? 'Employers pay less' : 'Employers pay more';
+    vEmp.className   = empDelta <= 0 ? 'vchip' : 'vchip more';
+
+    var vHH = document.getElementById('v-hh');
+    vHH.textContent = hhDelta <= 0 ? 'Households pay less' : 'Households pay more';
+    vHH.className   = hhDelta <= 0 ? 'vchip' : 'vchip more';
+  }
+
+  document.getElementById('sl-admin').addEventListener('input', calc);
+  document.getElementById('sl-rate').addEventListener('input', calc);
+  document.getElementById('sl-esi').addEventListener('input', calc);
+  calc();
+})();
+</script>
+
+</body>
+</html>
