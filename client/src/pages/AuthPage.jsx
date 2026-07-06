@@ -4,6 +4,7 @@ import AzulDemo from '../components/AzulDemo';
 import TutorialModal from '../components/TutorialModal';
 import PrivacyModal from '../components/PrivacyModal';
 import HowToPlayPage from './HowToPlayPage';
+import AdBanner from '../components/AdBanner';
 
 export default function AuthPage({ onAuth, sessionExpired }) {
   const [mode, setMode] = useState('login');
@@ -102,6 +103,7 @@ export default function AuthPage({ onAuth, sessionExpired }) {
           <a href="/delete-account" style={{ color: '#9a7060' }}>Delete Account</a>
         </p>
       </div>
+      <AdBanner variant="auth" />
     </div>
   );
 }

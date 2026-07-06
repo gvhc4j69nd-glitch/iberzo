@@ -6,6 +6,7 @@ export const ADSENSE_CLIENT = 'ca-pub-3107493448711439';
 export const ADSENSE_SLOTS = {
   leaderboard: '7802890438',
   postgame:    '9398053455',
+  auth:        '7802890438',
 };
 
 // Ko-fi page for supporter donations
