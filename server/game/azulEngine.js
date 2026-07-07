@@ -53,7 +53,7 @@ function createGame(players) {
     center: ['first'],
     bag,
     discard: [],
-    currentPlayerIndex: 0,
+    currentPlayerIndex: Math.floor(Math.random() * players.length),
     round: 1,
     phase: 'drafting',
     gameOver: false,
