@@ -112,6 +112,9 @@ export default function App() {
     };
     const onGameOver = () => {};
     const onGameAbandoned = () => {};
+    const onRoomClosed = ({ roomId }) => {
+      setTabs(t => t[roomId] ? { ...t, [roomId]: { ...t[roomId], roomClosed: true } } : t);
+    };
     const onInviteReceived = ({ fromUsername }) => setIncomingInvite({ fromUsername });
     const onInviteAccepted = ({ roomId, players, hostUsername }) => {
       const isHost = hostUsername === username;
@@ -160,6 +163,7 @@ export default function App() {
     s.on('room_update', onRoomUpdate);
     s.on('game_over', onGameOver);
     s.on('game_abandoned', onGameAbandoned);
+    s.on('room_closed', onRoomClosed);
     s.on('invite_received', onInviteReceived);
     s.on('invite_accepted', onInviteAccepted);
     s.on('invite_rejected', onInviteRejected);
@@ -176,6 +180,7 @@ export default function App() {
       s.off('room_update', onRoomUpdate);
       s.off('game_over', onGameOver);
       s.off('game_abandoned', onGameAbandoned);
+      s.off('room_closed', onRoomClosed);
       s.off('invite_received', onInviteReceived);
       s.off('invite_accepted', onInviteAccepted);
       s.off('invite_rejected', onInviteRejected);
@@ -219,7 +224,7 @@ export default function App() {
   }
 
   function closeTab(roomId) {
-    if (socket) socket.emit('leave_game', { roomId });
+    if (socket && !tabs[roomId]?.roomClosed) socket.emit('leave_game', { roomId });
     setTabs(t => { const next = { ...t }; delete next[roomId]; return next; });
     if (currentTab === roomId) setCurrentTab(null);
   }

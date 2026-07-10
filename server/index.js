@@ -195,7 +195,7 @@ io.on('connection', async socket => {
   socket.on('close_room', async ({ roomId }) => {
     const result = await closeRoom(roomId, user.id);
     if (result.error) return socket.emit('game_error', result.error);
-    io.to(roomId).emit('room_closed');
+    io.to(roomId).emit('room_closed', { roomId });
   });
 
   socket.on('leave_game', async ({ roomId }) => {
@@ -207,7 +207,7 @@ io.on('connection', async socket => {
       return socket.emit('game_error', 'Failed to leave game');
     }
     if (result.action === 'close') {
-      io.to(roomId).emit('room_closed');
+      io.to(roomId).emit('room_closed', { roomId });
     } else if (result.action === 'reset') {
       socket.leave(roomId);
       io.to(roomId).emit('game_abandoned', { roomId, username: user.username });
@@ -226,6 +226,7 @@ io.on('connection', async socket => {
         roundSummary: result.state.roundSummary,
         finalSummary: result.state.finalSummary,
       });
+      io.to(roomId).emit('room_closed', { roomId });
     }
   });
 

@@ -229,7 +229,9 @@ async function finishGame(room) {
 
   await pool.query('UPDATE games SET status = $1, state_json = $2, finished_at = NOW() WHERE id = $3',
     ['finished', JSON.stringify(state), gameId]);
-  await pool.query('UPDATE rooms SET status = $1 WHERE id = $2', ['waiting', room.id]);
+  await pool.query('UPDATE rooms SET status = $1 WHERE id = $2', ['closed', room.id]);
+  await pool.query('DELETE FROM room_players WHERE room_id = $1', [room.id]);
+  rooms.delete(room.id);
 
   // Fetch current Elo ratings for human players only (bot IDs are strings, not valid integers)
   const humanIds = sorted.map(p => p.userId).filter(id => !isBotId(id));
