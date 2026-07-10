@@ -141,7 +141,13 @@ async function startGame(roomId, userId) {
   room.gameId = gameId;
   room.state = state;
   await pool.query('UPDATE rooms SET status = $1 WHERE id = $2', ['active', roomId]);
-  return { state };
+
+  autoPlayBots(room);
+  if (room.state !== state) {
+    await pool.query('UPDATE games SET state_json = $1 WHERE id = $2', [JSON.stringify(room.state), gameId]);
+  }
+
+  return { state: room.state };
 }
 
 function applyMove(state, playerIndex, move) {
