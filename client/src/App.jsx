@@ -230,6 +230,10 @@ export default function App() {
   }
 
   function switchTab(id) {
+    // If navigating away from a game-over tab, remove it from the header
+    if (currentTab && currentTab !== id && tabs[currentTab]?.roomClosed) {
+      setTabs(t => { const next = { ...t }; delete next[currentTab]; return next; });
+    }
     setCurrentTab(id);
     setUnread(u => { const next = new Set(u); next.delete(id); return next; });
   }
