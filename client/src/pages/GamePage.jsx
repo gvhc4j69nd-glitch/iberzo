@@ -6,7 +6,7 @@ import AdBanner from '../components/AdBanner';
 const COLOR_HEX = { blue: '#4a90d9', yellow: '#f0c97a', red: '#c0634a', black: '#2c2c2c', white: '#6b8c3e' };
 const ROW_LABELS = ['Row 1', 'Row 2', 'Row 3', 'Row 4', 'Row 5'];
 
-export default function GamePage({ socket, username, roomId, initialState, onGameOver, onLeave, onAbandoned }) {
+export default function GamePage({ socket, username, roomId, initialState, onGameOver, onLeave, onAbandoned, isHost }) {
   const [state, setState] = useState(initialState);
   const [selected, setSelected] = useState(null); // { source, color }
   const [gameOverData, setGameOverData] = useState(null);
@@ -19,6 +19,11 @@ export default function GamePage({ socket, username, roomId, initialState, onGam
 
   const myIndex = state.players.findIndex(p => p.username === username);
   const myTurn = state.currentPlayerIndex === myIndex;
+
+  function closeRoom() {
+    socket.emit('close_room', { roomId });
+    onLeave();
+  }
 
   useEffect(() => {
     const onUpdate = ({ roomId: id, state }) => {
@@ -189,6 +194,7 @@ export default function GamePage({ socket, username, roomId, initialState, onGam
     const sorted = [...gameOverData.players].sort((a, b) => b.score - a.score);
     return (
       <div className="game-over">
+        <button onClick={closeRoom} className="game-over-close-btn">✕</button>
         <h1>Game Over</h1>
         <ol>
           {sorted.map((p, i) => (
@@ -196,7 +202,6 @@ export default function GamePage({ socket, username, roomId, initialState, onGam
           ))}
         </ol>
         <AdBanner variant="postgame" />
-        <button onClick={onLeave} className="primary-btn" style={{ width: 'auto' }}>Close</button>
       </div>
     );
   }

@@ -414,7 +414,14 @@ tr.me td { color: var(--accent); font-weight: 600; }
   display: flex; flex-direction: column; align-items: center;
   justify-content: center; min-height: 100vh; gap: 24px; padding: 24px;
   background: linear-gradient(160deg, #f5ddd0 0%, #fdf6f0 60%);
+  position: relative;
 }
+.game-over-close-btn {
+  position: absolute; top: 16px; right: 16px;
+  background: none; border: none; font-size: 22px; cursor: pointer;
+  color: var(--text); opacity: 0.5; line-height: 1;
+}
+.game-over-close-btn:hover { opacity: 1; }
 .game-over h1 { font-size: 36px; color: var(--accent); font-weight: 800; }
 .game-over ol { font-size: 18px; display: flex; flex-direction: column; gap: 12px; color: var(--text); }
 .game-over .primary-btn { width: auto; }
