@@ -91,6 +91,7 @@ export default function HowToPlayPage({ onClose }) {
                 <tr><td>Hard</td><td>1300</td></tr>
                 <tr><td>Demanding</td><td>1600</td></tr>
                 <tr><td>Expert</td><td>1900</td></tr>
+                <tr><td>Grandmaster</td><td>2200</td></tr>
               </tbody>
             </table>
           </div>

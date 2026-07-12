@@ -783,8 +783,9 @@ tr.me td { color: var(--accent); font-weight: 600; }
   vertical-align: middle;
 }
 
-.difficulty-demanding { background: #e2d4f0; color: #5b2d8e; }
-.difficulty-expert    { background: #2c2c2c; color: #f0c97a; }
+.difficulty-demanding    { background: #e2d4f0; color: #5b2d8e; }
+.difficulty-expert       { background: #2c2c2c; color: #f0c97a; }
+.difficulty-grandmaster  { background: linear-gradient(90deg, #7b2ff7, #f107a3); color: #fff; }
 
 /* ── Tutorial Modal ───────────────────────────── */
 .tut-overlay {

@@ -3,11 +3,12 @@ const { WALL_PATTERN, takeTiles, placeTiles } = require('./azulEngine');
 const FLOOR_PENALTIES = [-1, -1, -2, -2, -2, -3, -3];
 
 const BOT_NAMES = {
-  easy:      ['Bot Picasso',      'Bot Gaudí',       'Bot Dalí',        'Bot Miró'],
-  medium:    ['Bot Velázquez',    'Bot El Greco',     'Bot Zurbarán',    'Bot Ribera'],
-  hard:      ['Bot Goya',         'Bot Sorolla',      'Bot Anglada',     'Bot Casas'],
-  demanding: ['Bot Michelangelo', 'Bot Da Vinci',     'Bot Machiavelli', 'Bot Raphael'],
-  expert:    ['Bot Kasparov',     'Bot Capablanca',   'Bot Carlsen',     'Bot Polgár'],
+  easy:        ['Bot Picasso',      'Bot Gaudí',       'Bot Dalí',        'Bot Miró'],
+  medium:      ['Bot Velázquez',    'Bot El Greco',     'Bot Zurbarán',    'Bot Ribera'],
+  hard:        ['Bot Goya',         'Bot Sorolla',      'Bot Anglada',     'Bot Casas'],
+  demanding:   ['Bot Michelangelo', 'Bot Da Vinci',     'Bot Machiavelli', 'Bot Raphael'],
+  expert:      ['Bot Kasparov',     'Bot Capablanca',   'Bot Carlsen',     'Bot Polgár'],
+  grandmaster: ['Bot Fischer',      'Bot Tal',          'Bot Morphy',      'Bot Steinitz'],
 };
 
 // Fixed "opponent strength" per difficulty, used to weight Elo gains on the
@@ -19,13 +20,14 @@ const BOT_DIFFICULTY_RATING = {
   hard: 1300,
   demanding: 1600,
   expert: 1900,
+  grandmaster: 2200,
 };
 
 function makeBotId(n) { return `bot-${n}`; }
 function isBotId(id) { return typeof id === 'string' && id.startsWith('bot-'); }
 
 function createBot(n, difficulty = 'medium') {
-  const diff = ['easy', 'medium', 'hard', 'demanding', 'expert'].includes(difficulty) ? difficulty : 'medium';
+  const diff = ['easy', 'medium', 'hard', 'demanding', 'expert', 'grandmaster'].includes(difficulty) ? difficulty : 'medium';
   const names = BOT_NAMES[diff];
   const name = names[(n - 1) % names.length];
   return { id: makeBotId(n), userId: makeBotId(n), username: name, isBot: true, difficulty: diff };
@@ -249,6 +251,61 @@ function chooseBotMove(state, playerIndex) {
     });
     scored.sort((a, b) => b.score - a.score);
     return scored[0].move;
+  }
+
+  if (difficulty === 'grandmaster') {
+    // 3-ply minimax: for each of our moves, simulate opp's best reply,
+    // then simulate our best counter-reply. Stronger denial weight (1.2)
+    // and a wider opponent penalty (0.5) vs expert's (0.3).
+    let best = moves[0];
+    let bestValue = -Infinity;
+
+    for (const move of moves) {
+      const base = scoreMoveHeuristic(state, playerIndex, move);
+      const denial = move.patternRow !== 'floor'
+        ? opponentDenialScore(state, playerIndex, move.source, move.color) * 1.2
+        : 0;
+
+      let value = base + denial;
+
+      const afterSelf = simulateMove(state, playerIndex, move);
+      if (afterSelf) {
+        const oppIdx = afterSelf.currentPlayerIndex;
+        if (oppIdx !== playerIndex) {
+          const oppMoves = getLegalMoves(afterSelf, oppIdx);
+          if (oppMoves.length) {
+            // Find opp's best move (using demanding-level scoring for speed)
+            let oppBestScore = -Infinity;
+            let oppBestState = null;
+            for (const om of oppMoves) {
+              const os = scoreMoveHeuristic(afterSelf, oppIdx, om)
+                + (om.patternRow !== 'floor' ? opponentDenialScore(afterSelf, oppIdx, om.source, om.color) * 0.6 : 0);
+              if (os > oppBestScore) {
+                oppBestScore = os;
+                oppBestState = simulateMove(afterSelf, oppIdx, om);
+              }
+            }
+            value -= oppBestScore * 0.5;
+
+            // Ply 3: our best counter after opp's reply
+            if (oppBestState) {
+              const counterMoves = getLegalMoves(oppBestState, playerIndex);
+              if (counterMoves.length) {
+                const counterBest = Math.max(...counterMoves.map(m => scoreMoveHeuristic(oppBestState, playerIndex, m)));
+                value += counterBest * 0.2;
+              }
+            }
+          }
+        }
+      }
+
+      if (value > bestValue) {
+        bestValue = value;
+        best = move;
+      }
+    }
+
+    return best;
   }
 
   // expert: full-weight denial + a real 2-ply lookahead, layered on the same
