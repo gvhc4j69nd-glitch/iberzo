@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import PrivacyPage from './pages/PrivacyPage';
 import DeleteAccountPage from './pages/DeleteAccountPage';
 import AboutPage from './pages/AboutPage';
+import HowToPlayPublicPage from './pages/HowToPlayPublicPage';
 import VerifyEmailPage from './pages/VerifyEmailPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
@@ -241,6 +242,7 @@ export default function App() {
   if (window.location.pathname === '/privacy') return <PrivacyPage />;
   if (window.location.pathname === '/delete-account') return <DeleteAccountPage />;
   if (window.location.pathname === '/about') return <AboutPage />;
+  if (window.location.pathname === '/how-to-play') return <HowToPlayPublicPage />;
   if (window.location.pathname === '/verify-email') return <VerifyEmailPage />;
   if (window.location.pathname === '/forgot-password') return <ForgotPasswordPage />;
   if (window.location.pathname === '/reset-password') return <ResetPasswordPage />;

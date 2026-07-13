@@ -34,6 +34,8 @@ export default function AboutPage() {
       </a>
 
       <p style={{ marginTop: 48, fontSize: 13, color: '#9a7060', textAlign: 'center' }}>
+        <a href="/how-to-play" style={{ color: '#9a7060' }}>How to Play</a>
+        {' · '}
         <a href="/privacy" style={{ color: '#9a7060' }}>Privacy Policy</a>
         {' · '}
         <a href="/delete-account" style={{ color: '#9a7060' }}>Delete Account</a>

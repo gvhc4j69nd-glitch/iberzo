@@ -33,6 +33,24 @@ app.get('/health', (req, res) => res.json({ ok: true }));
 app.get('/ads.txt', (req, res) => {
   res.type('text/plain').send('google.com, pub-3107493448711439, DIRECT, f08c47fec0942fa0\n');
 });
+app.get('/sitemap.xml', (req, res) => {
+  const base = 'https://www.iberzo.com';
+  const urls = [
+    { loc: base, priority: '1.0', changefreq: 'weekly' },
+    { loc: `${base}/how-to-play`, priority: '0.9', changefreq: 'monthly' },
+    { loc: `${base}/about`, priority: '0.8', changefreq: 'monthly' },
+    { loc: `${base}/privacy`, priority: '0.4', changefreq: 'yearly' },
+  ];
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls.map(u => `  <url>
+    <loc>${u.loc}</loc>
+    <changefreq>${u.changefreq}</changefreq>
+    <priority>${u.priority}</priority>
+  </url>`).join('\n')}
+</urlset>`;
+  res.type('application/xml').send(xml);
+});
 app.use('/api/auth', authRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
 app.use('/api/bot-stats', botStatsRoutes);
