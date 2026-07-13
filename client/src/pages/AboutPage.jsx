@@ -24,6 +24,20 @@ export default function AboutPage() {
         <li style={{ marginBottom: 8 }}><strong>Always improving</strong> — we ship updates regularly based on player feedback</li>
       </ul>
 
+      <h2 style={{ fontSize: 18, fontWeight: 700, marginTop: 32, marginBottom: 10 }}>Our Games</h2>
+      <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginTop: 10 }}>
+        <div style={{ flex: 1, minWidth: 220, background: '#f5ddd0', borderRadius: 14, padding: '20px 18px' }}>
+          <div style={{ fontWeight: 800, fontSize: 18, color: '#c0392b', marginBottom: 6 }}>Iberzo</div>
+          <p style={{ fontSize: 14, margin: '0 0 12px', lineHeight: 1.6 }}>A competitive tile-drafting strategy game for 2–4 players. Pick colored tiles from shared factories, build your pattern lines, and score points by completing your decorative wall.</p>
+          <a href="/" style={{ fontSize: 13, fontWeight: 700, color: '#c0392b', textDecoration: 'none' }}>Play Iberzo →</a>
+        </div>
+        <div style={{ flex: 1, minWidth: 220, background: '#1a1a2e', borderRadius: 14, padding: '20px 18px', color: '#fff' }}>
+          <div style={{ fontWeight: 800, fontSize: 18, color: '#e94560', marginBottom: 6, letterSpacing: 1 }}>KWERZO</div>
+          <p style={{ fontSize: 14, margin: '0 0 12px', lineHeight: 1.6, color: '#cbd5e0' }}>A fast-play tile game where you match shapes or colors to build lines on a shared board. Complete a line of 6 tiles for a <strong style={{ color: '#e94560' }}>Kwerzo</strong> — a big bonus that swings the game!</p>
+          <a href="https://www.kwerzo.com" target="_blank" rel="noopener noreferrer" style={{ fontSize: 13, fontWeight: 700, color: '#e94560', textDecoration: 'none' }}>Play Kwerzo →</a>
+        </div>
+      </div>
+
       <h2 style={{ fontSize: 18, fontWeight: 700, marginTop: 32, marginBottom: 10 }}>Get in Touch</h2>
       <p>We love hearing from players. Whether it's a bug report, a feature idea, or just to say hello — reach out anytime.</p>
       <a
