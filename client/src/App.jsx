@@ -156,8 +156,17 @@ export default function App() {
         setSessionExpired(true);
       }
     };
+    const onDisconnect = (reason) => {
+      // Socket.IO will auto-reconnect for transport errors. Only force a
+      // logout if the server explicitly closed the connection (auth failure).
+      if (reason === 'io server disconnect') {
+        handleLogout();
+        setSessionExpired(true);
+      }
+    };
 
     s.on('connect', onConnect);
+    s.on('disconnect', onDisconnect);
     s.on('connect_error', onConnectError);
     s.on('game_started', onGameStarted);
     s.on('game_update', onGameUpdate);
@@ -176,6 +185,7 @@ export default function App() {
 
     return () => {
       s.off('connect', onConnect);
+      s.off('disconnect', onDisconnect);
       s.off('game_started', onGameStarted);
       s.off('game_update', onGameUpdate);
       s.off('room_update', onRoomUpdate);

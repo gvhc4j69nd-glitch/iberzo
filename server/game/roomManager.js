@@ -172,14 +172,18 @@ function applyMove(state, playerIndex, move) {
 // move) and restoreRooms (resuming a turn a restart interrupted).
 function autoPlayBots(room) {
   if (!room.hasBot) return;
+  // Cap at 100 turns (a full Azul game is ~50 total rounds across all players).
+  // Grandmaster's 3-ply minimax is the most expensive per move; log a warning
+  // if we hit the limit so we know the game is in an unexpected state.
+  const MAX_BOT_TURNS = 100;
   let safety = 0;
-  while (!room.state.gameOver && safety++ < 200) {
+  while (!room.state.gameOver && safety++ < MAX_BOT_TURNS) {
     const nextIdx = room.state.currentPlayerIndex;
     const nextPlayer = room.state.players[nextIdx];
     if (!isBotId(nextPlayer.userId)) break;
     const botMove = chooseBotMove(room.state, nextIdx);
     if (!botMove) {
-      console.warn(`Bot ${nextPlayer.username} has no legal moves — forcing floor`);
+      console.warn(`Bot ${nextPlayer.username} has no legal moves — skipping turn`);
       break;
     }
     const botResult = applyMove(room.state, nextIdx, botMove);
@@ -187,6 +191,9 @@ function autoPlayBots(room) {
       console.warn(`Bot move error: ${botResult.error}`, botMove);
       break;
     }
+  }
+  if (safety >= MAX_BOT_TURNS && !room.state.gameOver) {
+    console.error(`autoPlayBots hit safety limit in room ${room.id} — possible infinite turn loop`);
   }
 }
 

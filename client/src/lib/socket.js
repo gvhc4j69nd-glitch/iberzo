@@ -10,14 +10,30 @@ function getServerUrl() {
 }
 
 let socket = null;
+let currentToken = null;
 
 export function getSocket(token) {
+  // If the token changed (re-login after expiry), tear down the old socket
+  // so the new one authenticates with the fresh token instead of silently
+  // reusing a socket the server already rejected.
+  if (socket && token !== currentToken) {
+    socket.disconnect();
+    socket = null;
+  }
   if (!socket) {
-    socket = io(getServerUrl(), { auth: { token } });
+    currentToken = token;
+    socket = io(getServerUrl(), {
+      auth: { token },
+      reconnectionAttempts: 10,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
+      timeout: 20000,
+    });
   }
   return socket;
 }
 
 export function disconnectSocket() {
   if (socket) { socket.disconnect(); socket = null; }
+  currentToken = null;
 }
