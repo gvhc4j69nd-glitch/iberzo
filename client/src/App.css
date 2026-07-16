@@ -245,6 +245,24 @@ input:focus { outline: none; border-color: var(--accent); }
 .auth-card form { display: flex; flex-direction: column; gap: 10px; }
 .auth-card button[type=submit] { background: var(--blue); color: white; font-weight: 600; margin-top: 4px; box-shadow: 0 2px 8px rgba(192,87,43,0.3); }
 
+/* ── Kwerzo cross-promo card ─────────────────── */
+.kwerzo-promo-card {
+  display: block; text-decoration: none;
+  width: 100%; max-width: 340px;
+  background: linear-gradient(135deg, #1a0a2e 0%, #2d1b4e 100%);
+  border-radius: 16px; padding: 18px 20px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.18);
+  border: 1px solid rgba(124,58,237,0.35);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.kwerzo-promo-card:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(0,0,0,0.22); }
+.kwerzo-promo-inner { display: flex; flex-direction: column; gap: 6px; }
+.kwerzo-promo-logo { font-size: 22px; font-weight: 900; color: #fff; letter-spacing: -0.5px; }
+.kwerzo-k { color: #a78bfa; }
+.kwerzo-z { color: #f59e0b; }
+.kwerzo-promo-text { font-size: 13px; color: #c4b5fd; margin: 0; line-height: 1.4; }
+.kwerzo-promo-cta { font-size: 12px; font-weight: 700; color: #f59e0b; letter-spacing: 0.2px; }
+
 /* ── Lobby ────────────────────────────────────── */
 .lobby-page { max-width: 1100px; margin: 0 auto; padding: 12px; overflow-x: hidden; width: 100%; }
 .lobby-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }

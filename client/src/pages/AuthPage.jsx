@@ -60,6 +60,7 @@ export default function AuthPage({ onAuth, sessionExpired }) {
           <button className={mode === 'login' ? 'active' : ''} onClick={() => setMode('login')}>Login</button>
           <button className={mode === 'register' ? 'active' : ''} onClick={() => setMode('register')}>Register</button>
         </div>
+
         <form onSubmit={submit}>
           <input placeholder="Username" value={form.username} onChange={e => setForm({ ...form, username: e.target.value })} required />
           {mode === 'register' && (
@@ -102,6 +103,15 @@ export default function AuthPage({ onAuth, sessionExpired }) {
           <a href="/delete-account" style={{ color: '#9a7060' }}>Delete Account</a>
         </p>
       </div>
+
+      {/* Kwerzo cross-promo */}
+      <a href="https://www.kwerzo.com" target="_blank" rel="noopener noreferrer" className="kwerzo-promo-card">
+        <div className="kwerzo-promo-inner">
+          <div className="kwerzo-promo-logo"><span className="kwerzo-k">K</span>wer<span className="kwerzo-z">z</span>o</div>
+          <p className="kwerzo-promo-text">Love tile games? Try our other game — the fast-paced cosmic tile-matching challenge!</p>
+          <span className="kwerzo-promo-cta">Play free at kwerzo.com →</span>
+        </div>
+      </a>
     </div>
   );
 }
