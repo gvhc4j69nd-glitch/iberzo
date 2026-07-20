@@ -50,7 +50,7 @@ export default function AuthPage({ onAuth, sessionExpired }) {
         <PrivacyModal onClose={() => setShowPrivacyModal(false)} />
       )}
       <img src="/iberzo-logo.png" alt="Iberzo" className="landing-logo" />
-      <p className="tagline-text">The challenging tile game you can play with friends or by yourself!</p>
+      <p className="tagline-text">The challenging tile game you can play with friends, strangers, or challenging bots!</p>
       <h3 style={{margin:'8px 0 4px',fontSize:13,fontWeight:700,color:'#9a7060',letterSpacing:'0.5px',textTransform:'uppercase'}}>Demonstration of Play</h3>
       <GameDemo />
       <button className="tut-launch-btn" onClick={() => setShowTutorial(true)}>
