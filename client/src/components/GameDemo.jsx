@@ -81,7 +81,7 @@ const INIT_FACTORIES = [
 
 function clone(x) { return JSON.parse(JSON.stringify(x)); }
 
-function buildStates() {
+function buildStates() { // 13 steps: 0-11 gameplay + 12 bonuses
   const s = [];
 
   // 0: intro
@@ -179,11 +179,18 @@ function buildStates() {
   s11.activePlayer=-1; s11.scorePopup=null;
   s.push(s11);
 
+  // 12: End-of-game bonuses screen (special flag, rendered differently)
+  const s12 = clone(s11);
+  s12.phase='End-of-Game Bonuses';
+  s12.label='After the final round, bonus points are awarded for completed rows, columns, and color sets.';
+  s12.activePlayer=-2; // sentinel for bonuses screen
+  s.push(s12);
+
   return s;
 }
 
 const STATES = buildStates();
-const DURATIONS = [2500,2000,2500,2000,2500,2000,2500,1500,2000,2000,2000,3000];
+const DURATIONS = [4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,5000];
 
 // ── sub-components ───────────────────────────────────────────────────────
 
@@ -427,6 +434,46 @@ export default function GameDemo() {
           )}
         </div>
       </div>
+
+      {/* End-of-game bonuses screen */}
+      {st.activePlayer === -2 && (
+        <div className="gd-bonuses">
+          <div className="gd-bonus-row">
+            <div className="gd-bonus-icon">
+              {[0,1,2,3,4].map(i => (
+                <div key={i} className="gd-bonus-strip gd-bonus-strip-h" style={{background: `hsl(${i*36},50%,60%)`}} />
+              ))}
+            </div>
+            <div className="gd-bonus-info">
+              <div className="gd-bonus-pts">+2 pts</div>
+              <div className="gd-bonus-desc">Complete horizontal row on the wall</div>
+            </div>
+          </div>
+          <div className="gd-bonus-row">
+            <div className="gd-bonus-icon gd-bonus-icon-col">
+              {[0,1,2,3,4].map(i => (
+                <div key={i} className="gd-bonus-strip gd-bonus-strip-v" style={{background: `hsl(${i*36+18},50%,60%)`}} />
+              ))}
+            </div>
+            <div className="gd-bonus-info">
+              <div className="gd-bonus-pts">+7 pts</div>
+              <div className="gd-bonus-desc">Complete vertical column on the wall</div>
+            </div>
+          </div>
+          <div className="gd-bonus-row">
+            <div className="gd-bonus-icon">
+              {Object.values({blue:'#4a90d9',yellow:'#f0c97a',red:'#c0634a',black:'#3d3d3d',white:'#6b8c3e'}).map((col,i) => (
+                <div key={i} style={{width:14,height:14,borderRadius:3,background:col,flexShrink:0}} />
+              ))}
+            </div>
+            <div className="gd-bonus-info">
+              <div className="gd-bonus-pts">+10 pts</div>
+              <div className="gd-bonus-desc">All 5 of one color placed on the wall</div>
+            </div>
+          </div>
+          <div className="gd-bonus-note">Bonuses stack — a perfectly complete wall scores all three!</div>
+        </div>
+      )}
 
       {/* Bottom row: all 3 mini boards (shown when one player is active) */}
       {st.activePlayer >= 0 && (

@@ -871,6 +871,30 @@ tr.me td { color: var(--accent); font-weight: 600; }
 .gd-overview { display: flex; flex-direction: column; gap: 8px; }
 .gd-overview-row {}
 
+/* End-of-game bonuses panel */
+.gd-bonuses {
+  display: flex; flex-direction: column; gap: 10px;
+  background: #faf6f2; border-radius: 10px; padding: 12px 14px;
+  border: 1px solid #e8d5c4;
+}
+.gd-bonus-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 8px 10px; background: white; border-radius: 8px;
+  border: 1px solid #ece4da;
+}
+.gd-bonus-icon {
+  display: flex; gap: 3px; align-items: center; flex-shrink: 0; width: 86px; justify-content: center;
+}
+.gd-bonus-icon-col { flex-direction: column; height: 86px; width: 18px; align-items: center; }
+.gd-bonus-strip-h { width: 14px; height: 14px; border-radius: 3px; }
+.gd-bonus-strip-v { width: 14px; height: 14px; border-radius: 3px; }
+.gd-bonus-info { flex: 1; min-width: 0; }
+.gd-bonus-pts { font-size: 16px; font-weight: 800; color: #3aad75; }
+.gd-bonus-desc { font-size: 11px; color: #9a7060; margin-top: 1px; }
+.gd-bonus-note {
+  font-size: 10px; color: #b8906a; text-align: center; font-style: italic; padding-top: 2px;
+}
+
 /* ── Leaderboard scroll + pinned rank ─────────── */
 .leaderboard-scroll {
   max-height: 370px;
