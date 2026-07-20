@@ -1146,6 +1146,29 @@ tr.me td { color: var(--accent); font-weight: 600; }
   100% { transform: scale(1) translateY(0); opacity: 1; }
 }
 
+/* End-of-game bonus panel inside tutorial */
+.tut-bonus-panel {
+  display: flex; flex-direction: column; gap: 10px;
+  background: #faf6f2; border-radius: 10px; padding: 14px;
+  border: 1px solid #e8d5c4; margin: 4px 0;
+}
+.tut-bonus-row {
+  display: flex; align-items: center; gap: 14px;
+  background: white; border-radius: 8px; padding: 10px 12px;
+  border: 1px solid #ece4da;
+}
+.tut-bonus-pts {
+  font-size: 20px; font-weight: 800; color: #3aad75;
+  min-width: 38px; text-align: center; flex-shrink: 0;
+}
+.tut-bonus-body { display: flex; flex-direction: column; gap: 3px; }
+.tut-bonus-icon { font-size: 13px; color: #b8906a; letter-spacing: 3px; }
+.tut-bonus-label { font-size: 12px; color: #5a3e2b; }
+.tut-bonus-note {
+  font-size: 11px; color: #b8906a; text-align: center;
+  font-style: italic; margin: 2px 0 0;
+}
+
 /* Navigation */
 .tut-nav {
   display: flex; justify-content: space-between; align-items: center; gap: 8px;

@@ -234,6 +234,20 @@ const SCENES = [
     scores: { p1: 1, p2: 0 },
   },
   {
+    title: 'End-of-Game Bonuses',
+    text: 'After the final round, three bonus categories are scored before totaling. These can swing the game dramatically — plan for them!',
+    bonuses: true,
+    factories: [[],[],[]],
+    center: [],
+    p1Lines: [line(1,null,0),line(2,'blue',2),line(3,null,0),line(4,null,0),line(5,null,0)],
+    p2Lines: [line(1,null,0),line(2,'yellow',2),line(3,null,0),line(4,null,0),line(5,null,0)],
+    p1Wall: setWall(EMPTY_WALL, 2, 'yellow'),
+    p2Wall: setWall(EMPTY_WALL, 0, 'red'),
+    highlightFactory: null, highlightP1Row: null, highlightP2Row: null,
+    scorePopup: null, floorP1: [], floorP2: [],
+    scores: { p1: 1, p2: 0 },
+  },
+  {
     title: 'You\'re ready to play!',
     text: 'That\'s one round of Iberzo. Complete rows, columns, and color sets to earn big bonuses at game end. The highest score wins!',
     factories: [[],[],[]],
@@ -369,47 +383,68 @@ export default function TutorialModal({ onClose, onHowToPlay }) {
           <p className="tut-desc">{scene.text}</p>
         </div>
 
-        {/* Factories */}
-        <div className="tut-factories">
-          <span className="tut-area-label">Factories</span>
-          <div className="tut-factory-row">
-            {scene.factories.map((f, i) => (
-              <MiniFactory key={i} tiles={f} highlighted={scene.highlightFactory === i} />
-            ))}
-            {scene.center.length > 0 && (
-              <div className="tut-center">
-                <span className="tut-center-label">Center</span>
-                <div className="tut-center-tiles">
-                  {scene.center.map((c, i) => (
-                    <MiniTile key={i} color={c === 'first' ? 'yellow' : c} />
-                  ))}
+        {scene.bonuses ? (
+          <div className="tut-bonus-panel">
+            {[
+              { pts: '+2', label: 'Complete horizontal row on the wall', icon: '▬▬▬▬▬' },
+              { pts: '+7', label: 'Complete vertical column on the wall', icon: '▮▮▮▮▮' },
+              { pts: '+10', label: 'All 5 of one color placed on the wall', icon: '● ● ● ● ●' },
+            ].map(({ pts, label, icon }) => (
+              <div key={pts} className="tut-bonus-row">
+                <div className="tut-bonus-pts">{pts}</div>
+                <div className="tut-bonus-body">
+                  <div className="tut-bonus-icon">{icon}</div>
+                  <div className="tut-bonus-label">{label}</div>
                 </div>
               </div>
-            )}
+            ))}
+            <p className="tut-bonus-note">These bonuses stack — a complete wall scores all three!</p>
           </div>
-        </div>
+        ) : (
+          <>
+            {/* Factories */}
+            <div className="tut-factories">
+              <span className="tut-area-label">Factories</span>
+              <div className="tut-factory-row">
+                {scene.factories.map((f, i) => (
+                  <MiniFactory key={i} tiles={f} highlighted={scene.highlightFactory === i} />
+                ))}
+                {scene.center.length > 0 && (
+                  <div className="tut-center">
+                    <span className="tut-center-label">Center</span>
+                    <div className="tut-center-tiles">
+                      {scene.center.map((c, i) => (
+                        <MiniTile key={i} color={c === 'first' ? 'yellow' : c} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
 
-        {/* Player boards */}
-        <div className="tut-boards">
-          <PlayerBoard
-            label="Player 1"
-            lines={scene.p1Lines}
-            wall={scene.p1Wall}
-            highlightRow={scene.highlightP1Row}
-            floor={scene.floorP1}
-            score={scene.scores?.p1}
-            scorePopup={scene.scorePopup?.player === 1 ? scene.scorePopup : null}
-          />
-          <PlayerBoard
-            label="Player 2"
-            lines={scene.p2Lines}
-            wall={scene.p2Wall}
-            highlightRow={scene.highlightP2Row}
-            floor={scene.floorP2}
-            score={scene.scores?.p2}
-            scorePopup={scene.scorePopup?.player === 2 ? scene.scorePopup : null}
-          />
-        </div>
+            {/* Player boards */}
+            <div className="tut-boards">
+              <PlayerBoard
+                label="Player 1"
+                lines={scene.p1Lines}
+                wall={scene.p1Wall}
+                highlightRow={scene.highlightP1Row}
+                floor={scene.floorP1}
+                score={scene.scores?.p1}
+                scorePopup={scene.scorePopup?.player === 1 ? scene.scorePopup : null}
+              />
+              <PlayerBoard
+                label="Player 2"
+                lines={scene.p2Lines}
+                wall={scene.p2Wall}
+                highlightRow={scene.highlightP2Row}
+                floor={scene.floorP2}
+                score={scene.scores?.p2}
+                scorePopup={scene.scorePopup?.player === 2 ? scene.scorePopup : null}
+              />
+            </div>
+          </>
+        )}
 
         {/* Navigation */}
         <div className="tut-nav">
