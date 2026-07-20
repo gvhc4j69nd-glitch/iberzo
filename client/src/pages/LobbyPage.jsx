@@ -236,6 +236,7 @@ export default function LobbyPage({
         <div className="room-panel">
           <h2>Play</h2>
           <button onClick={createRoom} className="primary-btn">Start New Game</button>
+          <p style={{fontSize:11,color:'var(--text-muted)',textAlign:'center',margin:'-4px 0 8px'}}>Creates a new room where friends can join, or play against challenging bots</p>
           <div className="join-row">
             <input
               placeholder="ENTER ROOM CODE"
