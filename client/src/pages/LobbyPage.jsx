@@ -216,7 +216,7 @@ export default function LobbyPage({
           )}
           {!isHost && <p className="hint">Waiting for host to start…</p>}
           {isHost && roomPlayers.some(p => p.isBot) && (
-            <p className="hint" style={{ fontSize: 11, opacity: 0.6 }}>Practice games with bots don't count toward rankings.</p>
+            <p className="hint" style={{ fontSize: 11, opacity: 0.6 }}>Games against bots count towards your vs. Bots rankings.</p>
           )}
           {error && <p className="error">{error}</p>}
         </div>
