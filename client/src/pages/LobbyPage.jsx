@@ -26,6 +26,8 @@ export default function LobbyPage({
   const searchTimer = useRef(null);
   const [friends, setFriends] = useState([]);
   const [showEloInfo, setShowEloInfo] = useState(false);
+  const [showEloCalc, setShowEloCalc] = useState(false);
+  const [eloCalcInput, setEloCalcInput] = useState('');
   const [friendToast, setFriendToast] = useState('');
 
   function sendInvite(toUsername) { socket.emit('send_invite', { toUsername }); }
@@ -474,6 +476,59 @@ export default function LobbyPage({
                   </table>
                 </div>
               )}
+
+              {/* Elo impact calculator */}
+              <div className="elo-calc-toggle">
+                <button onClick={() => {
+                  if (!showEloCalc) setEloCalcInput(String(botMyRank?.elo_rating ?? 1200));
+                  setShowEloCalc(v => !v);
+                }}>
+                  {showEloCalc ? '▲ Hide' : '▼ Rating Calculator'}
+                </button>
+              </div>
+              {showEloCalc && (() => {
+                const BOT_RATINGS = { easy:800, medium:1000, hard:1300, demanding:1600, expert:1900, grandmaster:2200 };
+                const myElo = parseInt(eloCalcInput) || 1200;
+                const gp = botMyRank?.games_played ?? 0;
+                const K = gp < 10 ? 40 : gp <= 30 ? 24 : 16;
+                return (
+                  <div className="elo-calc-panel">
+                    <div className="elo-calc-header">
+                      <label>Your rating:</label>
+                      <input
+                        type="number"
+                        value={eloCalcInput}
+                        onChange={e => setEloCalcInput(e.target.value)}
+                        className="elo-calc-input"
+                        min={100}
+                        max={9999}
+                      />
+                      <span className="elo-calc-k">K={K}</span>
+                    </div>
+                    <table className="elo-calc-table">
+                      <thead>
+                        <tr><th>Bot</th><th>Bot Rating</th><th>If you win</th><th>If you lose</th></tr>
+                      </thead>
+                      <tbody>
+                        {Object.entries(BOT_RATINGS).map(([diff, botRating]) => {
+                          const E = 1 / (1 + Math.pow(10, (botRating - myElo) / 400));
+                          const win = Math.round(K * (1 - E));
+                          const loss = Math.round(K * (0 - E));
+                          return (
+                            <tr key={diff}>
+                              <td style={{ textTransform: 'capitalize' }}>{diff}</td>
+                              <td>{botRating}</td>
+                              <td className="elo-calc-win">+{win}</td>
+                              <td className="elo-calc-loss">{loss}</td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                    <p className="elo-calc-note">Based on your current K-factor ({K}). K drops as you play more games.</p>
+                  </div>
+                );
+              })()}
             </>
           )}
 

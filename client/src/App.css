@@ -1205,6 +1205,43 @@ tr.me td { color: var(--accent); font-weight: 600; }
 .elo-info-box { background: #fff8f0; border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 14px; font-size: 13px; line-height: 1.5; margin-bottom: 10px; }
 .elo-info-box p { margin-top: 6px; color: #555; }
 
+/* ── Elo Rating Calculator ──────────────────────── */
+.elo-calc-toggle { text-align: center; margin: 8px 0 0; }
+.elo-calc-toggle button {
+  background: none; border: 1.5px solid var(--border); border-radius: 8px;
+  padding: 5px 14px; font-size: 11px; font-weight: 600; color: var(--text-muted);
+  cursor: pointer; width: 100%;
+}
+.elo-calc-toggle button:hover { border-color: var(--accent); color: var(--accent); }
+.elo-calc-panel {
+  margin-top: 8px; background: #fff8f0; border: 1.5px solid var(--border);
+  border-radius: 10px; padding: 12px; font-size: 12px;
+}
+.elo-calc-header {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;
+}
+.elo-calc-header label { font-weight: 600; color: var(--text-muted); }
+.elo-calc-input {
+  width: 80px; padding: 4px 8px; border: 1.5px solid var(--border);
+  border-radius: 6px; font-size: 13px; font-weight: 700; text-align: center;
+  color: var(--accent);
+}
+.elo-calc-k {
+  font-size: 11px; color: var(--text-muted); margin-left: auto;
+  background: var(--border); padding: 2px 8px; border-radius: 10px;
+}
+.elo-calc-table { width: 100%; border-collapse: collapse; }
+.elo-calc-table th {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.4px;
+  color: var(--text-muted); padding: 4px 6px; text-align: left;
+  border-bottom: 1.5px solid var(--border);
+}
+.elo-calc-table td { padding: 6px 6px; border-bottom: 1px solid var(--border); }
+.elo-calc-table tbody tr:last-child td { border-bottom: none; }
+.elo-calc-win { color: #3aad75; font-weight: 700; }
+.elo-calc-loss { color: #c0634a; font-weight: 700; }
+.elo-calc-note { font-size: 10px; color: var(--text-muted); margin-top: 8px; text-align: center; }
+
 /* ── Notification Bell ──────────────────────────── */
 .notif-wrap { position: relative; display: flex; align-items: center; }
 
