@@ -19,8 +19,8 @@ router.get('/', async (req, res) => {
   let myRank = null;
   if (username) {
     const rankResult = await pool.query(`
-      SELECT rank, wins, losses, elo_rating FROM (
-        SELECT u.username, bl.wins, bl.losses, bl.elo_rating,
+      SELECT rank, wins, losses, elo_rating, games_played FROM (
+        SELECT u.username, bl.wins, bl.losses, bl.elo_rating, bl.games_played,
                RANK() OVER (ORDER BY bl.elo_rating DESC, bl.wins DESC) AS rank
         FROM bot_leaderboard bl
         JOIN users u ON u.id = bl.user_id
