@@ -8,9 +8,6 @@ server/db/azul.db
 
 # murdrclub sub-project
 murdrclub/client/dist/
-murdrclub/server/db/*.db
-murdrclub/server/db/*.db-shm
-murdrclub/server/db/*.db-wal
 
 # Capacitor native projects (generated — open in Xcode / Android Studio locally)
 client/ios/

@@ -24,7 +24,7 @@ Joe Peffer, solo founder/operator — leader and only person on the team.
 ### Stack
 - Frontend: React + Vite + react-router-dom
 - Backend: Node.js + Express + Socket.io
-- Database: SQLite (better-sqlite3)
+- Database: Postgres (`pg`) — matches the other projects
 - Auth: JWT + bcrypt
 
 ### Architecture
@@ -34,7 +34,7 @@ murdrclub/
     src/pages/       # Home, Login/Register, Regions, RegionDetail, CaseDetail,
                       # SubmitCase, Members, MemberProfile, Messages, Admin
   server/       # Node/Express/Socket.io
-    db/         # SQLite database, 20 seeded regions
+    db/         # Postgres schema (auto-migrates on boot), 20 seeded regions
     routes/     # auth, regions, cases, contributions, members, chat, admin
 ```
 
@@ -52,7 +52,7 @@ murdrclub/
 ### Stack
 - Frontend: React + Vite
 - Backend: Node.js + Express + Socket.io
-- Database: SQLite (better-sqlite3)
+- Database: Postgres (`pg`) — CLAUDE.md previously said SQLite, corrected to match the actual code (server/db/schema.js uses a `pg` Pool)
 - Auth: JWT + bcrypt
 
 ### Architecture
@@ -60,7 +60,7 @@ murdrclub/
 azul-game/
   client/       # React + Vite
   server/       # Node/Express/Socket.io
-    db/         # SQLite database
+    db/         # Postgres database
     routes/     # auth, leaderboard
     game/       # Azul game engine
 ```
