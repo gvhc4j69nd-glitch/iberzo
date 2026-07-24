@@ -88,3 +88,11 @@ The server serves the built client from `client/dist` and answers the API under 
    `node index.js` from `server`.
 4. On first boot the server creates all tables and seeds the 20 regions itself — no manual
    migration or seed step needed.
+
+## Bootstrapping the first superadmin
+
+There's no seeded admin account. To make an existing registered user a superadmin without
+touching the database by hand, set the `SUPERADMIN_USERNAME` environment variable to their
+username and restart/redeploy — `init()` promotes that user on every boot if they aren't
+already superadmin. It's a no-op if the user doesn't exist yet or is already promoted, so
+it's safe to leave set indefinitely.

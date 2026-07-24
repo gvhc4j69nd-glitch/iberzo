@@ -122,6 +122,16 @@ async function init() {
       [r.key, r.name, i]
     );
   }
+
+  // One-time bootstrap: promote a chosen username to superadmin once they've
+  // registered, so the first superadmin doesn't require hand-editing the DB.
+  // Safe to leave set indefinitely — it's a no-op once the account is already superadmin.
+  if (process.env.SUPERADMIN_USERNAME) {
+    await pool.query(
+      `UPDATE users SET is_superadmin = true WHERE username = $1 AND is_superadmin = false`,
+      [process.env.SUPERADMIN_USERNAME]
+    );
+  }
 }
 
 module.exports = { pool, init };
