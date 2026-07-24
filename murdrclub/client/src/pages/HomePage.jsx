@@ -16,10 +16,10 @@ export default function HomePage() {
   return (
     <>
       <section className="hero">
-        <div className="eyebrow">Est. for the unsolved</div>
+        <div className="eyebrow">Real People. Real Cases. Real Impact.</div>
         <h1>The hunt for answers doesn't end when the case goes cold.</h1>
         <p>
-          murdrclub organizes the world's top unsolved murders by region. Join a case, dig up
+          MURD'R CLUB organizes the world's top unsolved murders by region. Join a case, dig up
           evidence, vote on what other members contribute, and climb the ranks as a trusted
           investigator.
         </p>
@@ -48,23 +48,19 @@ export default function HomePage() {
 
       <section className="section container">
         <h2>How it works</h2>
-        <p className="section-sub">Four steps from bystander to investigator.</p>
+        <p className="section-sub">Connect. Investigate. Make a difference.</p>
         <div className="region-grid">
           <div className="card">
-            <h3 style={{ marginBottom: 8 }}>1. Join a region</h3>
-            <p className="hint">Every case lives under one of 20 regions, from the Midwest US to the Baltic States.</p>
+            <h3 style={{ marginBottom: 8 }}>Connect</h3>
+            <p className="hint">Join the club, pick a region — from the Midwest US to the Baltic States — and find your fellow hunters.</p>
           </div>
           <div className="card">
-            <h3 style={{ marginBottom: 8 }}>2. Join the hunt</h3>
-            <p className="hint">Sign onto a specific case's investigation group to unlock its chat and evidence feed.</p>
+            <h3 style={{ marginBottom: 8 }}>Investigate</h3>
+            <p className="hint">Join the hunt on a specific case to unlock its evidence feed and group chat, and dig in.</p>
           </div>
           <div className="card">
-            <h3 style={{ marginBottom: 8 }}>3. Contribute evidence</h3>
-            <p className="hint">Add write-ups, links, photos, and video — anything that moves the case forward.</p>
-          </div>
-          <div className="card">
-            <h3 style={{ marginBottom: 8 }}>4. Get rated, get ranked</h3>
-            <p className="hint">Fellow hunters rate your contributions 1–5. Strong track records climb the member leaderboard.</p>
+            <h3 style={{ marginBottom: 8 }}>Make a Difference</h3>
+            <p className="hint">Add write-ups, links, photos, and video. Fellow hunters rate your contributions 1–5, and strong track records climb the member leaderboard.</p>
           </div>
         </div>
       </section>

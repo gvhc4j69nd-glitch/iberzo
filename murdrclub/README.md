@@ -1,8 +1,11 @@
-# murdrclub
+# MURD'R CLUB
+
+_Real People. Real Cases. Real Impact._
 
 A community that organizes the world's top unsolved murders by region, lets members join
 the hunt on individual cases, contribute evidence (write-ups, links, photos, video), rate
 each other's contributions 1-5, and chat one-on-one or within a case's investigation group.
+Connect with fellow investigators, investigate a case, and make a difference.
 
 ## Stack
 

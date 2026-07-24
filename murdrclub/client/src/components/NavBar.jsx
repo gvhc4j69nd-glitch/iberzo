@@ -8,7 +8,7 @@ export default function NavBar() {
   return (
     <header className="nav">
       <div className="nav-inner">
-        <Link to="/" className="brand">murdr<span>club</span></Link>
+        <Link to="/" className="brand">MURD'R<span> CLUB</span></Link>
         <nav className="nav-links">
           <NavLink to="/regions" className={({ isActive }) => (isActive ? 'active' : '')}>Regions</NavLink>
           <NavLink to="/members" className={({ isActive }) => (isActive ? 'active' : '')}>Members</NavLink>

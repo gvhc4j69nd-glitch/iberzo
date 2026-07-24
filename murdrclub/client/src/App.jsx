@@ -35,7 +35,7 @@ export default function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
-      <footer className="footer">murdrclub — for the ones who never got an answer.</footer>
+      <footer className="footer">MURD'R CLUB — Real People. Real Cases. Real Impact.</footer>
     </>
   );
 }
