@@ -5,6 +5,7 @@
   "description": "murdrclub API server",
   "main": "index.js",
   "scripts": {
+    "build": "cd ../client && npm install && npm run build",
     "start": "node index.js",
     "dev": "node --watch index.js"
   },
