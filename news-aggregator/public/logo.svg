@@ -1,23 +1,28 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="ApageI logo">
-  <defs>
-    <linearGradient id="apagei-left" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#3987e5"/>
-      <stop offset="100%" stop-color="#2a78d6"/>
-    </linearGradient>
-    <linearGradient id="apagei-right" x1="1" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#e66767"/>
-      <stop offset="100%" stop-color="#e34948"/>
-    </linearGradient>
-  </defs>
-  <rect width="64" height="64" rx="14" fill="#14161c"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="ApageI seal">
+  <style>
+    .seal-bg { fill: #f4ecd8; }
+    .seal-ink { fill: #1c1810; stroke: #1c1810; }
+    .seal-ink-fill { fill: #1c1810; }
+    .seal-left { stroke: #33547f; }
+    .seal-right { stroke: #a13d34; }
+    @media (prefers-color-scheme: dark) {
+      .seal-bg { fill: #17130f; }
+      .seal-ink { fill: #ece2c9; stroke: #ece2c9; }
+      .seal-ink-fill { fill: #ece2c9; }
+      .seal-left { stroke: #6f93c0; }
+      .seal-right { stroke: #d9887c; }
+    }
+  </style>
+  <circle cx="32" cy="32" r="31" class="seal-bg"/>
+  <circle cx="32" cy="32" r="31" fill="none" class="seal-ink" stroke-width="1.4"/>
+  <circle cx="32" cy="32" r="26.5" fill="none" class="seal-ink" stroke-width="1"/>
   <!-- Balance beam -->
-  <rect x="10" y="41" width="44" height="3" rx="1.5" fill="#5b5f6b"/>
-  <!-- Left pan (blue) -->
-  <path d="M14 41 L20 41 L17 50 A5 5 0 0 1 11 50 Z" fill="url(#apagei-left)"/>
-  <!-- Right pan (red) -->
-  <path d="M44 41 L50 41 L53 50 A5 5 0 0 1 47 50 Z" fill="url(#apagei-right)"/>
-  <!-- Fulcrum / A-apex -->
-  <path d="M32 12 L44 41 H20 Z" fill="#f4f3ef"/>
-  <rect x="26" y="32" width="12" height="3" fill="#14161c"/>
-  <circle cx="32" cy="12" r="3.4" fill="#f4f3ef"/>
+  <rect x="14" y="30" width="36" height="2.4" class="seal-ink-fill"/>
+  <rect x="30.7" y="16" width="2.6" height="17" class="seal-ink-fill"/>
+  <!-- Left pan (muted ink blue) -->
+  <path d="M17 30 L23 30 L20.2 39 A4.6 4.6 0 0 1 13.8 39 Z" fill="none" class="seal-left" stroke-width="1.6" stroke-linejoin="round"/>
+  <!-- Right pan (muted ink red) -->
+  <path d="M41 30 L47 30 L50.2 39 A4.6 4.6 0 0 1 43.8 39 Z" fill="none" class="seal-right" stroke-width="1.6" stroke-linejoin="round"/>
+  <circle cx="32" cy="15" r="2.6" class="seal-ink-fill"/>
+  <path d="M32 33 L24 46 H40 Z" fill="none" class="seal-ink" stroke-width="1.4" stroke-linejoin="round"/>
 </svg>
