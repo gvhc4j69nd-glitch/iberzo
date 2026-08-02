@@ -1,0 +1,68 @@
+[
+  {
+    "topic": "Federal Reserve interest rate decision",
+    "headline": "Federal Reserve holds interest rates steady, signals cautious outlook",
+    "summary": "The Federal Reserve voted to leave its benchmark interest rate unchanged at its latest policy meeting. Officials cited mixed signals on inflation and employment as reasons for a wait-and-see approach. The decision was in line with most analyst forecasts. Fed Chair comments afterward emphasized that future moves will depend on incoming economic data, and markets showed a muted reaction to the announcement.",
+    "sources": [
+      { "name": "Reuters", "domain": "reuters.com", "title": "Fed holds rates steady, cites inflation uncertainty", "url": "https://reuters.com" },
+      { "name": "The Wall Street Journal", "domain": "wsj.com", "title": "Fed Pauses Again as Officials Weigh Sticky Inflation", "url": "https://wsj.com" },
+      { "name": "CNN", "domain": "cnn.com", "title": "Fed leaves rates unchanged, but relief for consumers may still be far off", "url": "https://cnn.com" },
+      { "name": "Fox Business", "domain": "foxbusiness.com", "title": "Fed keeps rates on hold as Powell warns against premature cuts", "url": "https://foxbusiness.com" }
+    ]
+  },
+  {
+    "topic": "Congressional budget negotiations",
+    "headline": "Lawmakers reach short-term deal to avoid government shutdown",
+    "summary": "Congressional leaders from both parties agreed to a short-term funding measure to keep the government running past the current deadline. The stopgap bill extends funding at existing levels while negotiators continue working on full-year appropriations. The measure passed with bipartisan support, though some members of both parties objected to elements of the compromise. The bill now heads to the President's desk.",
+    "sources": [
+      { "name": "Associated Press", "domain": "apnews.com", "title": "Congress passes stopgap bill to avert shutdown", "url": "https://apnews.com" },
+      { "name": "The New York Times", "domain": "nytimes.com", "title": "Shutdown Averted, but Deeper Fights Loom Over Spending", "url": "https://nytimes.com" },
+      { "name": "National Review", "domain": "nationalreview.com", "title": "GOP Holdouts Blast Leadership Over Spending Deal", "url": "https://nationalreview.com" },
+      { "name": "NPR", "domain": "npr.org", "title": "Congress avoids shutdown with short-term funding patch", "url": "https://npr.org" }
+    ]
+  },
+  {
+    "topic": "Regional conflict developments",
+    "headline": "Ceasefire talks continue amid ongoing regional conflict",
+    "summary": "Diplomats from multiple countries met to discuss terms of a potential ceasefire in an ongoing regional conflict. Officials described the talks as constructive but said significant gaps remain on key issues, including humanitarian access and security guarantees. Aid organizations report worsening conditions for civilians in affected areas. No formal agreement has been announced, and negotiators say discussions will continue in the coming days.",
+    "sources": [
+      { "name": "BBC News", "domain": "bbc.com", "title": "Ceasefire talks resume as civilian toll mounts", "url": "https://bbc.com" },
+      { "name": "Al Jazeera", "domain": "aljazeera.com", "title": "Negotiators meet again as humanitarian crisis deepens", "url": "https://aljazeera.com" },
+      { "name": "The Washington Post", "domain": "washingtonpost.com", "title": "Ceasefire talks show modest progress, officials say", "url": "https://washingtonpost.com" },
+      { "name": "Fox News", "domain": "foxnews.com", "title": "Ceasefire talks drag on as allies press for resolution", "url": "https://foxnews.com" }
+    ]
+  },
+  {
+    "topic": "Tech industry earnings",
+    "headline": "Major tech companies report quarterly earnings above expectations",
+    "summary": "Several large technology companies posted quarterly revenue and profit figures that exceeded Wall Street estimates, driven largely by growth in cloud computing and AI-related products. Executives pointed to continued enterprise demand as a key factor. Shares of some companies rose in after-hours trading following the reports, while others were more muted as investors weighed forward guidance for the coming quarter.",
+    "sources": [
+      { "name": "CNBC", "domain": "cnbc.com", "title": "Tech giants beat earnings estimates on AI, cloud strength", "url": "https://cnbc.com" },
+      { "name": "Bloomberg", "domain": "bloomberg.com", "title": "Big Tech Earnings Top Forecasts as AI Spending Pays Off", "url": "https://bloomberg.com" },
+      { "name": "Forbes", "domain": "forbes.com", "title": "Tech Earnings Beat Expectations, But Guidance Is Mixed", "url": "https://forbes.com" },
+      { "name": "USA Today", "domain": "usatoday.com", "title": "Tech companies post strong earnings, stocks react", "url": "https://usatoday.com" }
+    ]
+  },
+  {
+    "topic": "Immigration policy changes",
+    "headline": "Administration announces changes to immigration enforcement policy",
+    "summary": "The administration unveiled new guidance on immigration enforcement priorities, adjusting how resources are allocated for processing and removals. Supporters say the changes will focus enforcement on public-safety cases, while critics argue the policy is either too lenient or too restrictive, depending on their political perspective. The change follows months of internal review and is expected to face legal challenges from advocacy groups on multiple sides of the issue.",
+    "sources": [
+      { "name": "The Washington Times", "domain": "washingtontimes.com", "title": "New enforcement guidance sparks border security concerns", "url": "https://washingtontimes.com" },
+      { "name": "HuffPost", "domain": "huffpost.com", "title": "Advocates say new immigration policy still falls short", "url": "https://huffpost.com" },
+      { "name": "Politico", "domain": "politico.com", "title": "White House shifts immigration enforcement priorities", "url": "https://politico.com" },
+      { "name": "Newsmax", "domain": "newsmax.com", "title": "Critics blast new immigration rules as too soft", "url": "https://newsmax.com" }
+    ]
+  },
+  {
+    "topic": "Severe weather event",
+    "headline": "Severe storm system brings flooding and power outages to multiple states",
+    "summary": "A large storm system moved across several states, producing heavy rainfall, flooding, and widespread power outages. Local officials issued evacuation advisories in some low-lying areas and opened emergency shelters. Utility crews are working to restore electricity, with full restoration expected to take several days in the hardest-hit regions. No fatalities have been confirmed, though authorities warn conditions remain dangerous in some areas.",
+    "sources": [
+      { "name": "The Weather Channel via AP", "domain": "apnews.com", "title": "Storm system floods roads, knocks out power across region", "url": "https://apnews.com" },
+      { "name": "CBS News", "domain": "cbsnews.com", "title": "Thousands without power as storms sweep through", "url": "https://cbsnews.com" },
+      { "name": "ABC News", "domain": "abcnews.go.com", "title": "Flooding forces evacuations as storm moves east", "url": "https://abcnews.go.com" },
+      { "name": "New York Post", "domain": "nypost.com", "title": "Brutal storm slams region, leaves trail of damage", "url": "https://nypost.com" }
+    ]
+  }
+]

@@ -1,0 +1,103 @@
+const express = require('express');
+const path = require('path');
+const { fetchTopHeadlines } = require('../lib/newsSource');
+const { clusterArticles } = require('../lib/cluster');
+const { domainFromUrl, lookupBias } = require('../lib/bias');
+const { summarizeStory, isLive: summariesLive } = require('../lib/summarize');
+const { getOrBuild } = require('../lib/cache');
+
+const sampleStories = require(path.join(__dirname, '..', 'data', 'sample-stories.json'));
+
+const router = express.Router();
+
+const MAX_STORIES = 10;
+const MAX_SOURCES_PER_STORY = 8;
+
+function articleToSource(article) {
+  const domain = domainFromUrl(article.url);
+  const bias = lookupBias(domain);
+  return {
+    name: article.sourceName || domain || 'Unknown source',
+    domain,
+    url: article.url,
+    title: article.title,
+    biasScore: bias.score,
+    biasLabel: bias.label,
+  };
+}
+
+async function buildFromSampleData() {
+  const stories = sampleStories.map((story, i) => ({
+    id: `sample-${i}`,
+    headline: story.headline,
+    summary: story.summary,
+    generated: false,
+    sourceCount: story.sources.length,
+    sources: story.sources.map((s) => {
+      const bias = lookupBias(s.domain);
+      return {
+        name: s.name,
+        domain: s.domain,
+        url: s.url,
+        title: s.title,
+        biasScore: bias.score,
+        biasLabel: bias.label,
+      };
+    }),
+  }));
+  return { stories, sample: true, generatedAt: new Date().toISOString() };
+}
+
+async function buildFromLiveData(articles) {
+  const clusters = clusterArticles(articles)
+    .filter((group) => group.length >= 1)
+    .slice(0, MAX_STORIES);
+
+  const stories = await Promise.all(
+    clusters.map(async (group, i) => {
+      const topic = group[0].title;
+      const { headline, summary, generated } = await summarizeStory(topic, group);
+      const sources = group.slice(0, MAX_SOURCES_PER_STORY).map(articleToSource);
+      return {
+        id: `live-${i}`,
+        headline: headline || topic,
+        summary,
+        generated,
+        sourceCount: group.length,
+        sources,
+      };
+    })
+  );
+
+  return { stories, sample: false, generatedAt: new Date().toISOString() };
+}
+
+async function buildStories() {
+  let live = false;
+  let articles = [];
+  try {
+    const result = await fetchTopHeadlines();
+    live = result.live;
+    articles = result.articles;
+  } catch (err) {
+    console.error(`Live news fetch failed, falling back to sample data: ${err.message}`);
+  }
+
+  if (!live || articles.length === 0) {
+    return buildFromSampleData();
+  }
+
+  return buildFromLiveData(articles);
+}
+
+router.get('/stories', async (req, res) => {
+  try {
+    const data = await getOrBuild(buildStories);
+    res.json({ ...data, summariesGenerated: summariesLive() });
+  } catch (err) {
+    console.error(`Failed to build stories: ${err.stack}`);
+    res.status(500).json({ error: 'Failed to load stories' });
+  }
+});
+
+module.exports = router;

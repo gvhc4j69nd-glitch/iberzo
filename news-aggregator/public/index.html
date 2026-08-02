@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Neutral News — Top Stories, Without the Spin</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="page">
+    <header class="site-header">
+      <div class="brand">
+        <span class="brand-mark">N</span>
+        <div>
+          <h1>Neutral News</h1>
+          <p class="tagline">Today's top stories, rewritten factually — plus who's covering them and how they lean.</p>
+        </div>
+      </div>
+      <div class="header-meta">
+        <span id="sampleBadge" class="badge badge-sample" hidden>Sample data</span>
+        <span id="updatedAt" class="updated-at"></span>
+        <button id="refreshBtn" class="refresh-btn" type="button">Refresh</button>
+      </div>
+    </header>
+
+    <section class="legend" aria-label="Bias scale legend">
+      <span class="legend-label">Source lean scale</span>
+      <div class="legend-track" aria-hidden="true">
+        <div class="legend-gradient"></div>
+      </div>
+      <div class="legend-ticks">
+        <span>Left</span>
+        <span>Lean&nbsp;Left</span>
+        <span>Center</span>
+        <span>Lean&nbsp;Right</span>
+        <span>Right</span>
+      </div>
+      <p class="legend-note">1&ndash;100 scale, illustrative and independently editable — not a scientific measurement. See the project README for methodology.</p>
+    </section>
+
+    <main id="stories" class="stories" aria-live="polite">
+      <div class="loading">Loading today's stories&hellip;</div>
+    </main>
+
+    <footer class="site-footer">
+      <p>Story summaries are generated to be strictly factual and non-partisan based on the linked coverage. Bias ratings are approximate. Always read the original reporting for full context.</p>
+    </footer>
+  </div>
+
+  <template id="storyCardTemplate">
+    <article class="story-card">
+      <h2 class="story-headline"></h2>
+      <p class="story-summary"></p>
+      <div class="story-sources">
+        <h3>Covered by <span class="source-count"></span> outlet<span class="plural">s</span></h3>
+        <ul class="source-list"></ul>
+      </div>
+    </article>
+  </template>
+
+  <template id="sourceRowTemplate">
+    <li class="source-row">
+      <div class="source-row-top">
+        <a class="source-name" target="_blank" rel="noopener noreferrer"></a>
+        <span class="source-bias-label"></span>
+      </div>
+      <div class="bias-meter">
+        <div class="bias-meter-track"></div>
+        <div class="bias-meter-marker"></div>
+      </div>
+    </li>
+  </template>
+
+  <script src="/app.js"></script>
+</body>
+</html>

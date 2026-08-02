@@ -1,0 +1,20 @@
+{
+  "name": "neutral-news-aggregator",
+  "version": "1.0.0",
+  "description": "Aggregates top news stories, rewrites them neutrally, and rates the political lean of the outlets covering each story.",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js"
+  },
+  "license": "ISC",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "type": "commonjs",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.68.0",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1"
+  }
+}
