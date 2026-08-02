@@ -5,6 +5,7 @@ const { clusterArticles } = require('../lib/cluster');
 const { domainFromUrl, lookupBias } = require('../lib/bias');
 const { summarizeStory, isLive: summariesLive } = require('../lib/summarize');
 const { getOrBuild } = require('../lib/cache');
+const votes = require('../lib/votes');
 
 const sampleStories = require(path.join(__dirname, '..', 'data', 'sample-stories.json'));
 
@@ -104,13 +105,37 @@ async function buildStories() {
   return buildFromLiveData(articles);
 }
 
+async function buildStoriesFreshEdition() {
+  const data = await buildStories();
+  // Story ids are recycled per rebuild, so promote counts from the previous
+  // edition no longer refer to the same content — start this edition at zero.
+  votes.resetAll();
+  return data;
+}
+
 router.get('/stories', async (req, res) => {
   try {
-    const data = await getOrBuild(buildStories);
-    res.json({ ...data, summariesGenerated: summariesLive() });
+    const data = await getOrBuild(buildStoriesFreshEdition);
+    const stories = data.stories.map((story) => ({ ...story, rank: votes.getRank(story.id) }));
+    res.json({ ...data, stories, summariesGenerated: summariesLive() });
   } catch (err) {
     console.error(`Failed to build stories: ${err.stack}`);
     res.status(500).json({ error: 'Failed to load stories' });
+  }
+});
+
+router.post('/stories/:id/promote', async (req, res) => {
+  try {
+    const data = await getOrBuild(buildStoriesFreshEdition);
+    const exists = data.stories.some((story) => story.id === req.params.id);
+    if (!exists) {
+      return res.status(404).json({ error: 'Unknown story id' });
+    }
+    const rank = votes.promote(req.params.id);
+    res.json({ id: req.params.id, rank });
+  } catch (err) {
+    console.error(`Failed to promote story: ${err.stack}`);
+    res.status(500).json({ error: 'Failed to promote story' });
   }
 });
 

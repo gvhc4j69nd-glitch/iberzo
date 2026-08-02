@@ -38,6 +38,7 @@
           <div class="sort-group" role="group" aria-label="Sort stories">
             <button type="button" class="sort-btn" data-sort="recent" aria-pressed="true">Most Recent</button>
             <button type="button" class="sort-btn" data-sort="covered" aria-pressed="false">Most Covered</button>
+            <button type="button" class="sort-btn" data-sort="ranked" aria-pressed="false">Top Ranked</button>
           </div>
         </div>
 
@@ -96,6 +97,12 @@
     <article class="story-card">
       <h2 class="story-headline"></h2>
       <p class="story-summary"></p>
+      <div class="story-actions">
+        <button type="button" class="promote-btn">
+          <span class="promote-arrow" aria-hidden="true">&#9650;</span> Promote
+        </button>
+        <span class="rank-badge"><span class="rank-count">0</span> promotion<span class="rank-plural">s</span></span>
+      </div>
       <div class="story-sources">
         <h3>Covered by <span class="source-count"></span> outlet<span class="plural">s</span></h3>
         <ul class="source-list"></ul>
