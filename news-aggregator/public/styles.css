@@ -343,6 +343,73 @@ body {
 
 /* ── Stories ─────────────────────────────── */
 
+.main-col {
+  min-width: 0;
+}
+
+.story-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.search-input {
+  flex: 1 1 220px;
+  min-width: 0;
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 13.5px;
+  font-style: italic;
+  padding: 7px 12px;
+  border: 1px solid var(--rule-light);
+  background: var(--paper-card);
+  color: var(--ink);
+}
+
+.search-input::placeholder {
+  color: var(--ink-muted);
+  opacity: 1;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--rule);
+}
+
+.sort-group {
+  display: flex;
+  border: 1px solid var(--rule);
+  flex-shrink: 0;
+}
+
+.sort-btn {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 7px 12px;
+  border: none;
+  background: transparent;
+  color: var(--ink-secondary);
+  cursor: pointer;
+}
+
+.sort-btn + .sort-btn {
+  border-left: 1px solid var(--rule);
+}
+
+.sort-btn:hover {
+  color: var(--ink);
+}
+
+.sort-btn[aria-pressed="true"] {
+  background: var(--rule);
+  color: var(--paper);
+}
+
 .stories {
   display: flex;
   flex-direction: column;

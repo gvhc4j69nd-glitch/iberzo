@@ -27,12 +27,17 @@ function articleToSource(article) {
 }
 
 async function buildFromSampleData() {
+  const now = Date.now();
   const stories = sampleStories.map((story, i) => ({
     id: `sample-${i}`,
     headline: story.headline,
     summary: story.summary,
     generated: false,
     sourceCount: story.sources.length,
+    // Sample data has no real publish time — stagger synthetic timestamps
+    // (newest first, matching the bundled order) so "Most Recent" sort has
+    // something meaningful to demonstrate against.
+    publishedAt: new Date(now - i * 70 * 60 * 1000).toISOString(),
     sources: story.sources.map((s) => {
       const bias = lookupBias(s.domain);
       return {
@@ -46,6 +51,14 @@ async function buildFromSampleData() {
     }),
   }));
   return { stories, sample: true, generatedAt: new Date().toISOString() };
+}
+
+function mostRecentPublishedAt(group) {
+  const timestamps = group
+    .map((a) => (a.publishedAt ? Date.parse(a.publishedAt) : NaN))
+    .filter((t) => !Number.isNaN(t));
+  if (timestamps.length === 0) return new Date().toISOString();
+  return new Date(Math.max(...timestamps)).toISOString();
 }
 
 async function buildFromLiveData(articles) {
@@ -64,6 +77,7 @@ async function buildFromLiveData(articles) {
         summary,
         generated,
         sourceCount: group.length,
+        publishedAt: mostRecentPublishedAt(group),
         sources,
       };
     })

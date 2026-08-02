@@ -2,8 +2,14 @@ const storiesEl = document.getElementById('stories');
 const sampleBadge = document.getElementById('sampleBadge');
 const updatedAtEl = document.getElementById('updatedAt');
 const refreshBtn = document.getElementById('refreshBtn');
+const searchInput = document.getElementById('searchInput');
+const sortButtons = document.querySelectorAll('.sort-btn');
 const storyTemplate = document.getElementById('storyCardTemplate');
 const sourceTemplate = document.getElementById('sourceRowTemplate');
+
+let allStories = [];
+let currentSort = 'recent'; // 'recent' | 'covered'
+let searchQuery = '';
 
 function formatTimestamp(iso) {
   try {
@@ -48,6 +54,56 @@ function renderStory(story) {
   return node;
 }
 
+function matchesSearch(story, query) {
+  if (!query) return true;
+  const haystack = [
+    story.headline,
+    story.summary,
+    ...story.sources.map((s) => s.name),
+  ]
+    .join(' ')
+    .toLowerCase();
+  return haystack.includes(query);
+}
+
+function sortStories(stories, sort) {
+  const sorted = stories.slice();
+  if (sort === 'covered') {
+    sorted.sort((a, b) => b.sourceCount - a.sourceCount);
+  } else {
+    sorted.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
+  }
+  return sorted;
+}
+
+function renderVisibleStories() {
+  const query = searchQuery.trim().toLowerCase();
+  const filtered = allStories.filter((story) => matchesSearch(story, query));
+  const sorted = sortStories(filtered, currentSort);
+
+  storiesEl.innerHTML = '';
+
+  if (allStories.length === 0) {
+    storiesEl.innerHTML = '<div class="error-state">No stories available right now.</div>';
+    return;
+  }
+  if (sorted.length === 0) {
+    storiesEl.innerHTML = `<div class="error-state">No stories match &ldquo;${searchQuery}&rdquo;.</div>`;
+    return;
+  }
+  for (const story of sorted) {
+    storiesEl.appendChild(renderStory(story));
+  }
+}
+
+function setSort(sort) {
+  currentSort = sort;
+  for (const btn of sortButtons) {
+    btn.setAttribute('aria-pressed', String(btn.dataset.sort === sort));
+  }
+  renderVisibleStories();
+}
+
 async function loadStories() {
   storiesEl.innerHTML = '<div class="loading">Loading today’s stories…</div>';
   refreshBtn.disabled = true;
@@ -60,15 +116,10 @@ async function loadStories() {
     sampleBadge.hidden = !data.sample;
     updatedAtEl.textContent = data.generatedAt ? `Updated ${formatTimestamp(data.generatedAt)}` : '';
 
-    storiesEl.innerHTML = '';
-    if (!data.stories || data.stories.length === 0) {
-      storiesEl.innerHTML = '<div class="error-state">No stories available right now.</div>';
-      return;
-    }
-    for (const story of data.stories) {
-      storiesEl.appendChild(renderStory(story));
-    }
+    allStories = data.stories || [];
+    renderVisibleStories();
   } catch (err) {
+    allStories = [];
     storiesEl.innerHTML = `<div class="error-state">Couldn’t load stories: ${err.message}</div>`;
   } finally {
     refreshBtn.disabled = false;
@@ -76,4 +127,12 @@ async function loadStories() {
 }
 
 refreshBtn.addEventListener('click', loadStories);
+searchInput.addEventListener('input', (e) => {
+  searchQuery = e.target.value;
+  renderVisibleStories();
+});
+for (const btn of sortButtons) {
+  btn.addEventListener('click', () => setSort(btn.dataset.sort));
+}
+
 loadStories();

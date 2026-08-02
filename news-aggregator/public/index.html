@@ -32,9 +32,19 @@
     </header>
 
     <div class="content-grid">
-      <main id="stories" class="stories main-col" aria-live="polite">
-        <div class="loading">Loading today&rsquo;s stories&hellip;</div>
-      </main>
+      <div class="main-col">
+        <div class="story-controls">
+          <input id="searchInput" class="search-input" type="search" placeholder="Search stories&hellip;" aria-label="Search stories" />
+          <div class="sort-group" role="group" aria-label="Sort stories">
+            <button type="button" class="sort-btn" data-sort="recent" aria-pressed="true">Most Recent</button>
+            <button type="button" class="sort-btn" data-sort="covered" aria-pressed="false">Most Covered</button>
+          </div>
+        </div>
+
+        <main id="stories" class="stories" aria-live="polite">
+          <div class="loading">Loading today&rsquo;s stories&hellip;</div>
+        </main>
+      </div>
 
       <aside class="sidebar">
         <section class="sidebar-box">
