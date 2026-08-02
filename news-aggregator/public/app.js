@@ -68,6 +68,48 @@ async function promoteStory(story, card) {
   }
 }
 
+function flashButton(button, message, duration = 1600) {
+  const original = button.textContent;
+  button.textContent = message;
+  button.disabled = true;
+  setTimeout(() => {
+    button.textContent = original;
+    button.disabled = false;
+  }, duration);
+}
+
+function buildShareText(story) {
+  return `${story.headline}\n\n${story.summary}\n\nRead the sourcing and lean ratings at ${window.location.href}`;
+}
+
+async function copyShareText(story, button) {
+  const text = buildShareText(story);
+  try {
+    await navigator.clipboard.writeText(text);
+    flashButton(button, 'Copied!');
+  } catch {
+    // Clipboard API unavailable (older browser, non-secure context) — last resort.
+    window.prompt('Copy this to share:', text);
+  }
+}
+
+async function shareStory(story, button) {
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: `${story.headline} — ApageI`,
+        text: `${story.headline}\n\n${story.summary}`,
+        url: window.location.href,
+      });
+      return;
+    } catch (err) {
+      if (err && err.name === 'AbortError') return; // user closed the share sheet
+      // Fall through to clipboard copy on any other failure.
+    }
+  }
+  await copyShareText(story, button);
+}
+
 function renderStory(story) {
   const node = storyTemplate.content.cloneNode(true);
   const card = node.querySelector('.story-card');
@@ -85,6 +127,9 @@ function renderStory(story) {
   const promoteBtn = node.querySelector('.promote-btn');
   setPromoteButtonState(promoteBtn, story);
   promoteBtn.addEventListener('click', () => promoteStory(story, card));
+
+  const shareBtn = node.querySelector('.share-btn');
+  shareBtn.addEventListener('click', () => shareStory(story, shareBtn));
 
   const list = node.querySelector('.source-list');
   for (const source of story.sources) {

@@ -448,11 +448,19 @@ body {
 .story-actions {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
   margin-bottom: 16px;
 }
 
-.promote-btn {
+.action-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.promote-btn,
+.share-btn {
   font-family: 'Source Serif 4', Georgia, serif;
   font-size: 11px;
   font-weight: 600;
@@ -466,18 +474,21 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 5px;
+  white-space: nowrap;
 }
 
 .promote-arrow {
   font-size: 9px;
 }
 
-.promote-btn:hover:not(:disabled) {
+.promote-btn:hover:not(:disabled),
+.share-btn:hover:not(:disabled) {
   background: var(--rule);
   color: var(--paper);
 }
 
-.promote-btn:disabled {
+.promote-btn:disabled,
+.share-btn:disabled {
   cursor: default;
   opacity: 0.55;
 }
