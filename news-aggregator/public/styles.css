@@ -86,13 +86,8 @@ body {
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  background: linear-gradient(135deg, var(--pole-left), var(--pole-right));
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 18px;
+  display: block;
+  box-shadow: var(--shadow);
 }
 
 .brand h1 {

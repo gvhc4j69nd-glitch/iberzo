@@ -1,4 +1,4 @@
-# Neutral News
+# ApageI
 
 Aggregates today's top news stories, rewrites each one as a strictly factual,
 non-partisan account, and lists which outlets are covering the story along
