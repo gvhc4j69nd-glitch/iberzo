@@ -39,7 +39,7 @@ Open http://localhost:8787.
 | `NEWS_API_KEY` | No | Enables live headlines from NewsAPI.org. Without it, sample data is served. |
 | `ANTHROPIC_API_KEY` | No | Enables Claude-generated neutral summaries. Without it, summaries fall back to concatenated article descriptions. |
 | `NEWS_API_SOURCES` | No | Comma-separated NewsAPI source IDs to widen ideological coverage beyond the default `country=us` feed. |
-| `STORIES_CACHE_TTL_MINUTES` | No | How long to cache the built story list (default 30). |
+| `STORIES_CACHE_TTL_MINUTES` | No | How long to cache the built story list before refetching/re-summarizing (default 120, i.e. every 2 hours). |
 | `PORT` | No | Server port (default 8787). |
 
 ## On the bias ratings

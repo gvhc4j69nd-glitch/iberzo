@@ -1,4 +1,4 @@
-const TTL_MS = Number(process.env.STORIES_CACHE_TTL_MINUTES || 30) * 60 * 1000;
+const TTL_MS = Number(process.env.STORIES_CACHE_TTL_MINUTES || 120) * 60 * 1000;
 
 let cached = null; // { data, expiresAt }
 let inFlight = null;
