@@ -31,24 +31,42 @@
       <div class="rule rule-thin"></div>
     </header>
 
-    <section class="legend" aria-label="Bias scale legend">
-      <span class="legend-label">Source Lean Scale</span>
-      <div class="legend-track" aria-hidden="true">
-        <div class="legend-gradient"></div>
-      </div>
-      <div class="legend-ticks">
-        <span>Left</span>
-        <span>Lean&nbsp;Left</span>
-        <span>Center</span>
-        <span>Lean&nbsp;Right</span>
-        <span>Right</span>
-      </div>
-      <p class="legend-note">1&ndash;100 scale, illustrative and independently editable &mdash; not a scientific measurement. See the project README for methodology.</p>
-    </section>
+    <div class="content-grid">
+      <main id="stories" class="stories main-col" aria-live="polite">
+        <div class="loading">Loading today&rsquo;s stories&hellip;</div>
+      </main>
 
-    <main id="stories" class="stories" aria-live="polite">
-      <div class="loading">Loading today&rsquo;s stories&hellip;</div>
-    </main>
+      <aside class="sidebar">
+        <section class="sidebar-box">
+          <h2 class="sidebar-heading">Our Premise</h2>
+          <p class="sidebar-copy">Coverage of the same event often reads like coverage of two different events, depending on which outlet you open. <strong>ApageI</strong> rewrites each story from scratch, using only facts corroborated across multiple outlets, to strip out loaded language and framing from any direction &mdash; then shows you exactly who covered it and how far left or right that outlet tends to lean, so the framing is visible instead of invisible.</p>
+          <p class="sidebar-copy">The goal isn&rsquo;t an opinion-free internet. It&rsquo;s knowing which parts of what you read are the event, and which parts are the editor.</p>
+
+          <div class="legend" aria-label="Bias scale legend">
+            <span class="legend-label">Source Lean Scale</span>
+            <div class="legend-track" aria-hidden="true">
+              <div class="legend-gradient"></div>
+            </div>
+            <div class="legend-ticks">
+              <span>Left</span>
+              <span>Right</span>
+            </div>
+            <p class="legend-note">1&ndash;100, illustrative and editable &mdash; not a scientific measurement.</p>
+          </div>
+        </section>
+
+        <section class="sidebar-box">
+          <h2 class="sidebar-heading">References</h2>
+          <ul class="reference-list">
+            <li><span class="reference-name">AllSides</span> &mdash; allsides.com<br/>Media Bias Chart methodology</li>
+            <li><span class="reference-name">Ad Fontes Media</span> &mdash; adfontesmedia.com<br/>Media Bias Chart methodology</li>
+            <li><span class="reference-name">NewsAPI</span> &mdash; newsapi.org<br/>Live headline aggregation</li>
+            <li><span class="reference-name">Claude</span> &mdash; anthropic.com<br/>Neutral summary generation</li>
+          </ul>
+          <p class="sidebar-copy small">Full methodology and the editable ratings table are in the project README.</p>
+        </section>
+      </aside>
+    </div>
 
     <div class="rule rule-thin footer-rule"></div>
     <footer class="site-footer">
