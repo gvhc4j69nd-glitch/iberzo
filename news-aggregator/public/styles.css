@@ -11,6 +11,7 @@
   --pole-mid: #f0efec;
   --badge-bg: #eef3fb;
   --badge-text: #1c5cab;
+  --accent-ai: #4a3aa7;
   --shadow: 0 1px 2px rgba(11, 11, 11, 0.06), 0 1px 12px rgba(11, 11, 11, 0.04);
 }
 
@@ -28,6 +29,7 @@
     --pole-mid: #383835;
     --badge-bg: #1c2a3d;
     --badge-text: #86b6ef;
+    --accent-ai: #9085e9;
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 1px 12px rgba(0, 0, 0, 0.3);
   }
 }
@@ -45,6 +47,7 @@
   --pole-mid: #383835;
   --badge-bg: #1c2a3d;
   --badge-text: #86b6ef;
+  --accent-ai: #9085e9;
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 1px 12px rgba(0, 0, 0, 0.3);
 }
 
@@ -94,6 +97,16 @@ body {
   margin: 0 0 4px;
   font-size: 22px;
   letter-spacing: -0.01em;
+  font-weight: 600;
+}
+
+.brand-name {
+  color: var(--text-primary);
+}
+
+.brand-name .ai-letter {
+  color: var(--accent-ai);
+  font-weight: 800;
 }
 
 .tagline {
