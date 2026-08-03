@@ -139,11 +139,13 @@ body {
   letter-spacing: 0.03em;
 }
 
-.tagline {
+.strapline {
   margin: 0 0 4px;
   color: var(--ink-secondary);
-  font-size: 14.5px;
-  font-style: italic;
+  font-size: 12.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
   text-align: center;
 }
 
@@ -255,6 +257,58 @@ body {
   font-size: 11.5px;
   font-style: italic;
   color: var(--ink-muted);
+}
+
+.steps-list {
+  margin: 0 0 14px;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-secondary);
+}
+
+.steps-list li {
+  padding-left: 2px;
+}
+
+.steps-list li::marker {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.steps-list strong {
+  color: var(--ink);
+}
+
+.guardrail-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ink-secondary);
+}
+
+.guardrail-list li {
+  border-top: 1px solid var(--rule-light);
+  padding-top: 8px;
+}
+
+.guardrail-list li:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.guardrail-name {
+  font-weight: 700;
+  color: var(--ink);
 }
 
 .reference-kicker {

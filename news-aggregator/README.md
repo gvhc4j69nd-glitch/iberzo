@@ -64,11 +64,13 @@ news-aggregator/
       summarize.js        # Claude neutral rewrite + extractive fallback
       bias.js              # domain -> lean score lookup
       cache.js             # in-memory TTL cache
+      votes.js             # in-memory "promote this story" rank counters
     data/
       bias-ratings.json    # static outlet lean table
       sample-stories.json  # bundled demo data (no API keys needed)
   public/
     index.html, styles.css, app.js   # static frontend, no build step
+    logo-mark.png                     # brand icon (masthead + favicon)
 ```
 
 This is a standalone app — it does not affect the Azul game deployment
