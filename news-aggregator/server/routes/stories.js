@@ -27,6 +27,15 @@ function articleToSource(article) {
   };
 }
 
+function withSourceAnalysis(source, analysis, generated) {
+  return {
+    ...source,
+    presentationLean: analysis ? analysis.lean : null,
+    commentary: analysis ? analysis.commentary : null,
+    commentaryGenerated: Boolean(analysis) && generated,
+  };
+}
+
 async function buildFromSampleData() {
   const now = Date.now();
   const stories = sampleStories.map((story, i) => ({
@@ -48,6 +57,9 @@ async function buildFromSampleData() {
         title: s.title,
         biasScore: bias.score,
         biasLabel: bias.label,
+        presentationLean: s.presentationLean || null,
+        commentary: s.commentary || null,
+        commentaryGenerated: false,
       };
     }),
   }));
@@ -70,8 +82,11 @@ async function buildFromLiveData(articles) {
   const stories = await Promise.all(
     clusters.map(async (group, i) => {
       const topic = group[0].title;
-      const { headline, summary, generated } = await summarizeStory(topic, group);
-      const sources = group.slice(0, MAX_SOURCES_PER_STORY).map(articleToSource);
+      const { headline, summary, generated, sourceAnalyses } = await summarizeStory(topic, group);
+      const sources = group.slice(0, MAX_SOURCES_PER_STORY).map((article, idx) => {
+        const analysis = (sourceAnalyses || []).find((a) => a.index === idx);
+        return withSourceAnalysis(articleToSource(article), analysis, generated);
+      });
       return {
         id: `live-${i}`,
         headline: headline || topic,

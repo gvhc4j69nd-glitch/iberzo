@@ -4,10 +4,10 @@
     "headline": "Federal Reserve holds interest rates steady, signals cautious outlook",
     "summary": "The Federal Reserve voted to leave its benchmark interest rate unchanged at its latest policy meeting. Officials cited mixed signals on inflation and employment as reasons for a wait-and-see approach. The decision was in line with most analyst forecasts. Fed Chair comments afterward emphasized that future moves will depend on incoming economic data, and markets showed a muted reaction to the announcement.",
     "sources": [
-      { "name": "Reuters", "domain": "reuters.com", "title": "Fed holds rates steady, cites inflation uncertainty", "url": "https://reuters.com" },
-      { "name": "The Wall Street Journal", "domain": "wsj.com", "title": "Fed Pauses Again as Officials Weigh Sticky Inflation", "url": "https://wsj.com" },
-      { "name": "CNN", "domain": "cnn.com", "title": "Fed leaves rates unchanged, but relief for consumers may still be far off", "url": "https://cnn.com" },
-      { "name": "Fox Business", "domain": "foxbusiness.com", "title": "Fed keeps rates on hold as Powell warns against premature cuts", "url": "https://foxbusiness.com" }
+      { "name": "Reuters", "domain": "reuters.com", "title": "Fed holds rates steady, cites inflation uncertainty", "url": "https://reuters.com", "presentationLean": "Center", "commentary": "Sticks to a wire-service register — states the decision and the Fed's stated reason without added framing or evaluative language." },
+      { "name": "The Wall Street Journal", "domain": "wsj.com", "title": "Fed Pauses Again as Officials Weigh Sticky Inflation", "url": "https://wsj.com", "presentationLean": "Lean Right", "commentary": "Uses 'sticky inflation' to keep inflation-persistence as the central worry, a framing that tends to favor caution over rate cuts." },
+      { "name": "CNN", "domain": "cnn.com", "title": "Fed leaves rates unchanged, but relief for consumers may still be far off", "url": "https://cnn.com", "presentationLean": "Lean Left", "commentary": "Frames the decision through its effect on household budgets, emphasizing delayed 'relief' rather than the Fed's inflation rationale." },
+      { "name": "Fox Business", "domain": "foxbusiness.com", "title": "Fed keeps rates on hold as Powell warns against premature cuts", "url": "https://foxbusiness.com", "presentationLean": "Lean Right", "commentary": "Leads with Powell's warning against cutting too soon, foregrounding the hawkish argument over the case for easing." }
     ]
   },
   {
@@ -15,10 +15,10 @@
     "headline": "Lawmakers reach short-term deal to avoid government shutdown",
     "summary": "Congressional leaders from both parties agreed to a short-term funding measure to keep the government running past the current deadline. The stopgap bill extends funding at existing levels while negotiators continue working on full-year appropriations. The measure passed with bipartisan support, though some members of both parties objected to elements of the compromise. The bill now heads to the President's desk.",
     "sources": [
-      { "name": "Associated Press", "domain": "apnews.com", "title": "Congress passes stopgap bill to avert shutdown", "url": "https://apnews.com" },
-      { "name": "The New York Times", "domain": "nytimes.com", "title": "Shutdown Averted, but Deeper Fights Loom Over Spending", "url": "https://nytimes.com" },
-      { "name": "National Review", "domain": "nationalreview.com", "title": "GOP Holdouts Blast Leadership Over Spending Deal", "url": "https://nationalreview.com" },
-      { "name": "NPR", "domain": "npr.org", "title": "Congress avoids shutdown with short-term funding patch", "url": "https://npr.org" }
+      { "name": "Associated Press", "domain": "apnews.com", "title": "Congress passes stopgap bill to avert shutdown", "url": "https://apnews.com", "presentationLean": "Center", "commentary": "Plain statement of the legislative outcome with no framing beyond what happened." },
+      { "name": "The New York Times", "domain": "nytimes.com", "title": "Shutdown Averted, but Deeper Fights Loom Over Spending", "url": "https://nytimes.com", "presentationLean": "Center", "commentary": "Notes the deal while flagging unresolved spending fights ahead — analytical rather than taking a side on who's to blame." },
+      { "name": "National Review", "domain": "nationalreview.com", "title": "GOP Holdouts Blast Leadership Over Spending Deal", "url": "https://nationalreview.com", "presentationLean": "Lean Right", "commentary": "Centers intra-party GOP dissent and uses 'blast,' framing the deal as a compromise leadership imposed on its own base." },
+      { "name": "NPR", "domain": "npr.org", "title": "Congress avoids shutdown with short-term funding patch", "url": "https://npr.org", "presentationLean": "Center", "commentary": "Neutral procedural framing — 'patch' describes the mechanism without assigning credit or blame to either party." }
     ]
   },
   {
@@ -26,10 +26,10 @@
     "headline": "Ceasefire talks continue amid ongoing regional conflict",
     "summary": "Diplomats from multiple countries met to discuss terms of a potential ceasefire in an ongoing regional conflict. Officials described the talks as constructive but said significant gaps remain on key issues, including humanitarian access and security guarantees. Aid organizations report worsening conditions for civilians in affected areas. No formal agreement has been announced, and negotiators say discussions will continue in the coming days.",
     "sources": [
-      { "name": "BBC News", "domain": "bbc.com", "title": "Ceasefire talks resume as civilian toll mounts", "url": "https://bbc.com" },
-      { "name": "Al Jazeera", "domain": "aljazeera.com", "title": "Negotiators meet again as humanitarian crisis deepens", "url": "https://aljazeera.com" },
-      { "name": "The Washington Post", "domain": "washingtonpost.com", "title": "Ceasefire talks show modest progress, officials say", "url": "https://washingtonpost.com" },
-      { "name": "Fox News", "domain": "foxnews.com", "title": "Ceasefire talks drag on as allies press for resolution", "url": "https://foxnews.com" }
+      { "name": "BBC News", "domain": "bbc.com", "title": "Ceasefire talks resume as civilian toll mounts", "url": "https://bbc.com", "presentationLean": "Center", "commentary": "Pairs the diplomatic update with the human cost, a common wire/broadcast framing that doesn't assign blame to a side." },
+      { "name": "Al Jazeera", "domain": "aljazeera.com", "title": "Negotiators meet again as humanitarian crisis deepens", "url": "https://aljazeera.com", "presentationLean": "Lean Left", "commentary": "Emphasizes the humanitarian crisis over the diplomatic process, a framing that foregrounds civilian suffering." },
+      { "name": "The Washington Post", "domain": "washingtonpost.com", "title": "Ceasefire talks show modest progress, officials say", "url": "https://washingtonpost.com", "presentationLean": "Center", "commentary": "Attributes the 'progress' characterization to officials rather than asserting it directly — a hedged, source-attributed framing." },
+      { "name": "Fox News", "domain": "foxnews.com", "title": "Ceasefire talks drag on as allies press for resolution", "url": "https://foxnews.com", "presentationLean": "Lean Right", "commentary": "Frames the talks as stalled ('drag on') and centers allied pressure for a resolution, rather than the humanitarian angle." }
     ]
   },
   {
@@ -37,10 +37,10 @@
     "headline": "Major tech companies report quarterly earnings above expectations",
     "summary": "Several large technology companies posted quarterly revenue and profit figures that exceeded Wall Street estimates, driven largely by growth in cloud computing and AI-related products. Executives pointed to continued enterprise demand as a key factor. Shares of some companies rose in after-hours trading following the reports, while others were more muted as investors weighed forward guidance for the coming quarter.",
     "sources": [
-      { "name": "CNBC", "domain": "cnbc.com", "title": "Tech giants beat earnings estimates on AI, cloud strength", "url": "https://cnbc.com" },
-      { "name": "Bloomberg", "domain": "bloomberg.com", "title": "Big Tech Earnings Top Forecasts as AI Spending Pays Off", "url": "https://bloomberg.com" },
-      { "name": "Forbes", "domain": "forbes.com", "title": "Tech Earnings Beat Expectations, But Guidance Is Mixed", "url": "https://forbes.com" },
-      { "name": "USA Today", "domain": "usatoday.com", "title": "Tech companies post strong earnings, stocks react", "url": "https://usatoday.com" }
+      { "name": "CNBC", "domain": "cnbc.com", "title": "Tech giants beat earnings estimates on AI, cloud strength", "url": "https://cnbc.com", "presentationLean": "Center", "commentary": "Standard business-desk framing crediting AI and cloud growth, without a political angle." },
+      { "name": "Bloomberg", "domain": "bloomberg.com", "title": "Big Tech Earnings Top Forecasts as AI Spending Pays Off", "url": "https://bloomberg.com", "presentationLean": "Center", "commentary": "Frames AI investment as vindicated ('pays off'), aimed at investors rather than a political audience." },
+      { "name": "Forbes", "domain": "forbes.com", "title": "Tech Earnings Beat Expectations, But Guidance Is Mixed", "url": "https://forbes.com", "presentationLean": "Center", "commentary": "Balances the beat with a caution on forward guidance — even-handed business framing." },
+      { "name": "USA Today", "domain": "usatoday.com", "title": "Tech companies post strong earnings, stocks react", "url": "https://usatoday.com", "presentationLean": "Center", "commentary": "Brief, descriptive framing aimed at a general-interest audience with no evaluative language." }
     ]
   },
   {
@@ -48,10 +48,10 @@
     "headline": "Administration announces changes to immigration enforcement policy",
     "summary": "The administration unveiled new guidance on immigration enforcement priorities, adjusting how resources are allocated for processing and removals. Supporters say the changes will focus enforcement on public-safety cases, while critics argue the policy is either too lenient or too restrictive, depending on their political perspective. The change follows months of internal review and is expected to face legal challenges from advocacy groups on multiple sides of the issue.",
     "sources": [
-      { "name": "The Washington Times", "domain": "washingtontimes.com", "title": "New enforcement guidance sparks border security concerns", "url": "https://washingtontimes.com" },
-      { "name": "HuffPost", "domain": "huffpost.com", "title": "Advocates say new immigration policy still falls short", "url": "https://huffpost.com" },
-      { "name": "Politico", "domain": "politico.com", "title": "White House shifts immigration enforcement priorities", "url": "https://politico.com" },
-      { "name": "Newsmax", "domain": "newsmax.com", "title": "Critics blast new immigration rules as too soft", "url": "https://newsmax.com" }
+      { "name": "The Washington Times", "domain": "washingtontimes.com", "title": "New enforcement guidance sparks border security concerns", "url": "https://washingtontimes.com", "presentationLean": "Lean Right", "commentary": "Frames the change primarily through border-security risk, foregrounding concern over the policy's stated public-safety focus." },
+      { "name": "HuffPost", "domain": "huffpost.com", "title": "Advocates say new immigration policy still falls short", "url": "https://huffpost.com", "presentationLean": "Lean Left", "commentary": "Centers immigrant-advocate criticism that the policy doesn't go far enough, framing it as an incomplete reform." },
+      { "name": "Politico", "domain": "politico.com", "title": "White House shifts immigration enforcement priorities", "url": "https://politico.com", "presentationLean": "Center", "commentary": "Descriptive, process-oriented framing that reports the shift without characterizing it as too harsh or too lenient." },
+      { "name": "Newsmax", "domain": "newsmax.com", "title": "Critics blast new immigration rules as too soft", "url": "https://newsmax.com", "presentationLean": "Right", "commentary": "Uses 'blast' and 'too soft' to frame the policy as an enforcement rollback, leading with the harshest enforcement-critical viewpoint." }
     ]
   },
   {
@@ -59,10 +59,10 @@
     "headline": "Severe storm system brings flooding and power outages to multiple states",
     "summary": "A large storm system moved across several states, producing heavy rainfall, flooding, and widespread power outages. Local officials issued evacuation advisories in some low-lying areas and opened emergency shelters. Utility crews are working to restore electricity, with full restoration expected to take several days in the hardest-hit regions. No fatalities have been confirmed, though authorities warn conditions remain dangerous in some areas.",
     "sources": [
-      { "name": "The Weather Channel via AP", "domain": "apnews.com", "title": "Storm system floods roads, knocks out power across region", "url": "https://apnews.com" },
-      { "name": "CBS News", "domain": "cbsnews.com", "title": "Thousands without power as storms sweep through", "url": "https://cbsnews.com" },
-      { "name": "ABC News", "domain": "abcnews.go.com", "title": "Flooding forces evacuations as storm moves east", "url": "https://abcnews.go.com" },
-      { "name": "New York Post", "domain": "nypost.com", "title": "Brutal storm slams region, leaves trail of damage", "url": "https://nypost.com" }
+      { "name": "The Weather Channel via AP", "domain": "apnews.com", "title": "Storm system floods roads, knocks out power across region", "url": "https://apnews.com", "presentationLean": "Center", "commentary": "Straightforward description of storm impacts with no evaluative framing." },
+      { "name": "CBS News", "domain": "cbsnews.com", "title": "Thousands without power as storms sweep through", "url": "https://cbsnews.com", "presentationLean": "Center", "commentary": "Leads with the human impact (power loss) in plain, non-partisan language typical of disaster coverage." },
+      { "name": "ABC News", "domain": "abcnews.go.com", "title": "Flooding forces evacuations as storm moves east", "url": "https://abcnews.go.com", "presentationLean": "Center", "commentary": "Neutral, event-driven framing focused on the immediate safety response." },
+      { "name": "New York Post", "domain": "nypost.com", "title": "Brutal storm slams region, leaves trail of damage", "url": "https://nypost.com", "presentationLean": "Center", "commentary": "More vivid, tabloid-style language ('brutal,' 'slams') than the others, but not politically coded — sensational rather than partisan." }
     ]
   }
 ]

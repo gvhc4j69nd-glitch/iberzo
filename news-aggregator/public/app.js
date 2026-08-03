@@ -31,6 +31,11 @@ function renderSource(source) {
   const nameEl = node.querySelector('.source-name');
   const labelEl = node.querySelector('.source-bias-label');
   const markerEl = node.querySelector('.bias-meter-marker');
+  const toggleBtn = node.querySelector('.analysis-toggle');
+  const toggleLabel = node.querySelector('.analysis-toggle-label');
+  const analysisBox = node.querySelector('.source-analysis');
+  const leanEl = node.querySelector('.source-analysis-lean');
+  const textEl = node.querySelector('.source-analysis-text');
 
   nameEl.textContent = source.name;
   nameEl.href = source.url;
@@ -39,6 +44,21 @@ function renderSource(source) {
   labelEl.textContent = hasScore ? `${source.biasLabel} · ${source.biasScore}/100` : 'Unrated';
   markerEl.style.left = `${hasScore ? source.biasScore : 50}%`;
   if (!hasScore) markerEl.style.opacity = '0.4';
+
+  if (source.commentary) {
+    leanEl.textContent = source.presentationLean
+      ? `This article's framing: ${source.presentationLean}`
+      : "This article's framing";
+    textEl.textContent = source.commentary;
+    toggleBtn.hidden = false;
+    toggleBtn.addEventListener('click', () => {
+      const expanded = toggleBtn.getAttribute('aria-expanded') === 'true';
+      toggleBtn.setAttribute('aria-expanded', String(!expanded));
+      toggleLabel.textContent = expanded ? 'Show analysis' : 'Hide analysis';
+      toggleBtn.classList.toggle('is-open', !expanded);
+      analysisBox.hidden = expanded;
+    });
+  }
 
   return node;
 }

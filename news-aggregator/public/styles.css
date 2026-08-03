@@ -634,6 +634,59 @@ body {
   box-shadow: 0 0 0 1px var(--rule-light);
 }
 
+.analysis-toggle {
+  margin-top: 8px;
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-muted);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.analysis-toggle:hover {
+  color: var(--ink);
+}
+
+.analysis-caret {
+  font-size: 9px;
+  transition: transform 0.15s ease;
+}
+
+.analysis-toggle.is-open .analysis-caret {
+  transform: rotate(180deg);
+}
+
+.source-analysis {
+  margin-top: 8px;
+  padding: 10px 12px;
+  background: var(--page);
+  border-left: 2px solid var(--rule-light);
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+
+.source-analysis-lean {
+  margin: 0 0 4px;
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+}
+
+.source-analysis-text {
+  margin: 0;
+  color: var(--ink-secondary);
+}
+
 .site-footer {
   margin-top: 16px;
   font-size: 12px;
