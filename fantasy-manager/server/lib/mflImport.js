@@ -45,7 +45,13 @@ async function mflFetch(host, year, type, leagueId, extraParams = {}) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
   try {
-    const res = await fetch(url, { signal: controller.signal });
+    const res = await fetch(url, {
+      signal: controller.signal,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; fantasy-manager/1.0; +https://github.com/gvhc4j69nd-glitch/apagei)',
+        Accept: 'application/json',
+      },
+    });
     if (!res.ok) throw new Error(`MFL request failed (TYPE=${type}): HTTP ${res.status}`);
     const data = await res.json();
     if (data && data.error) {
@@ -90,6 +96,11 @@ async function importMflLeague({ leagueId, year }) {
       nflTeam: p.team || '',
       position: normalizePosition(p.position),
     });
+  }
+  if (playerById.size === 0) {
+    throw new Error(
+      'MFL returned no entries in the player database (TYPE=players) — every roster/free-agent would resolve as "Unknown player". This usually means the request was blocked or rate-limited rather than a parsing issue.'
+    );
   }
 
   const adpById = new Map();
