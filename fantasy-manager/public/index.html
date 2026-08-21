@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fantasy Manager</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="page">
+    <header class="topbar">
+      <h1 class="brand">Fantasy Manager</h1>
+      <form id="uploadForm" class="upload-form">
+        <span id="sourceBadge" class="badge badge-sample" hidden>Sample data</span>
+        <label class="file-label">
+          <input id="fileInput" type="file" accept=".xlsx" hidden />
+          <span id="fileName">Choose .xlsx&hellip;</span>
+        </label>
+        <button type="submit" class="btn btn-primary" id="uploadBtn">Upload</button>
+      </form>
+    </header>
+    <p id="uploadStatus" class="upload-status" hidden></p>
+
+    <div id="myTeamPrompt" class="my-team-prompt" hidden>
+      <p>Which roster is yours?</p>
+      <select id="myTeamSelect"></select>
+      <button type="button" class="btn btn-primary" id="myTeamSave">Save</button>
+      <span id="myTeamError" class="inline-error" hidden></span>
+    </div>
+
+    <main id="app">
+      <div class="loading">Loading league&hellip;</div>
+    </main>
+  </div>
+
+  <template id="playerRowTemplate">
+    <tr class="player-row">
+      <td class="player-name"></td>
+      <td><span class="pos-badge"></span></td>
+      <td class="player-nfl-team"></td>
+      <td class="player-ranking"></td>
+    </tr>
+  </template>
+
+  <template id="teamCardTemplate">
+    <section class="team-card">
+      <button type="button" class="team-card-header">
+        <h3 class="team-card-name"></h3>
+        <span class="team-card-count"></span>
+        <span class="team-card-caret" aria-hidden="true">&#9662;</span>
+      </button>
+      <div class="team-card-body">
+        <table class="roster-table">
+          <thead>
+            <tr><th>Player</th><th>Pos</th><th>NFL Team</th><th>Rank</th></tr>
+          </thead>
+          <tbody class="roster-body"></tbody>
+        </table>
+      </div>
+    </section>
+  </template>
+
+  <script src="/app.js"></script>
+</body>
+</html>

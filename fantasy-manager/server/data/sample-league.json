@@ -1,0 +1,66 @@
+{
+  "source": "sample",
+  "generatedAt": "2026-08-21T00:00:00.000Z",
+  "myTeamName": "My Team",
+  "teams": [
+    {
+      "name": "My Team",
+      "players": [
+        { "name": "Josh Allen", "nflTeam": "BUF", "position": "QB", "ranking": 3 },
+        { "name": "Bijan Robinson", "nflTeam": "ATL", "position": "RB", "ranking": 5 },
+        { "name": "Jahmyr Gibbs", "nflTeam": "DET", "position": "RB", "ranking": 8 },
+        { "name": "CeeDee Lamb", "nflTeam": "DAL", "position": "WR", "ranking": 6 },
+        { "name": "Chris Olave", "nflTeam": "NO", "position": "WR", "ranking": 22 },
+        { "name": "DJ Moore", "nflTeam": "CHI", "position": "WR", "ranking": 25 },
+        { "name": "Sam LaPorta", "nflTeam": "DET", "position": "TE", "ranking": 4 },
+        { "name": "Justin Tucker", "nflTeam": "BAL", "position": "K", "ranking": 2 },
+        { "name": "Jets D/ST", "nflTeam": "NYJ", "position": "DST", "ranking": 7 }
+      ]
+    },
+    {
+      "name": "Team Rivera",
+      "players": [
+        { "name": "Patrick Mahomes", "nflTeam": "KC", "position": "QB", "ranking": 2 },
+        { "name": "Christian McCaffrey", "nflTeam": "SF", "position": "RB", "ranking": 1 },
+        { "name": "Kenneth Walker III", "nflTeam": "SEA", "position": "RB", "ranking": 18 },
+        { "name": "Tyreek Hill", "nflTeam": "MIA", "position": "WR", "ranking": 2 },
+        { "name": "Amon-Ra St. Brown", "nflTeam": "DET", "position": "WR", "ranking": 4 },
+        { "name": "Tank Dell", "nflTeam": "HOU", "position": "WR", "ranking": 31 },
+        { "name": "Travis Kelce", "nflTeam": "KC", "position": "TE", "ranking": 2 },
+        { "name": "Harrison Butker", "nflTeam": "KC", "position": "K", "ranking": 5 },
+        { "name": "49ers D/ST", "nflTeam": "SF", "position": "DST", "ranking": 2 }
+      ]
+    },
+    {
+      "name": "Team Chen",
+      "players": [
+        { "name": "Jalen Hurts", "nflTeam": "PHI", "position": "QB", "ranking": 4 },
+        { "name": "Breece Hall", "nflTeam": "NYJ", "position": "RB", "ranking": 6 },
+        { "name": "Josh Jacobs", "nflTeam": "GB", "position": "RB", "ranking": 14 },
+        { "name": "A.J. Brown", "nflTeam": "PHI", "position": "WR", "ranking": 5 },
+        { "name": "Garrett Wilson", "nflTeam": "NYJ", "position": "WR", "ranking": 12 },
+        { "name": "Rome Odunze", "nflTeam": "CHI", "position": "WR", "ranking": 40 },
+        { "name": "Trey McBride", "nflTeam": "ARI", "position": "TE", "ranking": 6 },
+        { "name": "Brandon Aubrey", "nflTeam": "DAL", "position": "K", "ranking": 1 },
+        { "name": "Ravens D/ST", "nflTeam": "BAL", "position": "DST", "ranking": 3 }
+      ]
+    }
+  ],
+  "availablePlayers": [
+    { "name": "Jayden Daniels", "nflTeam": "WAS", "position": "QB", "ranking": 9 },
+    { "name": "Anthony Richardson", "nflTeam": "IND", "position": "QB", "ranking": 12 },
+    { "name": "Javonte Williams", "nflTeam": "DAL", "position": "RB", "ranking": 28 },
+    { "name": "Tyjae Spears", "nflTeam": "TEN", "position": "RB", "ranking": 30 },
+    { "name": "Zack Moss", "nflTeam": "CIN", "position": "RB", "ranking": 34 },
+    { "name": "Jerry Jeudy", "nflTeam": "CLE", "position": "WR", "ranking": 45 },
+    { "name": "Gabe Davis", "nflTeam": "JAX", "position": "WR", "ranking": 48 },
+    { "name": "Khalil Shakir", "nflTeam": "BUF", "position": "WR", "ranking": 52 },
+    { "name": "Curtis Samuel", "nflTeam": "BUF", "position": "WR", "ranking": 58 },
+    { "name": "Cole Kmet", "nflTeam": "CHI", "position": "TE", "ranking": 14 },
+    { "name": "Evan Engram", "nflTeam": "JAX", "position": "TE", "ranking": 16 },
+    { "name": "Cairo Santos", "nflTeam": "CHI", "position": "K", "ranking": 11 },
+    { "name": "Jake Moody", "nflTeam": "SF", "position": "K", "ranking": 13 },
+    { "name": "Steelers D/ST", "nflTeam": "PIT", "position": "DST", "ranking": 9 },
+    { "name": "Packers D/ST", "nflTeam": "GB", "position": "DST", "ranking": 11 }
+  ]
+}
