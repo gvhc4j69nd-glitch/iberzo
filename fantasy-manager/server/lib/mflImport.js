@@ -47,7 +47,12 @@ async function mflFetch(host, year, type, leagueId, extraParams = {}) {
   try {
     const res = await fetch(url, { signal: controller.signal });
     if (!res.ok) throw new Error(`MFL request failed (TYPE=${type}): HTTP ${res.status}`);
-    return await res.json();
+    const data = await res.json();
+    if (data && data.error) {
+      const message = (data.error && data.error.$t) || JSON.stringify(data.error);
+      throw new Error(`MFL error (TYPE=${type}): ${message}`);
+    }
+    return data;
   } finally {
     clearTimeout(timeout);
   }
@@ -65,11 +70,14 @@ async function importMflLeague({ leagueId, year }) {
   const host = league.baseURL || MFL_API_HOST;
   const franchises = toArray(league.franchises && league.franchises.franchise);
 
+  // TYPE=players and TYPE=adp are league-agnostic reference data and must go
+  // through api.myfantasyleague.com; only league-scoped calls use the
+  // league's own baseURL (MFL rejects the former on the latter host).
   const [playersData, rostersData, freeAgentsData, adpData] = await Promise.all([
-    mflFetch(host, year, 'players', null, { DETAILS: '1' }),
+    mflFetch(MFL_API_HOST, year, 'players', null, { DETAILS: '1' }),
     mflFetch(host, year, 'rosters', leagueId),
     mflFetch(host, year, 'freeAgents', leagueId),
-    mflFetch(host, year, 'adp', null).catch((err) => {
+    mflFetch(MFL_API_HOST, year, 'adp', null).catch((err) => {
       console.error(`MFL ADP fetch failed (non-fatal, ranking will be unavailable): ${err.message}`);
       return null;
     }),
