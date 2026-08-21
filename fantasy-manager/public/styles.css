@@ -375,6 +375,17 @@ table.roster-table {
   border: 1px solid var(--error);
 }
 
+.injury-link {
+  font-size: 11px;
+  color: var(--ink-muted);
+  text-decoration: none;
+}
+
+.injury-link:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
 .role-badge {
   display: inline-block;
   font-size: 11px;

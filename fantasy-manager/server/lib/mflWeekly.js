@@ -1,4 +1,5 @@
-const { mflFetch, toArray, MFL_API_HOST } = require('./mflImport');
+const { mflFetch, toArray, MFL_API_HOST } = require('./mflClient');
+const { fetchInjuryMap } = require('./mflInjuries');
 
 function numOrNull(v) {
   if (v === '' || v == null) return null;
@@ -13,15 +14,10 @@ function numOrNull(v) {
  * this is called, not from the cached import.
  */
 async function getWeeklyLineupData({ year, week, myTeam }) {
-  const [injuriesData, scheduleData] = await Promise.all([
-    mflFetch(MFL_API_HOST, year, 'injuries', null),
+  const [injuryById, scheduleData] = await Promise.all([
+    fetchInjuryMap(year),
     mflFetch(MFL_API_HOST, year, 'nflSchedule', null, { W: week }),
   ]);
-
-  const injuryById = new Map();
-  for (const inj of toArray(injuriesData.injuries && injuriesData.injuries.injury)) {
-    injuryById.set(inj.id, { status: inj.status, details: inj.details });
-  }
 
   const opponentByTeam = new Map();
   for (const matchup of toArray(scheduleData.nflSchedule && scheduleData.nflSchedule.matchup)) {

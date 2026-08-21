@@ -7,9 +7,9 @@
       "name": "My Team",
       "players": [
         { "name": "Josh Allen", "nflTeam": "BUF", "position": "QB", "ranking": 3 },
-        { "name": "Bijan Robinson", "nflTeam": "ATL", "position": "RB", "ranking": 5 },
+        { "name": "Bijan Robinson", "nflTeam": "ATL", "position": "RB", "ranking": 5, "injuryStatus": "Questionable", "injuryDetails": "Ankle" },
         { "name": "Jahmyr Gibbs", "nflTeam": "DET", "position": "RB", "ranking": 8 },
-        { "name": "CeeDee Lamb", "nflTeam": "DAL", "position": "WR", "ranking": 6 },
+        { "name": "CeeDee Lamb", "nflTeam": "DAL", "position": "WR", "ranking": 6, "injuryStatus": "Out", "injuryDetails": "Shoulder" },
         { "name": "Chris Olave", "nflTeam": "NO", "position": "WR", "ranking": 22 },
         { "name": "DJ Moore", "nflTeam": "CHI", "position": "WR", "ranking": 25 },
         { "name": "Sam LaPorta", "nflTeam": "DET", "position": "TE", "ranking": 4 },

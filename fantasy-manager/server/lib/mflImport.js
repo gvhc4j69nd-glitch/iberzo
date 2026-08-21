@@ -1,17 +1,5 @@
-const MFL_API_HOST = 'https://api.myfantasyleague.com';
-const REQUEST_TIMEOUT_MS = 15000;
-
-function toArray(x) {
-  if (x == null) return [];
-  return Array.isArray(x) ? x : [x];
-}
-
-function normalizePosition(pos) {
-  const p = (pos || '').toUpperCase();
-  if (p === 'PK') return 'K';
-  if (p === 'DEF') return 'DST';
-  return p;
-}
+const { mflFetch, toArray, normalizePosition, MFL_API_HOST } = require('./mflClient');
+const { fetchInjuryMap } = require('./mflInjuries');
 
 function parseLimit(limitStr) {
   if (!limitStr) return { min: 0, max: 0 };
@@ -49,33 +37,6 @@ function findPlayerRefs(node, depth = 0) {
   return [];
 }
 
-async function mflFetch(host, year, type, leagueId, extraParams = {}) {
-  const params = new URLSearchParams({ TYPE: type, JSON: '1', ...extraParams });
-  if (leagueId) params.set('L', leagueId);
-  const url = `${host}/${year}/export?${params.toString()}`;
-
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
-  try {
-    const res = await fetch(url, {
-      signal: controller.signal,
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; fantasy-manager/1.0; +https://github.com/gvhc4j69nd-glitch/apagei)',
-        Accept: 'application/json',
-      },
-    });
-    if (!res.ok) throw new Error(`MFL request failed (TYPE=${type}): HTTP ${res.status}`);
-    const data = await res.json();
-    if (data && data.error) {
-      const message = (data.error && data.error.$t) || JSON.stringify(data.error);
-      throw new Error(`MFL error (TYPE=${type}): ${message}`);
-    }
-    return data;
-  } finally {
-    clearTimeout(timeout);
-  }
-}
-
 /**
  * Imports a league's teams, rosters, and available players from MyFantasyLeague's
  * public export API. Requires no credentials for publicly-viewable leagues.
@@ -110,13 +71,17 @@ async function importMflLeague({ leagueId, year }) {
   // TYPE=players and TYPE=adp are league-agnostic reference data and must go
   // through api.myfantasyleague.com; only league-scoped calls use the
   // league's own baseURL (MFL rejects the former on the latter host).
-  const [playersData, rostersData, freeAgentsData, adpData] = await Promise.all([
+  const [playersData, rostersData, freeAgentsData, adpData, injuryById] = await Promise.all([
     mflFetch(MFL_API_HOST, year, 'players', null, { DETAILS: '1' }),
     mflFetch(host, year, 'rosters', leagueId),
     mflFetch(host, year, 'freeAgents', leagueId),
     mflFetch(MFL_API_HOST, year, 'adp', null).catch((err) => {
       console.error(`MFL ADP fetch failed (non-fatal, ranking will be unavailable): ${err.message}`);
       return null;
+    }),
+    fetchInjuryMap(year).catch((err) => {
+      console.error(`MFL injuries fetch failed (non-fatal, injury status will be unavailable): ${err.message}`);
+      return new Map();
     }),
   ]);
 
@@ -126,6 +91,7 @@ async function importMflLeague({ leagueId, year }) {
       name: formatPlayerName(p.name),
       nflTeam: p.team || '',
       position: normalizePosition(p.position),
+      espnId: p.espn_id || null,
     });
   }
   if (playerById.size === 0) {
@@ -143,12 +109,15 @@ async function importMflLeague({ leagueId, year }) {
   }
 
   function resolvePlayer(id, rosterStatus) {
-    const base = playerById.get(id) || { name: `Unknown player (${id})`, nflTeam: '', position: '' };
+    const base = playerById.get(id) || { name: `Unknown player (${id})`, nflTeam: '', position: '', espnId: null };
+    const injury = injuryById.get(id);
     return {
       ...base,
       mflId: id,
       ranking: adpById.has(id) ? adpById.get(id) : null,
       rosterStatus: rosterStatus || null,
+      injuryStatus: injury ? injury.status : null,
+      injuryDetails: injury ? injury.details : null,
     };
   }
 
@@ -176,4 +145,4 @@ async function importMflLeague({ leagueId, year }) {
   };
 }
 
-module.exports = { importMflLeague, mflFetch, toArray, normalizePosition, MFL_API_HOST };
+module.exports = { importMflLeague };

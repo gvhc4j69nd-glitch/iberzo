@@ -56,10 +56,21 @@ function sortByPositionThenRanking(players) {
   });
 }
 
+function injuryLinkUrl(player) {
+  if (player.espnId) return `https://www.espn.com/nfl/player/_/id/${encodeURIComponent(player.espnId)}`;
+  return `https://www.google.com/search?q=${encodeURIComponent(`${player.name} NFL injury`)}`;
+}
+
 function renderPlayerRow(player) {
   const node = playerRowTemplate.content.cloneNode(true);
   const statusTag = player.rosterStatus && ROSTER_STATUS_TAG[player.rosterStatus];
-  node.querySelector('.player-name').textContent = statusTag ? `${player.name} (${statusTag})` : player.name;
+  const displayName = statusTag ? `${player.name} (${statusTag})` : player.name;
+  const nameCell = node.querySelector('.player-name');
+  if (player.injuryStatus) {
+    nameCell.innerHTML = `${escapeHtml(displayName)}<br/><span class="injury-badge">${escapeHtml(player.injuryStatus)}</span> <a href="${injuryLinkUrl(player)}" target="_blank" rel="noopener noreferrer" class="injury-link">Injury info &#8599;</a>`;
+  } else {
+    nameCell.textContent = displayName;
+  }
   const badge = node.querySelector('.pos-badge');
   const pos = (player.position || '').toUpperCase();
   badge.textContent = pos || '—';

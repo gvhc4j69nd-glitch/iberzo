@@ -97,6 +97,8 @@ fantasy-manager/
     lib/
       parseSpreadsheet.js  # multi-sheet .xlsx -> teams / available players
       mflImport.js          # MyFantasyLeague export API -> teams / available players
+      mflClient.js           # shared MFL fetch/parsing helpers
+      mflInjuries.js         # shared injury-report fetch (used by import + weekly check)
       mflWeekly.js           # live per-week injury/schedule fetch
       db.js                  # Postgres connection + schema
       store.js              # persistence (Postgres or file) + "my team" selection
@@ -122,6 +124,15 @@ Once your team is selected, a "Draft Recommendations" section shows:
 
 These targets are a heuristic for "how thin are you here", not your
 league's actual bench/roster rules.
+
+## Injury status on every roster
+
+Every player row (My Roster, League Rosters, Available Players) shows a
+current injury badge (Questionable, Out, IR, etc., straight from MFL's
+injury report) when one exists, plus an "Injury info" link for more
+detail — ESPN's player page when MFL has an `espn_id` for that player,
+otherwise a plain Google search for "{player} NFL injury" as a fallback
+that always resolves to something useful.
 
 ## Keeping data current — no local roster editing
 
