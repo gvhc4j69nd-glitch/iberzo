@@ -5,6 +5,15 @@ const fileNameEl = document.getElementById('fileName');
 const uploadBtn = document.getElementById('uploadBtn');
 const uploadStatus = document.getElementById('uploadStatus');
 const sourceBadge = document.getElementById('sourceBadge');
+const mflForm = document.getElementById('mflForm');
+const mflLeagueId = document.getElementById('mflLeagueId');
+const mflYear = document.getElementById('mflYear');
+const mflImportBtn = document.getElementById('mflImportBtn');
+
+const ROSTER_STATUS_TAG = {
+  TAXI_SQUAD: 'Taxi',
+  INJURED_RESERVE: 'IR',
+};
 const myTeamPrompt = document.getElementById('myTeamPrompt');
 const myTeamSelect = document.getElementById('myTeamSelect');
 const myTeamSave = document.getElementById('myTeamSave');
@@ -40,7 +49,8 @@ function sortByPositionThenRanking(players) {
 
 function renderPlayerRow(player) {
   const node = playerRowTemplate.content.cloneNode(true);
-  node.querySelector('.player-name').textContent = player.name;
+  const statusTag = player.rosterStatus && ROSTER_STATUS_TAG[player.rosterStatus];
+  node.querySelector('.player-name').textContent = statusTag ? `${player.name} (${statusTag})` : player.name;
   const badge = node.querySelector('.pos-badge');
   const pos = (player.position || '').toUpperCase();
   badge.textContent = pos || '—';
@@ -177,9 +187,16 @@ function updateMyTeamPrompt(league) {
     .join('');
 }
 
+const SOURCE_BADGE_TEXT = {
+  sample: 'Sample data',
+  mfl: 'MFL import',
+};
+
 function applyLeague(data) {
   currentLeague = data;
-  sourceBadge.hidden = data.source !== 'sample';
+  const badgeText = SOURCE_BADGE_TEXT[data.source];
+  sourceBadge.hidden = !badgeText;
+  if (badgeText) sourceBadge.textContent = badgeText;
   updateMyTeamPrompt(data);
   renderApp();
 }
@@ -253,6 +270,36 @@ myTeamSave.addEventListener('click', async () => {
     myTeamError.textContent = err.message;
   } finally {
     myTeamSave.disabled = false;
+  }
+});
+
+mflForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const leagueId = mflLeagueId.value.trim();
+  const year = mflYear.value.trim();
+  if (!leagueId || !year) {
+    showUploadStatus('Enter both a league ID and a year.', true);
+    return;
+  }
+  mflImportBtn.disabled = true;
+  showUploadStatus('Importing from MFL…', false);
+  try {
+    const res = await fetch('/api/import/mfl', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ leagueId, year }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || `Server responded ${res.status}`);
+    applyLeague(data);
+    showUploadStatus(
+      `Imported ${data.teams.length} team(s) and ${data.availablePlayers.length} available player(s) from MFL.`,
+      false
+    );
+  } catch (err) {
+    showUploadStatus(err.message, true);
+  } finally {
+    mflImportBtn.disabled = false;
   }
 });
 

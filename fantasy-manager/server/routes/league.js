@@ -1,7 +1,8 @@
 const express = require('express');
 const multer = require('multer');
 const { parseSpreadsheet } = require('../lib/parseSpreadsheet');
-const { loadLeague, saveUpload, setMyTeam } = require('../lib/store');
+const { importMflLeague } = require('../lib/mflImport');
+const { loadLeague, saveImport, setMyTeam } = require('../lib/store');
 
 const router = express.Router();
 
@@ -33,11 +34,30 @@ router.post('/upload', upload.single('spreadsheet'), async (req, res) => {
     if (parsed.teams.length === 0 && parsed.availablePlayers.length === 0) {
       return res.status(422).json({ error: 'No player rows found. Check that each sheet has a header row with player name/team/position/ranking columns.' });
     }
-    const league = saveUpload(parsed);
+    const league = saveImport(parsed, 'upload');
     res.json(league);
   } catch (err) {
     console.error(`Failed to parse upload: ${err.stack}`);
     res.status(422).json({ error: `Couldn't read that spreadsheet: ${err.message}` });
+  }
+});
+
+router.post('/import/mfl', express.json(), async (req, res) => {
+  const leagueId = (req.body && req.body.leagueId) || process.env.MFL_LEAGUE_ID;
+  const year = (req.body && req.body.year) || process.env.MFL_SEASON || String(new Date().getFullYear());
+  if (!leagueId) {
+    return res.status(400).json({ error: 'leagueId is required' });
+  }
+  try {
+    const parsed = await importMflLeague({ leagueId, year });
+    if (parsed.teams.length === 0) {
+      return res.status(422).json({ error: 'MFL returned no franchises for that league/year. Double-check the league ID and season.' });
+    }
+    const league = saveImport(parsed, 'mfl');
+    res.json(league);
+  } catch (err) {
+    console.error(`MFL import failed: ${err.stack}`);
+    res.status(502).json({ error: `Couldn't import from MFL: ${err.message}` });
   }
 });
 

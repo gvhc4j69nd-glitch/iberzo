@@ -138,6 +138,31 @@ body {
   cursor: default;
 }
 
+.mfl-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.mfl-label {
+  font-size: 13px;
+  color: var(--ink-secondary);
+  font-weight: 600;
+}
+
+.mfl-form input[type="text"] {
+  font-family: inherit;
+  font-size: 13px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--ink);
+  width: 100px;
+}
+
 .upload-status {
   margin: 8px 0 0;
   font-size: 13px;

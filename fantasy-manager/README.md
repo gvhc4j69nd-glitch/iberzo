@@ -5,6 +5,8 @@ yours, your league-mates', and the available player pool — in one place.
 
 ## How it works
 
+Get league data in one of two ways:
+
 1. **Upload** a `.xlsx` workbook with one sheet per fantasy team's roster,
    plus one sheet for available/free-agent players (matched by name —
    "Available", "Free Agents", "Waivers", etc.). Each sheet needs a header
@@ -13,12 +15,34 @@ yours, your league-mates', and the available player pool — in one place.
    - **Team** (NFL team, e.g. "BUF")
    - **Position** (e.g. "QB", "RB", "WR", "TE", "K", "DST")
    - **Ranking** (a number — lower is better)
-2. **Pick which roster is yours** from the detected team sheets.
-3. **Browse**: your roster grouped by position, every other team's roster
-   (collapsible), and a searchable/filterable available-players pool.
+2. **Import from MyFantasyLeague** — enter a league ID and season year and
+   click Import. Works for any publicly-viewable MFL league, no credentials
+   needed. Pulls franchises, rosters (including taxi squad / IR status,
+   shown as a tag next to the player's name), the free-agent pool, and
+   average draft position as a ranking proxy, via MFL's export API
+   (`api.myfantasyleague.com/{year}/export?TYPE=...`).
 
-Without any upload, the site runs on a bundled sample league so you can see
-the UI immediately.
+Either way, then:
+
+- **Pick which roster is yours** from the detected teams.
+- **Browse**: your roster grouped by position, every other team's roster
+  (collapsible), and a searchable/filterable available-players pool.
+
+Without any upload or import, the site runs on a bundled sample league so
+you can see the UI immediately.
+
+### A note on the MFL import
+
+MFL's response shapes (especially `freeAgents` and `adp`) are handled
+defensively (recursively finding player entries rather than assuming one
+exact nesting) because this couldn't be tested against a live league from
+the environment this was built in — outbound network access there is
+locked down to a small allowlist that doesn't include myfantasyleague.com.
+The `league`/franchise parsing *was* verified against a real response. If
+an import fails or looks wrong once deployed, share the error and — if you
+can — the raw JSON from the failing endpoint (e.g.
+`https://www49.myfantasyleague.com/2026/export?TYPE=freeAgents&L=16637&JSON=1`,
+using your league's actual `baseURL`) so the parser can be adjusted.
 
 ## Setup
 
@@ -34,6 +58,8 @@ Open http://localhost:8788.
 | Variable | Required | Purpose |
 |---|---|---|
 | `PORT` | No | Server port (default 8788). |
+| `MFL_LEAGUE_ID` | No | Pre-fills the MFL import form's league ID. |
+| `MFL_SEASON` | No | Pre-fills the MFL import form's season year. |
 
 ## Data & persistence
 
@@ -51,6 +77,7 @@ fantasy-manager/
     routes/league.js       # GET /api/league, POST /api/upload, POST /api/league/my-team
     lib/
       parseSpreadsheet.js  # multi-sheet .xlsx -> teams / available players
+      mflImport.js          # MyFantasyLeague export API -> teams / available players
       store.js              # persistence + "my team" selection
     data/
       sample-league.json    # bundled demo league (no upload needed)

@@ -18,10 +18,10 @@ function saveLeague(league) {
   fs.writeFileSync(LEAGUE_PATH, JSON.stringify(league, null, 2));
 }
 
-function saveUpload(parsed) {
+function saveImport(parsed, source) {
   const league = {
     ...parsed,
-    source: 'upload',
+    source,
     myTeamName: null,
   };
   saveLeague(league);
@@ -41,4 +41,4 @@ function setMyTeam(teamName) {
   return updated;
 }
 
-module.exports = { loadLeague, saveUpload, setMyTeam };
+module.exports = { loadLeague, saveImport, setMyTeam };

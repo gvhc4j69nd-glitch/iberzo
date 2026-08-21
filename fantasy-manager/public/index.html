@@ -19,6 +19,12 @@
         <button type="submit" class="btn btn-primary" id="uploadBtn">Upload</button>
       </form>
     </header>
+    <form id="mflForm" class="mfl-form">
+      <span class="mfl-label">Import from MFL:</span>
+      <input id="mflLeagueId" type="text" inputmode="numeric" placeholder="League ID" aria-label="MFL League ID" value="16637" />
+      <input id="mflYear" type="text" inputmode="numeric" placeholder="Year" aria-label="Season year" value="2026" />
+      <button type="submit" class="btn btn-primary" id="mflImportBtn">Import</button>
+    </form>
     <p id="uploadStatus" class="upload-status" hidden></p>
 
     <div id="myTeamPrompt" class="my-team-prompt" hidden>
