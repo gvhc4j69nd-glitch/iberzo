@@ -17,9 +17,9 @@ const upload = multer({
   },
 });
 
-router.get('/league', (req, res) => {
+router.get('/league', async (req, res) => {
   try {
-    res.json(loadLeague());
+    res.json(await loadLeague());
   } catch (err) {
     console.error(`Failed to load league: ${err.stack}`);
     res.status(500).json({ error: 'Failed to load league data' });
@@ -35,7 +35,7 @@ router.post('/upload', upload.single('spreadsheet'), async (req, res) => {
     if (parsed.teams.length === 0 && parsed.availablePlayers.length === 0) {
       return res.status(422).json({ error: 'No player rows found. Check that each sheet has a header row with player name/team/position/ranking columns.' });
     }
-    const league = saveImport(parsed, 'upload');
+    const league = await saveImport(parsed, 'upload');
     res.json(league);
   } catch (err) {
     console.error(`Failed to parse upload: ${err.stack}`);
@@ -54,7 +54,7 @@ router.post('/import/mfl', express.json(), async (req, res) => {
     if (parsed.teams.length === 0) {
       return res.status(422).json({ error: 'MFL returned no franchises for that league/year. Double-check the league ID and season.' });
     }
-    const league = saveImport({ ...parsed, mflYear: year, mflLeagueId: leagueId }, 'mfl');
+    const league = await saveImport({ ...parsed, mflYear: year, mflLeagueId: leagueId }, 'mfl');
     res.json(league);
   } catch (err) {
     console.error(`MFL import failed: ${err.stack}`);
@@ -67,15 +67,15 @@ router.get('/lineup', async (req, res) => {
   if (!week) {
     return res.status(400).json({ error: 'week is required' });
   }
-  const league = loadLeague();
-  if (league.source !== 'mfl') {
-    return res.status(400).json({ error: 'Weekly lineup check requires a league imported from MFL.' });
-  }
-  if (!league.myTeamName) {
-    return res.status(400).json({ error: 'Pick which team is yours before checking a weekly lineup.' });
-  }
-  const myTeam = league.teams.find((t) => t.name === league.myTeamName);
   try {
+    const league = await loadLeague();
+    if (league.source !== 'mfl') {
+      return res.status(400).json({ error: 'Weekly lineup check requires a league imported from MFL.' });
+    }
+    if (!league.myTeamName) {
+      return res.status(400).json({ error: 'Pick which team is yours before checking a weekly lineup.' });
+    }
+    const myTeam = league.teams.find((t) => t.name === league.myTeamName);
     const data = await getWeeklyLineupData({ year: league.mflYear, week, myTeam });
     res.json({ ...data, starterSlots: league.starterSlots || {}, starterCount: league.starterCount || 0 });
   } catch (err) {
@@ -84,13 +84,13 @@ router.get('/lineup', async (req, res) => {
   }
 });
 
-router.post('/league/my-team', express.json(), (req, res) => {
+router.post('/league/my-team', express.json(), async (req, res) => {
   const { teamName } = req.body || {};
   if (!teamName) {
     return res.status(400).json({ error: 'teamName is required' });
   }
   try {
-    res.json(setMyTeam(teamName));
+    res.json(await setMyTeam(teamName));
   } catch (err) {
     if (err.code === 'UNKNOWN_TEAM') {
       return res.status(400).json({ error: err.message });

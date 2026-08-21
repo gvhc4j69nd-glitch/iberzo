@@ -60,13 +60,32 @@ Open http://localhost:8788.
 | `PORT` | No | Server port (default 8788). |
 | `MFL_LEAGUE_ID` | No | Pre-fills the MFL import form's league ID. |
 | `MFL_SEASON` | No | Pre-fills the MFL import form's season year. |
+| `DATABASE_URL` | No | Postgres connection string — see below. |
+| `PGSSLMODE` | No | Set to `disable` for a non-SSL local Postgres; leave unset for Railway's managed Postgres. |
 
 ## Data & persistence
 
-Uploaded data is parsed in memory and written to `server/data/league.json`
-(gitignored — it's your private league data) so it survives a server
-restart. Uploading a new spreadsheet replaces it entirely and clears the
-"which roster is mine" selection, since team names may have changed.
+**With `DATABASE_URL` set** (e.g. on Railway with a Postgres service
+attached): league data is stored in a single `league_state` table (one
+JSONB row), created automatically on startup if it doesn't exist. This
+survives redeploys and restarts — no re-importing needed.
+
+**Without it** (e.g. local dev): data is written to
+`server/data/league.json` (gitignored) instead, which only survives a
+plain restart, not a fresh deploy/checkout.
+
+Either way, uploading a new spreadsheet or re-running an MFL import
+replaces the stored league entirely and clears the "which roster is
+mine" selection, since team names may have changed.
+
+### Connecting to Railway's Postgres
+
+If you've added a Postgres database in Railway within the same project as
+this app: open the app service's **Variables** tab and confirm it has a
+`DATABASE_URL`. If it's not there yet, add a new variable and reference
+the Postgres service's `DATABASE_URL` (Railway's variable picker lets you
+select another service's variable rather than typing a value) — don't
+paste the raw connection string in by hand if you can avoid it.
 
 ## Project layout
 
@@ -78,7 +97,9 @@ fantasy-manager/
     lib/
       parseSpreadsheet.js  # multi-sheet .xlsx -> teams / available players
       mflImport.js          # MyFantasyLeague export API -> teams / available players
-      store.js              # persistence + "my team" selection
+      mflWeekly.js           # live per-week injury/schedule fetch
+      db.js                  # Postgres connection + schema
+      store.js              # persistence (Postgres or file) + "my team" selection
     data/
       sample-league.json    # bundled demo league (no upload needed)
   public/
