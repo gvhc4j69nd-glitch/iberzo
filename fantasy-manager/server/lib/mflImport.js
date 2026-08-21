@@ -13,11 +13,16 @@ function normalizePosition(pos) {
   return p;
 }
 
-function parseMaxLimit(limitStr) {
-  if (!limitStr) return 0;
-  const parts = String(limitStr).split('-');
-  const max = Number(parts[parts.length - 1]);
-  return Number.isFinite(max) ? max : 0;
+function parseLimit(limitStr) {
+  if (!limitStr) return { min: 0, max: 0 };
+  const parts = String(limitStr).split('-').map(Number);
+  if (parts.length === 1) {
+    const n = Number.isFinite(parts[0]) ? parts[0] : 0;
+    return { min: n, max: n };
+  }
+  const min = Number.isFinite(parts[0]) ? parts[0] : 0;
+  const max = Number.isFinite(parts[1]) ? parts[1] : min;
+  return { min, max };
 }
 
 function formatPlayerName(rawName) {
@@ -85,18 +90,22 @@ async function importMflLeague({ leagueId, year }) {
 
   // Rough depth target per position (~2x the league's max starters at that
   // spot) — a heuristic for "how thin are you here", not the league's actual
-  // roster/bench rules. starterSlots keeps the raw (undoubled) max-starters
-  // count, used for the weekly start/bench recommendation.
+  // roster/bench rules. starterSlots keeps each position's real {min,max}
+  // starter range (e.g. RB "1-4" -> min 1, max 4) — positions where max>min
+  // share a combined FLEX pool rather than each getting `max` independent
+  // slots, so both numbers are needed for the weekly start/bench logic.
   const positionTargets = {};
   const starterSlots = {};
   for (const slot of toArray(league.starters && league.starters.position)) {
     const key = normalizePosition(slot.name);
-    const maxStarters = parseMaxLimit(slot.limit);
-    if (key && maxStarters > 0) {
-      positionTargets[key] = Math.max(positionTargets[key] || 0, maxStarters * 2, maxStarters + 1);
-      starterSlots[key] = Math.max(starterSlots[key] || 0, maxStarters);
+    const { min, max } = parseLimit(slot.limit);
+    if (key && max > 0) {
+      positionTargets[key] = Math.max(positionTargets[key] || 0, max * 2, max + 1);
+      const existing = starterSlots[key] || { min: 0, max: 0 };
+      starterSlots[key] = { min: Math.max(existing.min, min), max: Math.max(existing.max, max) };
     }
   }
+  const starterCount = Number(league.starters && league.starters.count) || 0;
 
   // TYPE=players and TYPE=adp are league-agnostic reference data and must go
   // through api.myfantasyleague.com; only league-scoped calls use the
@@ -163,6 +172,7 @@ async function importMflLeague({ leagueId, year }) {
     generatedAt: new Date().toISOString(),
     positionTargets,
     starterSlots,
+    starterCount,
   };
 }
 

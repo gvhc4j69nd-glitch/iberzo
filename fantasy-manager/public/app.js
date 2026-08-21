@@ -117,7 +117,14 @@ function renderAvailableTable() {
 const DEFAULT_POSITION_TARGETS = { QB: 3, RB: 6, WR: 6, TE: 3, K: 2, DST: 2 };
 const RECOMMEND_PER_POSITION = 5;
 
-const DEFAULT_STARTER_SLOTS = { QB: 1, RB: 2, WR: 2, TE: 1, K: 1, DST: 1 };
+const DEFAULT_STARTER_SLOTS = {
+  QB: { min: 1, max: 1 },
+  RB: { min: 1, max: 2 },
+  WR: { min: 1, max: 2 },
+  TE: { min: 1, max: 1 },
+  K: { min: 1, max: 1 },
+  DST: { min: 1, max: 1 },
+};
 const DEFINITELY_OUT_STATUSES = new Set(['OUT', 'O', 'IR', 'INJURED RESERVE', 'RETIRED', 'PUP', 'SUSPENDED']);
 let lastWeeklyInput = '';
 
@@ -126,10 +133,73 @@ function isUnavailableThisWeek(player) {
   return DEFINITELY_OUT_STATUSES.has((player.injuryStatus || '').toUpperCase());
 }
 
+function rankOf(p) {
+  return typeof p.ranking === 'number' ? p.ranking : Infinity;
+}
+
+function playerKey(p) {
+  return p.mflId || p.name;
+}
+
+/**
+ * Positions with max>min (e.g. RB "1-4") share a combined FLEX pool rather
+ * than each independently filling up to their own max — this guarantees
+ * each position's minimum first, then fills the league's actual remaining
+ * starter slots (starterCount - sum of all mins) from the combined pool of
+ * flex-eligible positions, sorted by rank, respecting each one's max cap.
+ */
+function computeLineupStarts(players, starterSlots, starterCount) {
+  const started = new Set();
+  const byPos = {};
+  for (const p of players) {
+    const pos = (p.position || '').toUpperCase();
+    if (!pos) continue;
+    (byPos[pos] = byPos[pos] || []).push(p);
+  }
+  for (const pos in byPos) {
+    byPos[pos].sort((a, b) => rankOf(a) - rankOf(b));
+  }
+
+  const usedCount = {};
+  for (const pos of Object.keys(starterSlots)) {
+    const { min } = starterSlots[pos];
+    const candidates = (byPos[pos] || []).filter((p) => !isUnavailableThisWeek(p));
+    const take = Math.min(min, candidates.length);
+    for (let i = 0; i < take; i++) started.add(playerKey(candidates[i]));
+    usedCount[pos] = take;
+  }
+
+  const sumMins = Object.values(starterSlots).reduce((s, c) => s + c.min, 0);
+  let leftover = (starterCount || sumMins) - sumMins;
+
+  const flexPositions = Object.keys(starterSlots).filter((pos) => starterSlots[pos].max > starterSlots[pos].min);
+  const pool = [];
+  for (const pos of flexPositions) {
+    for (const p of byPos[pos] || []) {
+      if (isUnavailableThisWeek(p) || started.has(playerKey(p))) continue;
+      pool.push(p);
+    }
+  }
+  pool.sort((a, b) => rankOf(a) - rankOf(b));
+
+  for (const p of pool) {
+    if (leftover <= 0) break;
+    const pos = (p.position || '').toUpperCase();
+    if (usedCount[pos] >= starterSlots[pos].max) continue;
+    started.add(playerKey(p));
+    usedCount[pos] = (usedCount[pos] || 0) + 1;
+    leftover--;
+  }
+
+  return started;
+}
+
 function renderWeeklyResults(data) {
   const container = document.getElementById('weeklyResults');
   if (!container) return;
   const starterSlots = { ...DEFAULT_STARTER_SLOTS, ...(data.starterSlots || {}) };
+  const started = computeLineupStarts(data.players, starterSlots, data.starterCount);
+
   const byPos = {};
   for (const p of data.players) {
     const pos = (p.position || '').toUpperCase();
@@ -140,22 +210,11 @@ function renderWeeklyResults(data) {
 
   const html = positions
     .map((pos) => {
-      const players = byPos[pos].slice().sort((a, b) => {
-        const ra = typeof a.ranking === 'number' ? a.ranking : Infinity;
-        const rb = typeof b.ranking === 'number' ? b.ranking : Infinity;
-        return ra - rb;
-      });
-      const slotCount = starterSlots[pos] || 1;
-      let started = 0;
+      const players = byPos[pos].slice().sort((a, b) => rankOf(a) - rankOf(b));
 
       const rows = players
         .map((p) => {
-          const unavailable = isUnavailableThisWeek(p);
-          let role = 'bench';
-          if (!unavailable && started < slotCount) {
-            role = 'start';
-            started += 1;
-          }
+          const role = started.has(playerKey(p)) ? 'start' : 'bench';
 
           const rankNotes = [];
           if (p.oppRushDefenseRank != null) rankNotes.push(`Rush D #${p.oppRushDefenseRank}`);

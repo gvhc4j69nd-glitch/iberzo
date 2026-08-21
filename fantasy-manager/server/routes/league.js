@@ -77,7 +77,7 @@ router.get('/lineup', async (req, res) => {
   const myTeam = league.teams.find((t) => t.name === league.myTeamName);
   try {
     const data = await getWeeklyLineupData({ year: league.mflYear, week, myTeam });
-    res.json({ ...data, starterSlots: league.starterSlots || {} });
+    res.json({ ...data, starterSlots: league.starterSlots || {}, starterCount: league.starterCount || 0 });
   } catch (err) {
     console.error(`Weekly lineup check failed: ${err.stack}`);
     res.status(502).json({ error: `Couldn't check this week's status: ${err.message}` });
