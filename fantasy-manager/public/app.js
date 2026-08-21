@@ -106,10 +106,103 @@ function renderAvailableTable() {
   if (tbody) renderRosterTable(tbody, players);
 }
 
+const DEFAULT_POSITION_TARGETS = { QB: 3, RB: 6, WR: 6, TE: 3, K: 2, DST: 2 };
+const RECOMMEND_PER_POSITION = 5;
+
+function countByPosition(players) {
+  const counts = {};
+  for (const p of players) {
+    const pos = (p.position || '').toUpperCase();
+    if (!pos) continue;
+    counts[pos] = (counts[pos] || 0) + 1;
+  }
+  return counts;
+}
+
+function bestAvailableAtPosition(availablePlayers, pos, limit) {
+  return availablePlayers
+    .filter((p) => (p.position || '').toUpperCase() === pos)
+    .slice()
+    .sort((a, b) => {
+      const ra = typeof a.ranking === 'number' ? a.ranking : Infinity;
+      const rb = typeof b.ranking === 'number' ? b.ranking : Infinity;
+      return ra - rb;
+    })
+    .slice(0, limit);
+}
+
+function renderMiniTable(players) {
+  if (players.length === 0) return '<p class="empty-note">No available players at this position.</p>';
+  const rows = players
+    .map((p) => {
+      const pos = (p.position || '').toUpperCase();
+      const rank = typeof p.ranking === 'number' ? p.ranking : (p.ranking || '—');
+      return `<tr>
+        <td class="player-name">${escapeHtml(p.name)}</td>
+        <td><span class="pos-badge" data-pos="${escapeHtml(pos)}">${escapeHtml(pos || '—')}</span></td>
+        <td class="player-nfl-team">${escapeHtml(p.nflTeam || '—')}</td>
+        <td class="player-ranking">${escapeHtml(String(rank))}</td>
+      </tr>`;
+    })
+    .join('');
+  return `
+    <table class="roster-table draft-mini-table">
+      <thead><tr><th>Player</th><th>Pos</th><th>NFL Team</th><th>Rank</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
+}
+
+function renderDraftBoard(league, myTeam) {
+  const section = document.getElementById('draftSection');
+  if (!section) return;
+  if (!myTeam) {
+    section.innerHTML = '';
+    return;
+  }
+
+  const targets = { ...DEFAULT_POSITION_TARGETS, ...(league.positionTargets || {}) };
+  const counts = countByPosition(myTeam.players);
+  const needs = Array.from(new Set([...Object.keys(targets), ...Object.keys(counts)]))
+    .filter((pos) => targets[pos] > 0)
+    .sort((a, b) => positionRank(a) - positionRank(b))
+    .map((pos) => ({ pos, count: counts[pos] || 0, target: targets[pos] }));
+
+  const summaryHtml = needs
+    .map((n) => `<span class="need-chip${n.count < n.target ? ' is-short' : ''}">${escapeHtml(n.pos)} ${n.count}/${n.target}</span>`)
+    .join('');
+
+  const shortPositions = needs.filter((n) => n.count < n.target).map((n) => n.pos);
+
+  let recommendationsHtml;
+  if (shortPositions.length === 0) {
+    const top = sortByPositionThenRanking(league.availablePlayers).slice(0, 10);
+    recommendationsHtml = `
+      <p class="draft-note">Your roster looks well-stocked everywhere (by these rough depth targets) — here's the best available overall.</p>
+      ${renderMiniTable(top)}
+    `;
+  } else {
+    recommendationsHtml = shortPositions
+      .map((pos) => `
+        <h3 class="draft-pos-heading">${escapeHtml(pos)} <span class="draft-pos-note">— below depth target</span></h3>
+        ${renderMiniTable(bestAvailableAtPosition(league.availablePlayers, pos, RECOMMEND_PER_POSITION))}
+      `)
+      .join('');
+  }
+
+  section.innerHTML = `
+    <h2 class="section-heading">Draft Recommendations</h2>
+    <div class="need-summary">${summaryHtml}</div>
+    <p class="draft-note draft-note-muted">Depth targets are a rough heuristic (roughly 2&times; your league's max starters at each position), not your league's actual bench rules.</p>
+    ${recommendationsHtml}
+  `;
+}
+
 function renderApp() {
   const league = currentLeague;
   app.innerHTML = `
     <section class="my-roster-section" id="myRosterSection"></section>
+    <section class="draft-section" id="draftSection"></section>
     <section class="league-section">
       <h2 class="section-heading">League Rosters</h2>
       <div class="team-list" id="teamList"></div>
@@ -139,6 +232,7 @@ function renderApp() {
     `;
     renderRosterTable(document.getElementById('myRosterBody'), myTeam.players);
   }
+  renderDraftBoard(league, myTeam);
 
   const teamList = document.getElementById('teamList');
   const otherTeams = league.teams.filter((t) => t.name !== league.myTeamName);

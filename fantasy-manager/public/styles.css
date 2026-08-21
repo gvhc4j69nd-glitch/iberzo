@@ -295,6 +295,60 @@ table.roster-table {
 .pos-badge[data-pos="DST"],
 .pos-badge[data-pos="DEF"] { background: var(--pos-dst); }
 
+.need-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.need-chip {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--ink-secondary);
+}
+
+.need-chip.is-short {
+  background: color-mix(in srgb, var(--error) 12%, var(--surface));
+  border-color: var(--error);
+  color: var(--error);
+}
+
+.draft-note {
+  font-size: 13px;
+  color: var(--ink-secondary);
+  margin: 4px 0 12px;
+}
+
+.draft-note-muted {
+  font-size: 11.5px;
+  font-style: italic;
+  color: var(--ink-muted);
+}
+
+.draft-pos-heading {
+  font-size: 13px;
+  font-weight: 700;
+  margin: 16px 0 8px;
+  color: var(--ink);
+}
+
+.draft-pos-note {
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--ink-muted);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.draft-mini-table {
+  margin-bottom: 4px;
+}
+
 .team-list {
   display: flex;
   flex-direction: column;

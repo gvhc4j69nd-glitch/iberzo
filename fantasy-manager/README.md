@@ -85,15 +85,25 @@ fantasy-manager/
     index.html, styles.css, app.js   # static frontend, no build step
 ```
 
+## Draft recommendations
+
+Once your team is selected, a "Draft Recommendations" section shows:
+
+- A depth-target summary per position — your current count vs. a rough
+  target (for MFL imports, derived from the league's actual starter limits,
+  roughly 2x the max starters at that position; for spreadsheet uploads, a
+  generic default). Positions below target are flagged.
+- For each below-target position, the best-ranked available players there.
+- If nothing's below target, the best available players overall instead.
+
+These targets are a heuristic for "how thin are you here", not your
+league's actual bench/roster rules.
+
 ## Roadmap
 
-This is step one: get league data in and organized. Planned next:
-
-- **Draft recommendations** — rank available players for your next pick,
-  weighing your roster's positional needs against the ranking column.
 - **Weekly lineup recommendations** — suggest who to start, factoring in
   each player's current injury/health status and their opponent's matchup
-  difficulty for the week. This needs two data sources the spreadsheet
-  doesn't carry today: live injury status and the weekly schedule/matchups
-  — likely a sports-data API, or a manually-maintained status column, to
-  be decided when we get there.
+  difficulty for the week. This needs two data sources not pulled in today:
+  live injury status (MFL likely has this, e.g. via a `TYPE=injuries`
+  export — not yet wired in) and the weekly schedule/matchups — to be
+  investigated when we get there.

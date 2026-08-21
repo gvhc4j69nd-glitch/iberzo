@@ -13,6 +13,13 @@ function normalizePosition(pos) {
   return p;
 }
 
+function parseMaxLimit(limitStr) {
+  if (!limitStr) return 0;
+  const parts = String(limitStr).split('-');
+  const max = Number(parts[parts.length - 1]);
+  return Number.isFinite(max) ? max : 0;
+}
+
 function formatPlayerName(rawName) {
   // MFL's player export typically formats names as "Last, First".
   if (!rawName) return '';
@@ -76,6 +83,18 @@ async function importMflLeague({ leagueId, year }) {
   const host = league.baseURL || MFL_API_HOST;
   const franchises = toArray(league.franchises && league.franchises.franchise);
 
+  // Rough depth target per position (~2x the league's max starters at that
+  // spot) — a heuristic for "how thin are you here", not the league's actual
+  // roster/bench rules.
+  const positionTargets = {};
+  for (const slot of toArray(league.starters && league.starters.position)) {
+    const key = normalizePosition(slot.name);
+    const maxStarters = parseMaxLimit(slot.limit);
+    if (key && maxStarters > 0) {
+      positionTargets[key] = Math.max(positionTargets[key] || 0, maxStarters * 2, maxStarters + 1);
+    }
+  }
+
   // TYPE=players and TYPE=adp are league-agnostic reference data and must go
   // through api.myfantasyleague.com; only league-scoped calls use the
   // league's own baseURL (MFL rejects the former on the latter host).
@@ -138,6 +157,7 @@ async function importMflLeague({ leagueId, year }) {
     teams,
     availablePlayers,
     generatedAt: new Date().toISOString(),
+    positionTargets,
   };
 }
 
