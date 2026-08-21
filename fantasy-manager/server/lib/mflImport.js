@@ -85,13 +85,16 @@ async function importMflLeague({ leagueId, year }) {
 
   // Rough depth target per position (~2x the league's max starters at that
   // spot) — a heuristic for "how thin are you here", not the league's actual
-  // roster/bench rules.
+  // roster/bench rules. starterSlots keeps the raw (undoubled) max-starters
+  // count, used for the weekly start/bench recommendation.
   const positionTargets = {};
+  const starterSlots = {};
   for (const slot of toArray(league.starters && league.starters.position)) {
     const key = normalizePosition(slot.name);
     const maxStarters = parseMaxLimit(slot.limit);
     if (key && maxStarters > 0) {
       positionTargets[key] = Math.max(positionTargets[key] || 0, maxStarters * 2, maxStarters + 1);
+      starterSlots[key] = Math.max(starterSlots[key] || 0, maxStarters);
     }
   }
 
@@ -134,6 +137,7 @@ async function importMflLeague({ leagueId, year }) {
     const base = playerById.get(id) || { name: `Unknown player (${id})`, nflTeam: '', position: '' };
     return {
       ...base,
+      mflId: id,
       ranking: adpById.has(id) ? adpById.get(id) : null,
       rosterStatus: rosterStatus || null,
     };
@@ -158,7 +162,8 @@ async function importMflLeague({ leagueId, year }) {
     availablePlayers,
     generatedAt: new Date().toISOString(),
     positionTargets,
+    starterSlots,
   };
 }
 
-module.exports = { importMflLeague };
+module.exports = { importMflLeague, mflFetch, toArray, normalizePosition, MFL_API_HOST };

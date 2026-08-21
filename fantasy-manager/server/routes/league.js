@@ -2,6 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const { parseSpreadsheet } = require('../lib/parseSpreadsheet');
 const { importMflLeague } = require('../lib/mflImport');
+const { getWeeklyLineupData } = require('../lib/mflWeekly');
 const { loadLeague, saveImport, setMyTeam } = require('../lib/store');
 
 const router = express.Router();
@@ -53,11 +54,33 @@ router.post('/import/mfl', express.json(), async (req, res) => {
     if (parsed.teams.length === 0) {
       return res.status(422).json({ error: 'MFL returned no franchises for that league/year. Double-check the league ID and season.' });
     }
-    const league = saveImport(parsed, 'mfl');
+    const league = saveImport({ ...parsed, mflYear: year, mflLeagueId: leagueId }, 'mfl');
     res.json(league);
   } catch (err) {
     console.error(`MFL import failed: ${err.stack}`);
     res.status(502).json({ error: `Couldn't import from MFL: ${err.message}` });
+  }
+});
+
+router.get('/lineup', async (req, res) => {
+  const week = req.query.week;
+  if (!week) {
+    return res.status(400).json({ error: 'week is required' });
+  }
+  const league = loadLeague();
+  if (league.source !== 'mfl') {
+    return res.status(400).json({ error: 'Weekly lineup check requires a league imported from MFL.' });
+  }
+  if (!league.myTeamName) {
+    return res.status(400).json({ error: 'Pick which team is yours before checking a weekly lineup.' });
+  }
+  const myTeam = league.teams.find((t) => t.name === league.myTeamName);
+  try {
+    const data = await getWeeklyLineupData({ year: league.mflYear, week, myTeam });
+    res.json({ ...data, starterSlots: league.starterSlots || {} });
+  } catch (err) {
+    console.error(`Weekly lineup check failed: ${err.stack}`);
+    res.status(502).json({ error: `Couldn't check this week's status: ${err.message}` });
   }
 });
 

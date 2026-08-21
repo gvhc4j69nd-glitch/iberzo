@@ -26,6 +26,14 @@ const POSITION_ORDER = ['QB', 'RB', 'WR', 'TE', 'FLEX', 'K', 'DST', 'DEF'];
 let currentLeague = null;
 const availableFilter = { query: '', position: 'ALL' };
 
+function formatTimestamp(iso) {
+  try {
+    return new Date(iso).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+  } catch {
+    return '';
+  }
+}
+
 function escapeHtml(str) {
   const div = document.createElement('div');
   div.textContent = str;
@@ -108,6 +116,133 @@ function renderAvailableTable() {
 
 const DEFAULT_POSITION_TARGETS = { QB: 3, RB: 6, WR: 6, TE: 3, K: 2, DST: 2 };
 const RECOMMEND_PER_POSITION = 5;
+
+const DEFAULT_STARTER_SLOTS = { QB: 1, RB: 2, WR: 2, TE: 1, K: 1, DST: 1 };
+const DEFINITELY_OUT_STATUSES = new Set(['OUT', 'O', 'IR', 'INJURED RESERVE', 'RETIRED', 'PUP', 'SUSPENDED']);
+let lastWeeklyInput = '';
+
+function isUnavailableThisWeek(player) {
+  if (player.isBye) return true;
+  return DEFINITELY_OUT_STATUSES.has((player.injuryStatus || '').toUpperCase());
+}
+
+function renderWeeklyResults(data) {
+  const container = document.getElementById('weeklyResults');
+  if (!container) return;
+  const starterSlots = { ...DEFAULT_STARTER_SLOTS, ...(data.starterSlots || {}) };
+  const byPos = {};
+  for (const p of data.players) {
+    const pos = (p.position || '').toUpperCase();
+    if (!pos) continue;
+    (byPos[pos] = byPos[pos] || []).push(p);
+  }
+  const positions = Object.keys(byPos).sort((a, b) => positionRank(a) - positionRank(b));
+
+  const html = positions
+    .map((pos) => {
+      const players = byPos[pos].slice().sort((a, b) => {
+        const ra = typeof a.ranking === 'number' ? a.ranking : Infinity;
+        const rb = typeof b.ranking === 'number' ? b.ranking : Infinity;
+        return ra - rb;
+      });
+      const slotCount = starterSlots[pos] || 1;
+      let started = 0;
+
+      const rows = players
+        .map((p) => {
+          const unavailable = isUnavailableThisWeek(p);
+          let role = 'bench';
+          if (!unavailable && started < slotCount) {
+            role = 'start';
+            started += 1;
+          }
+
+          const rankNotes = [];
+          if (p.oppRushDefenseRank != null) rankNotes.push(`Rush D #${p.oppRushDefenseRank}`);
+          if (p.oppPassDefenseRank != null) rankNotes.push(`Pass D #${p.oppPassDefenseRank}`);
+          const oppMain = p.isBye ? 'BYE' : p.opponent ? `${p.isHome ? 'vs' : '@'} ${escapeHtml(p.opponent)}` : '—';
+          const oppText = rankNotes.length
+            ? `${oppMain}<br/><span class="opp-rank-note">${escapeHtml(rankNotes.join(' · '))}</span>`
+            : oppMain;
+
+          const injuryHtml = p.injuryStatus
+            ? `<span class="injury-badge">${escapeHtml(p.injuryStatus)}</span>`
+            : '—';
+          const rank = typeof p.ranking === 'number' ? p.ranking : (p.ranking || '—');
+
+          return `<tr class="lineup-row">
+            <td class="player-name">${escapeHtml(p.name)}</td>
+            <td class="player-nfl-team">${escapeHtml(p.nflTeam || '—')}</td>
+            <td>${oppText}</td>
+            <td>${injuryHtml}</td>
+            <td class="player-ranking">${escapeHtml(String(rank))}</td>
+            <td><span class="role-badge role-${role}">${role === 'start' ? 'Start' : 'Bench'}</span></td>
+          </tr>`;
+        })
+        .join('');
+
+      return `
+        <h3 class="draft-pos-heading">${escapeHtml(pos)}</h3>
+        <table class="roster-table lineup-table">
+          <thead><tr><th>Player</th><th>NFL Team</th><th>Opponent</th><th>Status</th><th>Rank</th><th></th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+    })
+    .join('');
+
+  container.innerHTML = html || '<p class="empty-note">No players to show.</p>';
+}
+
+function renderWeeklySection(league) {
+  const section = document.getElementById('weeklySection');
+  if (!section) return;
+  if (league.source !== 'mfl' || !league.myTeamName) {
+    section.innerHTML = '';
+    return;
+  }
+
+  section.innerHTML = `
+    <h2 class="section-heading">Weekly Lineup Check</h2>
+    <form id="weeklyForm" class="mfl-form">
+      <span class="mfl-label">Week:</span>
+      <input id="weeklyWeekInput" type="text" inputmode="numeric" placeholder="e.g. 1" value="${escapeHtml(lastWeeklyInput)}" style="width: 60px" />
+      <button type="submit" class="btn btn-primary" id="weeklyCheckBtn">Check This Week</button>
+    </form>
+    <p id="weeklyStatus" class="upload-status" hidden></p>
+    <div id="weeklyResults"></div>
+  `;
+
+  document.getElementById('weeklyForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const week = document.getElementById('weeklyWeekInput').value.trim();
+    lastWeeklyInput = week;
+    if (!week) return;
+
+    const btn = document.getElementById('weeklyCheckBtn');
+    const status = document.getElementById('weeklyStatus');
+    btn.disabled = true;
+    status.hidden = false;
+    status.classList.remove('is-error');
+    status.textContent = 'Checking live status…';
+
+    try {
+      const res = await fetch(`/api/lineup?week=${encodeURIComponent(week)}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || `Server responded ${res.status}`);
+      status.hidden = false;
+      status.textContent = `Week ${data.week} — checked ${formatTimestamp(data.generatedAt)}`;
+      renderWeeklyResults(data);
+    } catch (err) {
+      status.hidden = false;
+      status.classList.add('is-error');
+      status.textContent = err.message;
+      document.getElementById('weeklyResults').innerHTML = '';
+    } finally {
+      btn.disabled = false;
+    }
+  });
+}
 
 function countByPosition(players) {
   const counts = {};
@@ -202,6 +337,7 @@ function renderApp() {
   const league = currentLeague;
   app.innerHTML = `
     <section class="my-roster-section" id="myRosterSection"></section>
+    <section class="weekly-section" id="weeklySection"></section>
     <section class="draft-section" id="draftSection"></section>
     <section class="league-section">
       <h2 class="section-heading">League Rosters</h2>
@@ -232,6 +368,7 @@ function renderApp() {
     `;
     renderRosterTable(document.getElementById('myRosterBody'), myTeam.players);
   }
+  renderWeeklySection(league);
   renderDraftBoard(league, myTeam);
 
   const teamList = document.getElementById('teamList');

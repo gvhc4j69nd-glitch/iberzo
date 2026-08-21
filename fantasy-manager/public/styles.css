@@ -349,6 +349,46 @@ table.roster-table {
   margin-bottom: 4px;
 }
 
+.injury-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--error) 14%, var(--surface));
+  color: var(--error);
+  border: 1px solid var(--error);
+}
+
+.role-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.role-badge.role-start {
+  background: color-mix(in srgb, var(--accent) 16%, var(--surface));
+  color: var(--accent);
+}
+
+.role-badge.role-bench {
+  background: var(--surface-alt);
+  color: var(--ink-muted);
+}
+
+.opp-rank-note {
+  font-size: 11px;
+  color: var(--ink-muted);
+}
+
+.lineup-table {
+  margin-bottom: 14px;
+}
+
 .team-list {
   display: flex;
   flex-direction: column;

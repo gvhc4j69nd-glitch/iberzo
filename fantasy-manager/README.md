@@ -99,11 +99,26 @@ Once your team is selected, a "Draft Recommendations" section shows:
 These targets are a heuristic for "how thin are you here", not your
 league's actual bench/roster rules.
 
+## Weekly lineup check
+
+For MFL-imported leagues, once your team is picked, a "Weekly Lineup
+Check" box lets you enter a week number and fetches — fresh, every time,
+never cached — that week's injury report and NFL schedule from MFL. Your
+roster is grouped by position with:
+
+- **Start/Bench** — the best-ranked healthy players fill your league's
+  actual starter slots per position; anyone Out, on IR, Retired, or on a
+  bye is automatically benched (Questionable/Doubtful players are flagged
+  but still eligible, since they're not confirmed out).
+- **Opponent** for the week (or BYE), plus the opponent's pass/rush
+  defense rank when MFL has published it (usually empty before the season
+  starts or before enough games have been played for a rank to exist —
+  shown only when present, with no claim about which direction is
+  favorable, since that wasn't verified against real in-season data).
+- **Injury status**, straight from MFL's injury report.
+
 ## Roadmap
 
-- **Weekly lineup recommendations** — suggest who to start, factoring in
-  each player's current injury/health status and their opponent's matchup
-  difficulty for the week. This needs two data sources not pulled in today:
-  live injury status (MFL likely has this, e.g. via a `TYPE=injuries`
-  export — not yet wired in) and the weekly schedule/matchups — to be
-  investigated when we get there.
+- Real matchup-*difficulty* scoring (translating the defense-rank numbers
+  above into an actual "good/bad matchup" signal) once there's live
+  in-season data to calibrate against.
