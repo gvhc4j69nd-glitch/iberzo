@@ -1,21 +1,9 @@
 const express = require('express');
-const multer = require('multer');
-const { parseSpreadsheet } = require('../lib/parseSpreadsheet');
 const { importMflLeague } = require('../lib/mflImport');
 const { getWeeklyLineupData } = require('../lib/mflWeekly');
 const { loadLeague, saveImport, setMyTeam } = require('../lib/store');
 
 const router = express.Router();
-
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 10 * 1024 * 1024 },
-  fileFilter: (req, file, cb) => {
-    const okExt = /\.xlsx$/i.test(file.originalname);
-    const okMime = file.mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-    cb(null, okExt || okMime);
-  },
-});
 
 router.get('/league', async (req, res) => {
   try {
@@ -23,23 +11,6 @@ router.get('/league', async (req, res) => {
   } catch (err) {
     console.error(`Failed to load league: ${err.stack}`);
     res.status(500).json({ error: 'Failed to load league data' });
-  }
-});
-
-router.post('/upload', upload.single('spreadsheet'), async (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: 'Upload a .xlsx file as "spreadsheet"' });
-  }
-  try {
-    const parsed = await parseSpreadsheet(req.file.buffer);
-    if (parsed.teams.length === 0 && parsed.availablePlayers.length === 0) {
-      return res.status(422).json({ error: 'No player rows found. Check that each sheet has a header row with player name/team/position/ranking columns.' });
-    }
-    const league = await saveImport(parsed, 'upload');
-    res.json(league);
-  } catch (err) {
-    console.error(`Failed to parse upload: ${err.stack}`);
-    res.status(422).json({ error: `Couldn't read that spreadsheet: ${err.message}` });
   }
 });
 

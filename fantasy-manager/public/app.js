@@ -1,8 +1,4 @@
 const app = document.getElementById('app');
-const uploadForm = document.getElementById('uploadForm');
-const fileInput = document.getElementById('fileInput');
-const fileNameEl = document.getElementById('fileName');
-const uploadBtn = document.getElementById('uploadBtn');
 const uploadStatus = document.getElementById('uploadStatus');
 const sourceBadge = document.getElementById('sourceBadge');
 const mflForm = document.getElementById('mflForm');
@@ -566,39 +562,6 @@ function showUploadStatus(message, isError) {
   uploadStatus.textContent = message;
   uploadStatus.classList.toggle('is-error', Boolean(isError));
 }
-
-uploadForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const file = fileInput.files[0];
-  if (!file) {
-    showUploadStatus('Choose a .xlsx file first.', true);
-    return;
-  }
-  const formData = new FormData();
-  formData.append('spreadsheet', file);
-  uploadBtn.disabled = true;
-  showUploadStatus('Uploading…', false);
-  try {
-    const res = await fetch('/api/upload', { method: 'POST', body: formData });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || `Server responded ${res.status}`);
-    applyLeague(data);
-    showUploadStatus(
-      `Loaded ${data.teams.length} team(s) and ${data.availablePlayers.length} available player(s).`,
-      false
-    );
-    fileInput.value = '';
-    fileNameEl.textContent = 'Choose .xlsx…';
-  } catch (err) {
-    showUploadStatus(err.message, true);
-  } finally {
-    uploadBtn.disabled = false;
-  }
-});
-
-fileInput.addEventListener('change', () => {
-  fileNameEl.textContent = fileInput.files[0] ? fileInput.files[0].name : 'Choose .xlsx…';
-});
 
 myTeamSave.addEventListener('click', async () => {
   const teamName = myTeamSelect.value;

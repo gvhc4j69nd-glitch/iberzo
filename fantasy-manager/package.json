@@ -1,7 +1,7 @@
 {
   "name": "fantasy-manager",
   "version": "1.0.0",
-  "description": "Upload your fantasy football league's rosters and available players from a spreadsheet, and get draft/lineup help.",
+  "description": "Import your fantasy football league from MyFantasyLeague and get draft/lineup help.",
   "main": "server/index.js",
   "scripts": {
     "start": "node server/index.js",
@@ -14,9 +14,7 @@
   "type": "commonjs",
   "dependencies": {
     "dotenv": "^17.4.2",
-    "exceljs": "^4.4.0",
     "express": "^5.2.1",
-    "multer": "^2.2.0",
     "pg": "^8.23.0"
   }
 }

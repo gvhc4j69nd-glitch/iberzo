@@ -1,35 +1,26 @@
 # Fantasy Manager
 
-Upload your fantasy football league as a spreadsheet and see every roster —
-yours, your league-mates', and the available player pool — in one place.
+Import your fantasy football league from MyFantasyLeague and see every
+roster — yours, your league-mates', and the available player pool — in
+one place, plus draft and weekly-lineup help.
 
 ## How it works
 
-Get league data in one of two ways:
+**Import from MyFantasyLeague** — enter a league ID and season year and
+click Import. Works for any publicly-viewable MFL league, no credentials
+needed. Pulls franchises, rosters (including taxi squad / IR status, shown
+as a tag next to the player's name), the free-agent pool, bye weeks,
+current injury status, and average draft position as a ranking proxy, via
+MFL's export API (`api.myfantasyleague.com/{year}/export?TYPE=...`).
 
-1. **Upload** a `.xlsx` workbook with one sheet per fantasy team's roster,
-   plus one sheet for available/free-agent players (matched by name —
-   "Available", "Free Agents", "Waivers", etc.). Each sheet needs a header
-   row with these columns (flexible naming):
-   - **Player Name** (or "Name")
-   - **Team** (NFL team, e.g. "BUF")
-   - **Position** (e.g. "QB", "RB", "WR", "TE", "K", "DST")
-   - **Ranking** (a number — lower is better)
-2. **Import from MyFantasyLeague** — enter a league ID and season year and
-   click Import. Works for any publicly-viewable MFL league, no credentials
-   needed. Pulls franchises, rosters (including taxi squad / IR status,
-   shown as a tag next to the player's name), the free-agent pool, and
-   average draft position as a ranking proxy, via MFL's export API
-   (`api.myfantasyleague.com/{year}/export?TYPE=...`).
-
-Either way, then:
+Then:
 
 - **Pick which roster is yours** from the detected teams.
 - **Browse**: your roster grouped by position, every other team's roster
   (collapsible), and a searchable/filterable available-players pool.
 
-Without any upload or import, the site runs on a bundled sample league so
-you can see the UI immediately.
+Without an import, the site runs on a bundled sample league so you can see
+the UI immediately.
 
 ### A note on the MFL import
 
@@ -74,9 +65,10 @@ survives redeploys and restarts — no re-importing needed.
 `server/data/league.json` (gitignored) instead, which only survives a
 plain restart, not a fresh deploy/checkout.
 
-Either way, uploading a new spreadsheet or re-running an MFL import
-replaces the stored league entirely and clears the "which roster is
-mine" selection, since team names may have changed.
+Either way, re-running an MFL import replaces the stored league entirely
+and clears the "which roster is mine" selection, since team names may
+have changed — use the Update button instead to refresh in place and
+keep your team selection (see below).
 
 ### Connecting to Railway's Postgres
 
@@ -93,9 +85,8 @@ paste the raw connection string in by hand if you can avoid it.
 fantasy-manager/
   server/
     index.js              # Express app entrypoint
-    routes/league.js       # GET /api/league, POST /api/upload, POST /api/league/my-team
+    routes/league.js       # GET /api/league, POST /api/import/mfl, POST /api/league/refresh, POST /api/league/my-team
     lib/
-      parseSpreadsheet.js  # multi-sheet .xlsx -> teams / available players
       mflImport.js          # MyFantasyLeague export API -> teams / available players
       mflClient.js           # shared MFL fetch/parsing helpers
       mflInjuries.js         # shared injury-report fetch (used by import + weekly check)
@@ -103,7 +94,7 @@ fantasy-manager/
       db.js                  # Postgres connection + schema
       store.js              # persistence (Postgres or file) + "my team" selection
     data/
-      sample-league.json    # bundled demo league (no upload needed)
+      sample-league.json    # bundled demo league (no import needed)
   public/
     index.html, styles.css, app.js   # static frontend, no build step
 ```
@@ -114,8 +105,8 @@ Once your team is selected, a "Draft Recommendations" section shows:
 
 - A depth-target summary per position — your current count vs. a rough
   target (for MFL imports, derived from the league's actual starter limits,
-  roughly 2x the max starters at that position; for spreadsheet uploads, a
-  generic default). Positions below target are flagged.
+  roughly 2x the max starters at that position; a generic default otherwise,
+  e.g. for the bundled sample league). Positions below target are flagged.
 - **Best Draft Order** — the top 50 available players ranked purely by
   ADP/ranking (a single cross-position list, since that's what ADP is
   for), with a "Need" tag on positions below your depth target.
