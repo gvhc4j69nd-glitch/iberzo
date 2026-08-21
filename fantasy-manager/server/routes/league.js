@@ -62,6 +62,27 @@ router.post('/import/mfl', express.json(), async (req, res) => {
   }
 });
 
+router.post('/league/refresh', async (req, res) => {
+  const current = await loadLeague();
+  if (current.source !== 'mfl' || !current.mflLeagueId || !current.mflYear) {
+    return res.status(400).json({ error: 'No prior MFL import to refresh — use Import first.' });
+  }
+  try {
+    const parsed = await importMflLeague({ leagueId: current.mflLeagueId, year: current.mflYear });
+    if (parsed.teams.length === 0) {
+      return res.status(422).json({ error: 'MFL returned no franchises on refresh. Double-check the league is still reachable.' });
+    }
+    let league = await saveImport({ ...parsed, mflYear: current.mflYear, mflLeagueId: current.mflLeagueId }, 'mfl');
+    if (current.myTeamName && league.teams.some((t) => t.name === current.myTeamName)) {
+      league = await setMyTeam(current.myTeamName);
+    }
+    res.json(league);
+  } catch (err) {
+    console.error(`MFL refresh failed: ${err.stack}`);
+    res.status(502).json({ error: `Couldn't refresh from MFL: ${err.message}` });
+  }
+});
+
 router.get('/lineup', async (req, res) => {
   const week = req.query.week;
   if (!week) {

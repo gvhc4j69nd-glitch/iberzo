@@ -114,11 +114,27 @@ Once your team is selected, a "Draft Recommendations" section shows:
   target (for MFL imports, derived from the league's actual starter limits,
   roughly 2x the max starters at that position; for spreadsheet uploads, a
   generic default). Positions below target are flagged.
-- For each below-target position, the best-ranked available players there.
-- If nothing's below target, the best available players overall instead.
+- **Best Draft Order** — the top 50 available players ranked purely by
+  ADP/ranking (a single cross-position list, since that's what ADP is
+  for), with a "Need" tag on positions below your depth target.
+- Per-position breakdowns of the best-ranked available players at each
+  below-target position, or the best available overall if nothing's short.
 
 These targets are a heuristic for "how thin are you here", not your
 league's actual bench/roster rules.
+
+## Keeping data current — no local roster editing
+
+MFL is the source of truth for this league: the live draft happens in
+MFL's draft room, and roster moves happen through MFL's real waiver
+system. This app deliberately does **not** let you edit rosters locally
+(drop/add players, manually mark draft picks) — that would create a
+second, divergent version of "the truth" and require re-entering every
+real transaction by hand. Instead, an **Update** button appears next to
+Import once a league's been imported from MFL — it re-fetches everything
+(rosters, free agents, rankings) using the same league ID/season, without
+needing to re-enter them, and preserves your team selection if that team
+still exists in the refreshed data.
 
 ## Weekly lineup check
 

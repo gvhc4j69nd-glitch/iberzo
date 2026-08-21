@@ -9,6 +9,7 @@ const mflForm = document.getElementById('mflForm');
 const mflLeagueId = document.getElementById('mflLeagueId');
 const mflYear = document.getElementById('mflYear');
 const mflImportBtn = document.getElementById('mflImportBtn');
+const mflUpdateBtn = document.getElementById('mflUpdateBtn');
 
 const ROSTER_STATUS_TAG = {
   TAXI_SQUAD: 'Taxi',
@@ -347,6 +348,33 @@ function renderMiniTable(players) {
   `;
 }
 
+const BEST_DRAFT_ORDER_LIMIT = 50;
+
+function renderBestDraftOrderTable(players, shortPositionsSet) {
+  if (players.length === 0) return '<p class="empty-note">No available players.</p>';
+  const rows = players
+    .map((p, i) => {
+      const pos = (p.position || '').toUpperCase();
+      const rank = typeof p.ranking === 'number' ? p.ranking : (p.ranking || '—');
+      const needTag = shortPositionsSet.has(pos) ? '<span class="role-badge role-start">Need</span>' : '';
+      return `<tr>
+        <td class="player-ranking">${i + 1}</td>
+        <td class="player-name">${escapeHtml(p.name)}</td>
+        <td><span class="pos-badge" data-pos="${escapeHtml(pos)}">${escapeHtml(pos || '—')}</span></td>
+        <td class="player-nfl-team">${escapeHtml(p.nflTeam || '—')}</td>
+        <td class="player-ranking">${escapeHtml(String(rank))}</td>
+        <td>${needTag}</td>
+      </tr>`;
+    })
+    .join('');
+  return `
+    <table class="roster-table draft-mini-table">
+      <thead><tr><th>#</th><th>Player</th><th>Pos</th><th>NFL Team</th><th>Rank</th><th></th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
+}
+
 function renderDraftBoard(league, myTeam) {
   const section = document.getElementById('draftSection');
   if (!section) return;
@@ -367,6 +395,16 @@ function renderDraftBoard(league, myTeam) {
     .join('');
 
   const shortPositions = needs.filter((n) => n.count < n.target).map((n) => n.pos);
+  const shortPositionsSet = new Set(shortPositions);
+
+  const bestOrder = league.availablePlayers
+    .slice()
+    .sort((a, b) => rankOf(a) - rankOf(b))
+    .slice(0, BEST_DRAFT_ORDER_LIMIT);
+  const bestOrderHtml = `
+    <h3 class="draft-pos-heading">Best Draft Order <span class="draft-pos-note">— top ${bestOrder.length} available, by rank</span></h3>
+    ${renderBestDraftOrderTable(bestOrder, shortPositionsSet)}
+  `;
 
   let recommendationsHtml;
   if (shortPositions.length === 0) {
@@ -388,6 +426,7 @@ function renderDraftBoard(league, myTeam) {
     <h2 class="section-heading">Draft Recommendations</h2>
     <div class="need-summary">${summaryHtml}</div>
     <p class="draft-note draft-note-muted">Depth targets are a rough heuristic (roughly 2&times; your league's max starters at each position), not your league's actual bench rules.</p>
+    ${bestOrderHtml}
     ${recommendationsHtml}
   `;
 }
@@ -487,6 +526,7 @@ function applyLeague(data) {
   const badgeText = SOURCE_BADGE_TEXT[data.source];
   sourceBadge.hidden = !badgeText;
   if (badgeText) sourceBadge.textContent = badgeText;
+  mflUpdateBtn.hidden = data.source !== 'mfl';
   updateMyTeamPrompt(data);
   renderApp();
 }
@@ -590,6 +630,25 @@ mflForm.addEventListener('submit', async (e) => {
     showUploadStatus(err.message, true);
   } finally {
     mflImportBtn.disabled = false;
+  }
+});
+
+mflUpdateBtn.addEventListener('click', async () => {
+  mflUpdateBtn.disabled = true;
+  showUploadStatus('Refreshing from MFL…', false);
+  try {
+    const res = await fetch('/api/league/refresh', { method: 'POST' });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || `Server responded ${res.status}`);
+    applyLeague(data);
+    showUploadStatus(
+      `Refreshed: ${data.teams.length} team(s), ${data.availablePlayers.length} available player(s).`,
+      false
+    );
+  } catch (err) {
+    showUploadStatus(err.message, true);
+  } finally {
+    mflUpdateBtn.disabled = false;
   }
 });
 

@@ -138,6 +138,21 @@ body {
   cursor: default;
 }
 
+.btn-secondary {
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--border);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+.btn-secondary:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
 .mfl-form {
   display: flex;
   align-items: center;
