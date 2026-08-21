@@ -71,7 +71,7 @@ async function importMflLeague({ leagueId, year }) {
   // TYPE=players and TYPE=adp are league-agnostic reference data and must go
   // through api.myfantasyleague.com; only league-scoped calls use the
   // league's own baseURL (MFL rejects the former on the latter host).
-  const [playersData, rostersData, freeAgentsData, adpData, injuryById] = await Promise.all([
+  const [playersData, rostersData, freeAgentsData, adpData, injuryById, byeWeeksData] = await Promise.all([
     mflFetch(MFL_API_HOST, year, 'players', null, { DETAILS: '1' }),
     mflFetch(host, year, 'rosters', leagueId),
     mflFetch(host, year, 'freeAgents', leagueId),
@@ -83,7 +83,19 @@ async function importMflLeague({ leagueId, year }) {
       console.error(`MFL injuries fetch failed (non-fatal, injury status will be unavailable): ${err.message}`);
       return new Map();
     }),
+    mflFetch(MFL_API_HOST, year, 'nflByeWeeks', null).catch((err) => {
+      console.error(`MFL bye weeks fetch failed (non-fatal, bye weeks will be unavailable): ${err.message}`);
+      return null;
+    }),
   ]);
+
+  const byeWeekByTeam = new Map();
+  if (byeWeeksData) {
+    for (const t of toArray(byeWeeksData.nflByeWeeks && byeWeeksData.nflByeWeeks.team)) {
+      const week = Number(t.bye_week);
+      if (t.id && Number.isFinite(week)) byeWeekByTeam.set(t.id, week);
+    }
+  }
 
   const playerById = new Map();
   for (const p of toArray(playersData.players && playersData.players.player)) {
@@ -118,6 +130,7 @@ async function importMflLeague({ leagueId, year }) {
       rosterStatus: rosterStatus || null,
       injuryStatus: injury ? injury.status : null,
       injuryDetails: injury ? injury.details : null,
+      byeWeek: byeWeekByTeam.has(base.nflTeam) ? byeWeekByTeam.get(base.nflTeam) : null,
     };
   }
 

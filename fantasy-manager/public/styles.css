@@ -375,6 +375,12 @@ table.roster-table {
   border: 1px solid var(--error);
 }
 
+.bye-note {
+  font-size: 11px;
+  color: var(--ink-muted);
+  font-style: italic;
+}
+
 .injury-link {
   font-size: 11px;
   color: var(--ink-muted);

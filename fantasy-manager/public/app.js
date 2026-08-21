@@ -75,7 +75,14 @@ function renderPlayerRow(player) {
   const pos = (player.position || '').toUpperCase();
   badge.textContent = pos || '—';
   badge.dataset.pos = pos;
-  node.querySelector('.player-nfl-team').textContent = player.nflTeam || '—';
+  const teamCell = node.querySelector('.player-nfl-team');
+  teamCell.textContent = player.nflTeam || '—';
+  if (typeof player.byeWeek === 'number') {
+    const byeNote = document.createElement('span');
+    byeNote.className = 'bye-note';
+    byeNote.textContent = ` (Bye ${player.byeWeek})`;
+    teamCell.appendChild(byeNote);
+  }
   node.querySelector('.player-ranking').textContent =
     typeof player.ranking === 'number' ? player.ranking : (player.ranking || '—');
   return node;

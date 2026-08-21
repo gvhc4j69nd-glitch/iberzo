@@ -125,6 +125,13 @@ Once your team is selected, a "Draft Recommendations" section shows:
 These targets are a heuristic for "how thin are you here", not your
 league's actual bench/roster rules.
 
+## Bye weeks on every roster
+
+Every player row also shows their team's bye week for the season (e.g.
+"DAL (Bye 14)"), pulled once via MFL's dedicated `TYPE=nflByeWeeks`
+export during import/Update — no per-week lookup needed, since bye weeks
+don't change during the season.
+
 ## Injury status on every roster
 
 Every player row (My Roster, League Rosters, Available Players) shows a
