@@ -412,6 +412,12 @@ table.roster-table {
   color: var(--ink-muted);
 }
 
+.role-badge.role-bye {
+  background: var(--surface-alt);
+  color: var(--ink-muted);
+  font-style: italic;
+}
+
 .opp-rank-note {
   font-size: 11px;
   color: var(--ink-muted);

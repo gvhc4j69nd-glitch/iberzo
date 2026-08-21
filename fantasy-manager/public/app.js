@@ -145,6 +145,7 @@ const DEFAULT_STARTER_SLOTS = {
   DST: { min: 1, max: 1 },
 };
 const DEFINITELY_OUT_STATUSES = new Set(['OUT', 'O', 'IR', 'INJURED RESERVE', 'RETIRED', 'PUP', 'SUSPENDED']);
+const ROLE_BADGE_LABEL = { start: 'Start', bye: 'Bye', bench: 'Bench' };
 let lastWeeklyInput = '';
 
 function isUnavailableThisWeek(player) {
@@ -233,7 +234,7 @@ function renderWeeklyResults(data) {
 
       const rows = players
         .map((p) => {
-          const role = started.has(playerKey(p)) ? 'start' : 'bench';
+          const role = p.isBye ? 'bye' : started.has(playerKey(p)) ? 'start' : 'bench';
 
           const rankNotes = [];
           if (p.oppRushDefenseRank != null) rankNotes.push(`Rush D #${p.oppRushDefenseRank}`);
@@ -254,7 +255,7 @@ function renderWeeklyResults(data) {
             <td>${oppText}</td>
             <td>${injuryHtml}</td>
             <td class="player-ranking">${escapeHtml(String(rank))}</td>
-            <td><span class="role-badge role-${role}">${role === 'start' ? 'Start' : 'Bench'}</span></td>
+            <td><span class="role-badge role-${role}">${ROLE_BADGE_LABEL[role]}</span></td>
           </tr>`;
         })
         .join('');
