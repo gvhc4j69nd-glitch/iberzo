@@ -107,9 +107,16 @@ Once your team is selected, a "Draft Recommendations" section shows:
   target (for MFL imports, derived from the league's actual starter limits,
   roughly 2x the max starters at that position; a generic default otherwise,
   e.g. for the bundled sample league). Positions below target are flagged.
-- **Best Draft Order** — the top 50 available players ranked purely by
-  ADP/ranking (a single cross-position list, since that's what ADP is
-  for), with a "Need" tag on positions below your depth target.
+- **Best Draft Order** — the top 50 available players with ADP data,
+  ranked purely by that number (a single cross-position list, since
+  that's what ADP is for), with a "Need" tag on positions below your
+  depth target.
+- **Unranked** — available players with no ADP data yet (e.g. rookies
+  freshly added to the pool, before enough drafts have happened
+  league-wide for MFL to have consensus data on them). Shown separately
+  rather than silently sorted to the bottom of Best Draft Order and
+  potentially cut off past the top 50 — no rank number is guessed for
+  them.
 - Per-position breakdowns of the best-ranked available players at each
   below-target position, or the best available overall if nothing's short.
 

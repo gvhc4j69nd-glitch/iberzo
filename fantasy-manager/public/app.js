@@ -364,16 +364,18 @@ function renderMiniTable(players) {
 }
 
 const BEST_DRAFT_ORDER_LIMIT = 50;
+const UNRANKED_LIMIT = 50;
 
-function renderBestDraftOrderTable(players, shortPositionsSet) {
+function renderBestDraftOrderTable(players, shortPositionsSet, { numbered = true } = {}) {
   if (players.length === 0) return '<p class="empty-note">No available players.</p>';
   const rows = players
     .map((p, i) => {
       const pos = (p.position || '').toUpperCase();
       const rank = typeof p.ranking === 'number' ? p.ranking : (p.ranking || '—');
       const needTag = shortPositionsSet.has(pos) ? '<span class="role-badge role-start">Need</span>' : '';
+      const numberCell = numbered ? `<td class="player-ranking">${i + 1}</td>` : '';
       return `<tr>
-        <td class="player-ranking">${i + 1}</td>
+        ${numberCell}
         <td class="player-name">${escapeHtml(p.name)}</td>
         <td><span class="pos-badge" data-pos="${escapeHtml(pos)}">${escapeHtml(pos || '—')}</span></td>
         <td class="player-nfl-team">${escapeHtml(p.nflTeam || '—')}</td>
@@ -382,9 +384,10 @@ function renderBestDraftOrderTable(players, shortPositionsSet) {
       </tr>`;
     })
     .join('');
+  const numberHeader = numbered ? '<th>#</th>' : '';
   return `
     <table class="roster-table draft-mini-table">
-      <thead><tr><th>#</th><th>Player</th><th>Pos</th><th>NFL Team</th><th>Rank</th><th></th></tr></thead>
+      <thead><tr>${numberHeader}<th>Player</th><th>Pos</th><th>NFL Team</th><th>Rank</th><th></th></tr></thead>
       <tbody>${rows}</tbody>
     </table>
   `;
@@ -412,7 +415,10 @@ function renderDraftBoard(league, myTeam) {
   const shortPositions = needs.filter((n) => n.count < n.target).map((n) => n.pos);
   const shortPositionsSet = new Set(shortPositions);
 
-  const bestOrder = league.availablePlayers
+  const rankedAvailable = league.availablePlayers.filter((p) => typeof p.ranking === 'number');
+  const unrankedAvailable = league.availablePlayers.filter((p) => typeof p.ranking !== 'number');
+
+  const bestOrder = rankedAvailable
     .slice()
     .sort((a, b) => rankOf(a) - rankOf(b))
     .slice(0, BEST_DRAFT_ORDER_LIMIT);
@@ -420,6 +426,17 @@ function renderDraftBoard(league, myTeam) {
     <h3 class="draft-pos-heading">Best Draft Order <span class="draft-pos-note">— top ${bestOrder.length} available, by rank</span></h3>
     ${renderBestDraftOrderTable(bestOrder, shortPositionsSet)}
   `;
+
+  const unrankedSorted = unrankedAvailable
+    .slice()
+    .sort((a, b) => positionRank((a.position || '').toUpperCase()) - positionRank((b.position || '').toUpperCase()) || a.name.localeCompare(b.name))
+    .slice(0, UNRANKED_LIMIT);
+  const unrankedHtml = unrankedAvailable.length
+    ? `
+      <h3 class="draft-pos-heading">Unranked <span class="draft-pos-note">— no ADP data yet (${unrankedAvailable.length} player${unrankedAvailable.length === 1 ? '' : 's'}, e.g. brand-new rookies)</span></h3>
+      ${renderBestDraftOrderTable(unrankedSorted, shortPositionsSet, { numbered: false })}
+    `
+    : '';
 
   let recommendationsHtml;
   if (shortPositions.length === 0) {
@@ -442,6 +459,7 @@ function renderDraftBoard(league, myTeam) {
     <div class="need-summary">${summaryHtml}</div>
     <p class="draft-note draft-note-muted">Depth targets are a rough heuristic (roughly 2&times; your league's max starters at each position), not your league's actual bench rules.</p>
     ${bestOrderHtml}
+    ${unrankedHtml}
     ${recommendationsHtml}
   `;
 }
