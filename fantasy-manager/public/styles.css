@@ -354,13 +354,12 @@ table.roster-table {
   font-style: italic;
 }
 
-.injury-link {
-  font-size: 11px;
-  color: var(--ink-muted);
+.player-name-link {
+  color: var(--ink);
   text-decoration: none;
 }
 
-.injury-link:hover {
+.player-name-link:hover {
   color: var(--accent);
   text-decoration: underline;
 }

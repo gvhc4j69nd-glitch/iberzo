@@ -130,14 +130,17 @@ Every player row also shows their team's bye week for the season (e.g.
 export during import/Update — no per-week lookup needed, since bye weeks
 don't change during the season.
 
+## Every player links to their ESPN profile
+
+Every player's name (My Roster, League Rosters, Available Players) links
+out to their ESPN player page — using MFL's `espn_id` cross-reference when
+available, otherwise a plain Google search for "{player} NFL ESPN" as a
+fallback that always resolves to something useful.
+
 ## Injury status on every roster
 
-Every player row (My Roster, League Rosters, Available Players) shows a
-current injury badge (Questionable, Out, IR, etc., straight from MFL's
-injury report) when one exists, plus an "Injury info" link for more
-detail — ESPN's player page when MFL has an `espn_id` for that player,
-otherwise a plain Google search for "{player} NFL injury" as a fallback
-that always resolves to something useful.
+Every player row also shows a current injury badge (Questionable, Out,
+IR, etc.) straight from MFL's injury report, when one exists.
 
 ## Keeping data current — no local roster editing
 
