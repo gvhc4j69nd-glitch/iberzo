@@ -245,7 +245,7 @@ function renderWeeklyResults(data) {
           const rank = typeof p.ranking === 'number' ? p.ranking : (p.ranking || '—');
 
           return `<tr class="lineup-row">
-            <td class="player-name">${escapeHtml(p.name)}</td>
+            <td class="player-name"><a href="${espnProfileUrl(p)}" target="_blank" rel="noopener noreferrer" class="player-name-link">${escapeHtml(p.name)}</a></td>
             <td class="player-nfl-team">${escapeHtml(p.nflTeam || '—')}</td>
             <td>${oppText}</td>
             <td>${injuryHtml}</td>
@@ -347,7 +347,7 @@ function renderMiniTable(players) {
       const pos = (p.position || '').toUpperCase();
       const rank = typeof p.ranking === 'number' ? p.ranking : (p.ranking || '—');
       return `<tr>
-        <td class="player-name">${escapeHtml(p.name)}</td>
+        <td class="player-name"><a href="${espnProfileUrl(p)}" target="_blank" rel="noopener noreferrer" class="player-name-link">${escapeHtml(p.name)}</a></td>
         <td><span class="pos-badge" data-pos="${escapeHtml(pos)}">${escapeHtml(pos || '—')}</span></td>
         <td class="player-nfl-team">${escapeHtml(p.nflTeam || '—')}</td>
         <td class="player-ranking">${escapeHtml(String(rank))}</td>
@@ -375,7 +375,7 @@ function renderBestDraftOrderTable(players, shortPositionsSet, { numbered = true
       const numberCell = numbered ? `<td class="player-ranking">${i + 1}</td>` : '';
       return `<tr>
         ${numberCell}
-        <td class="player-name">${escapeHtml(p.name)}</td>
+        <td class="player-name"><a href="${espnProfileUrl(p)}" target="_blank" rel="noopener noreferrer" class="player-name-link">${escapeHtml(p.name)}</a></td>
         <td><span class="pos-badge" data-pos="${escapeHtml(pos)}">${escapeHtml(pos || '—')}</span></td>
         <td class="player-nfl-team">${escapeHtml(p.nflTeam || '—')}</td>
         <td class="player-ranking">${escapeHtml(String(rank))}</td>
