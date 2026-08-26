@@ -641,7 +641,7 @@ mflUpdateBtn.addEventListener('click', async () => {
     if (!res.ok) throw new Error(data.error || `Server responded ${res.status}`);
     applyLeague(data);
     showUploadStatus(
-      `Refreshed: ${data.teams.length} team(s), ${data.availablePlayers.length} available player(s).`,
+      `Refreshed: ${data.teams.length} team(s), ${data.availablePlayers.length} available player(s) — last refreshed ${formatTimestamp(data.generatedAt)}.`,
       false
     );
   } catch (err) {
