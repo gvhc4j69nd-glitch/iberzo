@@ -52,6 +52,39 @@ function sortByPositionThenRanking(players) {
   });
 }
 
+const playerModal = document.getElementById('playerModal');
+const playerModalFrame = document.getElementById('playerModalFrame');
+const playerModalOpenNew = document.getElementById('playerModalOpenNew');
+
+function openPlayerModal(url) {
+  if (!playerModal) return;
+  playerModalFrame.src = url;
+  playerModalOpenNew.href = url;
+  playerModal.hidden = false;
+}
+
+function closePlayerModal() {
+  if (!playerModal) return;
+  playerModal.hidden = true;
+  playerModalFrame.src = 'about:blank';
+}
+
+document.addEventListener('click', (e) => {
+  const link = e.target.closest('a.player-name-link');
+  if (link) {
+    e.preventDefault();
+    openPlayerModal(link.href);
+    return;
+  }
+  if (e.target.id === 'playerModalClose' || e.target.id === 'playerModalBackdrop') {
+    closePlayerModal();
+  }
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && playerModal && !playerModal.hidden) closePlayerModal();
+});
+
 function espnProfileUrl(player) {
   if (player.espnId) return `https://www.espn.com/nfl/player/_/id/${encodeURIComponent(player.espnId)}`;
   return `https://www.google.com/search?q=${encodeURIComponent(`${player.name} NFL ESPN`)}`;
@@ -62,7 +95,7 @@ function renderPlayerRow(player) {
   const statusTag = player.rosterStatus && ROSTER_STATUS_TAG[player.rosterStatus];
   const displayName = statusTag ? `${player.name} (${statusTag})` : player.name;
   const nameCell = node.querySelector('.player-name');
-  const nameLink = `<a href="${espnProfileUrl(player)}" target="_blank" rel="noopener noreferrer" class="player-name-link">${escapeHtml(displayName)}</a>`;
+  const nameLink = `<a href="${espnProfileUrl(player)}" class="player-name-link">${escapeHtml(displayName)}</a>`;
   nameCell.innerHTML = player.injuryStatus
     ? `${nameLink}<br/><span class="injury-badge">${escapeHtml(player.injuryStatus)}</span>`
     : nameLink;
@@ -245,7 +278,7 @@ function renderWeeklyResults(data) {
           const rank = typeof p.ranking === 'number' ? p.ranking : (p.ranking || '—');
 
           return `<tr class="lineup-row">
-            <td class="player-name"><a href="${espnProfileUrl(p)}" target="_blank" rel="noopener noreferrer" class="player-name-link">${escapeHtml(p.name)}</a></td>
+            <td class="player-name"><a href="${espnProfileUrl(p)}" class="player-name-link">${escapeHtml(p.name)}</a></td>
             <td class="player-nfl-team">${escapeHtml(p.nflTeam || '—')}</td>
             <td>${oppText}</td>
             <td>${injuryHtml}</td>
@@ -347,7 +380,7 @@ function renderMiniTable(players) {
       const pos = (p.position || '').toUpperCase();
       const rank = typeof p.ranking === 'number' ? p.ranking : (p.ranking || '—');
       return `<tr>
-        <td class="player-name"><a href="${espnProfileUrl(p)}" target="_blank" rel="noopener noreferrer" class="player-name-link">${escapeHtml(p.name)}</a></td>
+        <td class="player-name"><a href="${espnProfileUrl(p)}" class="player-name-link">${escapeHtml(p.name)}</a></td>
         <td><span class="pos-badge" data-pos="${escapeHtml(pos)}">${escapeHtml(pos || '—')}</span></td>
         <td class="player-nfl-team">${escapeHtml(p.nflTeam || '—')}</td>
         <td class="player-ranking">${escapeHtml(String(rank))}</td>
@@ -375,7 +408,7 @@ function renderBestDraftOrderTable(players, shortPositionsSet, { numbered = true
       const numberCell = numbered ? `<td class="player-ranking">${i + 1}</td>` : '';
       return `<tr>
         ${numberCell}
-        <td class="player-name"><a href="${espnProfileUrl(p)}" target="_blank" rel="noopener noreferrer" class="player-name-link">${escapeHtml(p.name)}</a></td>
+        <td class="player-name"><a href="${espnProfileUrl(p)}" class="player-name-link">${escapeHtml(p.name)}</a></td>
         <td><span class="pos-badge" data-pos="${escapeHtml(pos)}">${escapeHtml(pos || '—')}</span></td>
         <td class="player-nfl-team">${escapeHtml(p.nflTeam || '—')}</td>
         <td class="player-ranking">${escapeHtml(String(rank))}</td>

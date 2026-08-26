@@ -60,6 +60,18 @@
     </section>
   </template>
 
+  <div id="playerModal" class="player-modal" hidden>
+    <div class="player-modal-backdrop" id="playerModalBackdrop"></div>
+    <div class="player-modal-panel">
+      <div class="player-modal-bar">
+        <a id="playerModalOpenNew" class="player-modal-open-new" href="#" target="_blank" rel="noopener noreferrer">Open in new tab &#8599;</a>
+        <button type="button" id="playerModalClose" class="player-modal-close" aria-label="Close">&times;</button>
+      </div>
+      <iframe id="playerModalFrame" class="player-modal-frame" title="Player profile" referrerpolicy="no-referrer"></iframe>
+      <p class="player-modal-note">Some sites (like ESPN) block being shown inside another page — if this looks blank, use "Open in new tab" above.</p>
+    </div>
+  </div>
+
   <script src="/app.js"></script>
 </body>
 </html>
