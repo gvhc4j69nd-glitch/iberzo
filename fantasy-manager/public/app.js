@@ -496,12 +496,127 @@ function renderDraftBoard(league, myTeam) {
   `;
 }
 
+function rankVal(p) {
+  const r = rankOf(p);
+  return Number.isFinite(r) ? r : 9999;
+}
+
+function surplusAt(team, pos, targets) {
+  const target = targets[pos] || 0;
+  return team.players
+    .filter((p) => (p.position || '').toUpperCase() === pos)
+    .slice()
+    .sort((a, b) => rankVal(a) - rankVal(b))
+    .slice(target);
+}
+
+const TRADE_TEAMS_LIMIT = 8;
+const TRADE_IDEAS_PER_TEAM = 2;
+
+function computeTradeProposals(league, myTeam) {
+  const targets = { ...DEFAULT_POSITION_TARGETS, ...(league.positionTargets || {}) };
+  const positions = Object.keys(targets).filter((pos) => targets[pos] > 0);
+  const otherTeams = league.teams.filter((t) => t.name !== myTeam.name);
+  const myCounts = countByPosition(myTeam.players);
+
+  const results = [];
+  for (const other of otherTeams) {
+    const otherCounts = countByPosition(other.players);
+    const teamProposals = [];
+
+    for (const needPos of positions) {
+      const myNeed = (targets[needPos] || 0) - (myCounts[needPos] || 0);
+      if (myNeed <= 0) continue;
+      const theirSpareAtNeed = surplusAt(other, needPos, targets);
+      if (theirSpareAtNeed.length === 0) continue;
+
+      for (const givePos of positions) {
+        if (givePos === needPos) continue;
+        const theirNeed = (targets[givePos] || 0) - (otherCounts[givePos] || 0);
+        if (theirNeed <= 0) continue;
+        const mySpareAtGive = surplusAt(myTeam, givePos, targets);
+        if (mySpareAtGive.length === 0) continue;
+
+        const iGive = mySpareAtGive[0];
+        const iGet = theirSpareAtNeed[0];
+        teamProposals.push({ give: iGive, get: iGet, netGain: rankVal(iGive) - rankVal(iGet) });
+      }
+    }
+
+    if (teamProposals.length > 0) {
+      teamProposals.sort((a, b) => b.netGain - a.netGain);
+      results.push({ team: other, proposals: teamProposals.slice(0, TRADE_IDEAS_PER_TEAM) });
+    }
+  }
+
+  results.sort((a, b) => b.proposals[0].netGain - a.proposals[0].netGain);
+  return results.slice(0, TRADE_TEAMS_LIMIT);
+}
+
+function renderTradeIdeaCard(team, proposals) {
+  const rows = proposals
+    .map((p) => {
+      const giveRank = typeof p.give.ranking === 'number' ? p.give.ranking : '—';
+      const getRank = typeof p.get.ranking === 'number' ? p.get.ranking : '—';
+      const givePos = (p.give.position || '').toUpperCase();
+      const getPos = (p.get.position || '').toUpperCase();
+      return `
+        <div class="trade-row">
+          <div class="trade-side">
+            <span class="trade-side-label">You give</span>
+            <span class="pos-badge" data-pos="${escapeHtml(givePos)}">${escapeHtml(givePos || '—')}</span>
+            <a href="${espnProfileUrl(p.give)}" class="player-name-link">${escapeHtml(p.give.name)}</a>
+            <span class="player-ranking">(rank ${escapeHtml(String(giveRank))})</span>
+          </div>
+          <div class="trade-arrow" aria-hidden="true">&#8646;</div>
+          <div class="trade-side">
+            <span class="trade-side-label">You get</span>
+            <span class="pos-badge" data-pos="${escapeHtml(getPos)}">${escapeHtml(getPos || '—')}</span>
+            <a href="${espnProfileUrl(p.get)}" class="player-name-link">${escapeHtml(p.get.name)}</a>
+            <span class="player-ranking">(rank ${escapeHtml(String(getRank))})</span>
+          </div>
+        </div>
+      `;
+    })
+    .join('');
+  return `<div class="trade-card"><h3 class="trade-card-team">${escapeHtml(team.name)}</h3>${rows}</div>`;
+}
+
+function renderTradeResults(results, container) {
+  if (results.length === 0) {
+    container.innerHTML =
+      '<p class="empty-note">No mutually beneficial trades found — either rosters look balanced against these depth targets, or there\'s no overlap between what your team needs and what other teams can spare (and vice versa).</p>';
+    return;
+  }
+  container.innerHTML = results.map((r) => renderTradeIdeaCard(r.team, r.proposals)).join('');
+}
+
+function renderTradeSection(league, myTeam) {
+  const section = document.getElementById('tradeSection');
+  if (!section) return;
+  if (!myTeam || league.teams.length < 2) {
+    section.innerHTML = '';
+    return;
+  }
+  section.innerHTML = `
+    <h2 class="section-heading">Trade Finder</h2>
+    <p class="draft-note draft-note-muted">Looks for mutually beneficial swaps: positions where you're thin and another team has spare depth, matched against positions where they're thin and you have spare depth to offer. Based on ADP rank and rough depth targets — not a real trade-value judgment, and any deal still has to be proposed and accepted in MFL.</p>
+    <button type="button" class="btn btn-primary" id="tradeFinderBtn">Find Trades</button>
+    <div id="tradeResults" class="trade-results"></div>
+  `;
+  document.getElementById('tradeFinderBtn').addEventListener('click', () => {
+    const results = computeTradeProposals(league, myTeam);
+    renderTradeResults(results, document.getElementById('tradeResults'));
+  });
+}
+
 function renderApp() {
   const league = currentLeague;
   app.innerHTML = `
     <section class="my-roster-section" id="myRosterSection"></section>
     <section class="weekly-section" id="weeklySection"></section>
     <section class="draft-section" id="draftSection"></section>
+    <section class="trade-section" id="tradeSection"></section>
     <section class="league-section">
       <h2 class="section-heading">League Rosters</h2>
       <div class="team-list" id="teamList"></div>
@@ -533,6 +648,7 @@ function renderApp() {
   }
   renderWeeklySection(league);
   renderDraftBoard(league, myTeam);
+  renderTradeSection(league, myTeam);
 
   const teamList = document.getElementById('teamList');
   const otherTeams = league.teams.filter((t) => t.name !== league.myTeamName);

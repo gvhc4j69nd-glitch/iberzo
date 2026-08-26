@@ -142,6 +142,18 @@ fallback that always resolves to something useful.
 Every player row also shows a current injury badge (Questionable, Out,
 IR, etc.) straight from MFL's injury report, when one exists.
 
+## Trade Finder
+
+Once your team is selected (and the league has at least one other team),
+a "Trade Finder" button looks for mutually beneficial swaps: positions
+where your team is thin and another team has spare depth, matched against
+positions where that team is thin and you have spare depth to offer. Each
+side only ever offers up its best player *beyond* its own depth target
+(i.e. bench depth, not a starter it actually needs), so proposals stay
+plausible rather than lopsided. Ranked purely by ADP as a value proxy —
+not a real trade-value judgment — and any deal still has to be proposed
+and accepted in MFL itself; this only surfaces ideas.
+
 ## Keeping data current — no local roster editing
 
 MFL is the source of truth for this league: the live draft happens in
