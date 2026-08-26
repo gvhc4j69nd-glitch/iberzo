@@ -582,10 +582,14 @@ function renderTradeIdeaCard(team, proposals) {
   return `<div class="trade-card"><h3 class="trade-card-team">${escapeHtml(team.name)}</h3>${rows}</div>`;
 }
 
-function renderTradeResults(results, container) {
+function renderTradeResults(results, container, league) {
   if (results.length === 0) {
-    container.innerHTML =
-      '<p class="empty-note">No mutually beneficial trades found — either rosters look balanced against these depth targets, or there\'s no overlap between what your team needs and what other teams can spare (and vice versa).</p>';
+    const totalRostered = league.teams.reduce((sum, t) => sum + t.players.length, 0);
+    const message =
+      totalRostered === 0
+        ? 'No rostered players yet across the league — nobody has spare depth to trade before the draft has actually happened. This isn\'t blocked, there\'s just nothing to trade yet; check back once picks start landing on rosters.'
+        : 'No mutually beneficial trades found — either rosters look balanced against these depth targets, or there\'s no overlap between what your team needs and what other teams can spare (and vice versa).';
+    container.innerHTML = `<p class="empty-note">${escapeHtml(message)}</p>`;
     return;
   }
   container.innerHTML = results.map((r) => renderTradeIdeaCard(r.team, r.proposals)).join('');
@@ -606,7 +610,7 @@ function renderTradeSection(league, myTeam) {
   `;
   document.getElementById('tradeFinderBtn').addEventListener('click', () => {
     const results = computeTradeProposals(league, myTeam);
-    renderTradeResults(results, document.getElementById('tradeResults'));
+    renderTradeResults(results, document.getElementById('tradeResults'), league);
   });
 }
 
